@@ -9,17 +9,19 @@ import Login from "./pages/Auth/Login";
 import Dashboard from "./pages/user/Dashboard";
 import PrivateRoute from "./components/Routes/Private";
 import ForgotPassword from "./pages/Auth/ForgotPassword";
+import AdminRoute from "./components/Routes/AdminRoute";
+import AdminDashboard from "./pages/Admin/AdminDashboard";
 function App() {
   return (
     <>
    <Routes>
    <Route path="/" element={<HomePage />} />
    <Route path="/dashboard" element={<PrivateRoute />}>
-          {/* <Route path="user" element={<Dashboard />} />
-          <Route path="user/orders" element={<Orders />} />
-          <Route path="user/profile" element={<Profile />} /> */}
-             <Route path="" element={<Dashboard />} />
-        </Route>
+        <Route path="user" element={<Dashboard/>}></Route>        
+  </Route>
+  <Route path="/dashboard" element={<AdminRoute/>}>
+      <Route path="admin" element={<AdminDashboard/>}/>
+    </Route>    
    <Route path="/forgot-password" element={<ForgotPassword />} />
         
    <Route path="/dashboard" element={<Dashboard />} />
