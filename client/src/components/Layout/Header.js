@@ -2,8 +2,7 @@ import React from 'react'
 import {NavLink,Link} from 'react-router-dom'
 import { useAuth } from '../../context/auth';
 import toast from "react-hot-toast";
-import Dashboard from './../../pages/user/Dashboard';
-import AdminDashboard from '../../pages/Admin/AdminDashboard';
+
 const Header = () => {
   const [auth,setAuth]=useAuth()
 
