@@ -20,7 +20,7 @@ const Login = () => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        "https://vercel.com/tanvirarifs-projects/denapaona-com-webapp-server/api/v1/auth/login",
+        "https://denapaona-com-webapp-server.vercel.app/api/v1/auth/login",
         {
           email,
           password,
