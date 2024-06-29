@@ -1,6 +1,6 @@
 {
   "name": "client",
-  "proxy": "http://localhost:8080",
+  "proxy": "https://vercel.com/tanvirarifs-projects/denapaona-com-webapp-server",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
