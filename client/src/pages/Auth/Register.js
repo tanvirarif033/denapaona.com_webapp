@@ -1,9 +1,8 @@
-
 import React, { useState } from "react";
 import Layout from "./../../components/Layout/Layout";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import toast from 'react-hot-toast';
+import toast from "react-hot-toast";
 import "../../styles/AuthStyles.css";
 // import { toast } from 'react-toastify';
 
@@ -20,14 +19,17 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("/api/v1/auth/register", {
-        name,
-        email,
-        password,
-        phone,
-        address,
-        answer,
-      });
+      const res = await axios.post(
+        "https://vercel.com/tanvirarifs-projects/denapaona-com-webapp-server/api/v1/auth/register",
+        {
+          name,
+          email,
+          password,
+          phone,
+          address,
+          answer,
+        }
+      );
       if (res && res.data.success) {
         toast.success(res.data && res.data.message);
         navigate("/login");
@@ -42,8 +44,7 @@ const Register = () => {
 
   return (
     <Layout title="Register - Ecommer App">
-      <div className="form-container" style={{ minHeight: "90vh" }}
-      >
+      <div className="form-container" style={{ minHeight: "90vh" }}>
         <form onSubmit={handleSubmit}>
           <h4 className="title">REGISTER FORM</h4>
           <div className="mb-3">

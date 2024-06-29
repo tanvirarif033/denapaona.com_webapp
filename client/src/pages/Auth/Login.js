@@ -1,13 +1,12 @@
 //login page
 
-
 import React, { useState } from "react";
 import Layout from "./../../components/Layout/Layout";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import "../../styles/AuthStyles.css";
- import { useAuth } from "../../context/auth";
+import { useAuth } from "../../context/auth";
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -20,10 +19,13 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("/api/v1/auth/login", {
-        email,
-        password,
-      });
+      const res = await axios.post(
+        "https://vercel.com/tanvirarifs-projects/denapaona-com-webapp-server/api/v1/auth/login",
+        {
+          email,
+          password,
+        }
+      );
       if (res && res.data.success) {
         toast.success(res.data && res.data.message);
         // navigate("/");
@@ -34,7 +36,6 @@ const Login = () => {
         });
         localStorage.setItem("auth", JSON.stringify(res.data));
         navigate(location.state || "/");
-        
       } else {
         toast.error(res.data.message);
       }
