@@ -18,25 +18,24 @@ const CreateProduct = () => {
   const [shipping, setShipping] = useState("");
   const [photo, setPhoto] = useState("");
 
-    //get all category
-    const getAllCategory = async () => {
-      try {
-        const { data } = await axios.get("/api/v1/category/get-category");
-        if (data?.success) {
-          setCategories(data?.category);
-        }
-      } catch (error) {
-        console.log(error);
-        toast.error("Something wwent wrong in getting catgeory");
+  //get all category
+  const getAllCategory = async () => {
+    try {
+      const { data } = await axios.get("/api/v1/category/get-category");
+      if (data?.success) {
+        setCategories(data?.category);
       }
-    };
-  
-    useEffect(() => {
-      getAllCategory();
-    }, []);
+    } catch (error) {
+      console.log(error);
+      toast.error("Something wwent wrong in getting catgeory");
+    }
+  };
 
+  useEffect(() => {
+    getAllCategory();
+  }, []);
 
-    //create product function
+  //create product function
   const handleCreate = async (e) => {
     e.preventDefault();
     try {
@@ -63,7 +62,6 @@ const CreateProduct = () => {
     }
   };
 
-  
   return (
     <Layout title={"Dashboard - Create Product"}>
       <div className="container-fluid m-3 p-3">
@@ -173,9 +171,7 @@ const CreateProduct = () => {
                   CREATE PRODUCT
                 </button>
               </div>
-
-
-              </div> 
+            </div>
           </div>
         </div>
       </div>
