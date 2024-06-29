@@ -12,7 +12,9 @@ const HomePage = () => {
   //get all cat
   const getAllCategory = async () => {
     try {
-      const { data } = await axios.get("/api/v1/category/get-category");
+      const { data } = await axios.get(
+        "https://denapaona-com-webapp-server.vercel.app/api/v1/category/get-category"
+      );
       if (data?.success) {
         setCategories(data?.categories);
       }
@@ -27,7 +29,9 @@ const HomePage = () => {
   //get products
   const getAllProducts = async () => {
     try {
-      const { data } = await axios.get("/api/v1/product/get-product");
+      const { data } = await axios.get(
+        "https://denapaona-com-webapp-server.vercel.app/api/v1/product/get-product"
+      );
       setProduct(data.products);
     } catch (error) {
       console.log(error);
