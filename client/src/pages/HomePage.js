@@ -6,52 +6,58 @@ import { Checkbox } from "antd";
 
 const HomePage = () => {
   const [auth, setAuth] = useAuth();
-  const [products, setProduct] = useState([]);
+  const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
 
-  //get all cat
-  const getAllCategory = async () => {
+  // Function to fetch all categories
+  const getAllCategories = async () => {
     try {
       const { data } = await axios.get(
         "https://denapaona-com-webapp-server.vercel.app/api/v1/category/get-category"
       );
-      if (data?.success) {
-        setCategories(data?.categories);
+      if (data.success) {
+        setCategories(data.category);
       }
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching categories:", error);
     }
   };
-  useEffect(() => {
-    getAllCategory();
-  }, []);
 
-  //get products
+  // Function to fetch all products
   const getAllProducts = async () => {
     try {
       const { data } = await axios.get(
         "https://denapaona-com-webapp-server.vercel.app/api/v1/product/get-product"
       );
-      setProduct(data.products);
+      setProducts(data.products);
     } catch (error) {
-      console.log(error);
+      console.error("Error fetching products:", error);
     }
   };
+
   useEffect(() => {
+    getAllCategories();
     getAllProducts();
   }, []);
+
+  // Handle checkbox change
+  const handleCheckboxChange = (category) => (e) => {
+    console.log(`Category ${category.name} checked:`, e.target.checked);
+    // Implement your logic here for handling checkbox change
+  };
+
+  console.log("Categories State:", categories); // Log the categories state
+
   return (
     <Layout title={"Best Offers"}>
       <div className="row mt-3">
         <div className="col-md-3">
           <h4 className="text-center">Filter By Category</h4>
-          {categories?.map((c) => (
+          {/* {categories?.map((c) => (
             <div key={c._id}>
-              <Checkbox onChange={(e) => console.log(e.target.checked)}>
-                {c.name}
-              </Checkbox>
+              <Checkbox onChange={handleCheckboxChange(c)}>{c.name}</Checkbox>
             </div>
-          ))}
+          ))} */}
         </div>
         <div className="col-md-9">
           <h1 className="text-center">All Products</h1>
