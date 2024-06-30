@@ -4,7 +4,9 @@ import {
   deleteProductController,
   getProductController,
   getSingleProductController,
+  productFiltersController,
   productPhotoController,
+  searchProductController,
   updateProductController,
 } from "../controllers/productController.js";
 import { isAdmin, requireSignIn } from "../middlewares/authMiddleware.js";
@@ -40,5 +42,11 @@ router.get("/product-photo/:pid", productPhotoController);
 
 //delete rproduct
 router.delete("/product/:pid", deleteProductController);
+
+//filter product
+router.post("/product-filters", productFiltersController);
+
+//search product
+router.get("/search/:keyword", searchProductController);
 
 export default router;
