@@ -94,7 +94,7 @@ const UpdateProduct = () => {
       let answer = window.prompt("Are You Sure want to delete this product?");
       if (!answer) return;
       const { data } = await axios.delete(
-        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/delete-product/${id}`
+         `https://denapaona-com-webapp-server.vercel.app/api/v1/product/delete-product/${id}`
       );
       if (data.success) {
         toast.success("Product Deleted Successfully");
