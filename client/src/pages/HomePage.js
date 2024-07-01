@@ -78,6 +78,18 @@ const HomePage = () => {
     <Layout title={"All products-Best Offers"}>
       <div className="row mt-3">
         <div className="col-md-3">
+        <h4 className="text-center">Filter By Category</h4>
+          <div className="d-flex flex-column">
+            {categories?.map((c) => (
+              <Checkbox
+                key={c._id}
+                onChange={(e) => handleFilter(e.target.checked, c._id)}
+              >
+                {c.name}
+              </Checkbox>
+            ))}
+          </div>
+          
           <h4 className="text-center mt-4">Filter By Price</h4>
           <div className="d-flex flex-column">
             <Radio.Group onChange={(e) => setRadio(e.target.value)}>
