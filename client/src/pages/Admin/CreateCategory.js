@@ -42,7 +42,7 @@ const CreateCategory = () => {
         "https://denapaona-com-webapp-server.vercel.app/api/v1/category/get-category"
       );
       if (data?.success) {
-        setCategories(data?.categories);
+        setCategories(data?.category);
       }
     } catch (error) {
       console.log(error);
@@ -164,6 +164,11 @@ const CreateCategory = () => {
         </div>
       </div>
     </Layout>
+
+
+
+
+
   );
 };
 
