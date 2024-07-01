@@ -91,22 +91,29 @@ const UpdateProduct = () => {
   //delete a product
   const handleDelete = async () => {
     try {
-      let answer = window.prompt("Are You Sure want to delete this product?");
-      if (!answer) return;
-      const { data } = await axios.delete(
-         `https://denapaona-com-webapp-server.vercel.app/api/v1/product/delete-product/${id}`
+      let answer = window.prompt("Are you sure you want to delete this product? Type 'yes' to confirm.");
+      if (answer?.toLowerCase() !== 'yes') return;
+  
+      // Log the ID to ensure it's correct
+      console.log("Product ID:", id);
+  
+      const response = await axios.delete(
+        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/delete-product/${id}`
       );
-      if (data.success) {
+  
+      if (response.status === 200 && response.data?.success) {
         toast.success("Product Deleted Successfully");
         navigate("/dashboard/admin/products");
       } else {
-        toast.error(data.message);
+        toast.error(response.data?.message || "Failed to delete the product.");
       }
+  
     } catch (error) {
-      console.log(error);
+      console.error("Error details:", error);
       toast.error("Something went wrong");
     }
   };
+  
 
   return (
     <Layout title={"Dashboard - Create Product"}>
