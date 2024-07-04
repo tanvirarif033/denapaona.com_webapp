@@ -8,7 +8,7 @@ const ProductDetails = () => {
   const params = useParams();
   // const navigate = useNavigate();
   const [product, setProduct] = useState({});
-  // const [relatedProducts, setRelatedProducts] = useState([]);
+  const [relatedProducts, setRelatedProducts] = useState([]);
 
  //initalp details
  useEffect(() => {
@@ -22,7 +22,19 @@ const ProductDetails = () => {
         `https://denapaona-com-webapp-server.vercel.app/api/v1/product/get-product/${params.slug}`
       );
       setProduct(data?.product);
-      // getSimilarProduct(data?.product._id, data?.product.category._id);
+      getSimilarProduct(data?.product._id, data?.product.category._id);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  //get similar product
+  const getSimilarProduct = async (pid, cid) => {
+    try {
+      const { data } = await axios.get(
+        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/related-product/${pid}/${cid}`
+      );
+      setRelatedProducts(data?.products);
     } catch (error) {
       console.log(error);
     }
@@ -43,6 +55,7 @@ const ProductDetails = () => {
           </div>
         <div className="col-md-6 product-details-info" >
         <h1 className="text-center">Product Details</h1>
+        <hr />
         <h6>Name : {product.name}</h6>
         <h6>Description : {product.description}</h6>
         <h6>Price : {product.price}</h6>
@@ -51,7 +64,29 @@ const ProductDetails = () => {
           </div>
 
       </div>
-      <div className="row">Similar products </div>
+      <hr />
+      <div className="row container similar-products">
+       <h4>Similar products </h4> 
+       {relatedProducts.length < 1 && (
+          <p className="text-center">No Similar Products found</p>
+        )}
+       {relatedProducts?.map((p) => (
+              <div className="card m-2" style={{ width: "18rem" }} key={p._id}>
+                <img
+                  src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${p._id}`}
+                  className="card-img-top"
+                  alt={p.name}
+                />
+                <div className="card-body">
+                  <h5 className="card-title">{p.name}</h5>
+                  <p className="card-text">{p.description.substring(0, 20)}...</p>
+                  <p className="card-text">$ {p.price}</p>
+                
+                  <button className="btn btn-secondary ms-1">ADD TO CART</button>
+                </div>
+              </div>
+            ))}
+        </div>
 
     </Layout>
   )
