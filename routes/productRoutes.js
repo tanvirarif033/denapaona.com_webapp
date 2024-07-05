@@ -5,7 +5,9 @@ import {
   getProductController,
   getSingleProductController,
   productCategoryController,
+  productCountController,
   productFiltersController,
+  productListController,
   productPhotoController,
   realtedProductController,
   searchProductController,
@@ -47,6 +49,12 @@ router.delete("/delete-product/:pid", deleteProductController);
 
 //filter product
 router.post("/product-filters", productFiltersController);
+
+//product count
+router.get("/product-count", productCountController);
+
+//product per page
+router.get("/product-list/:page", productListController);
 
 //search product
 router.get("/search/:keyword", searchProductController);
