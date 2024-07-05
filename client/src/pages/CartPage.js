@@ -18,20 +18,20 @@ const CartPage = () => {
   const navigate = useNavigate();
 
   //total price
-//   const totalPrice = () => {
-//     try {
-//       let total = 0;
-//       cart?.map((item) => {
-//         total = total + item.price;
-//       });
-//       return total.toLocaleString("en-US", {
-//         style: "currency",
-//         currency: "USD",
-//       });
-//     } catch (error) {
-//       console.log(error);
-//     }
-//   };
+  const totalPrice = () => {
+    try {
+      let total = 0;
+      cart?.map((item) => {
+        total = total + item.price;
+      });
+      return total.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
   //detele item
   const removeCartItem = (pid) => {
     try {
@@ -126,11 +126,11 @@ const CartPage = () => {
                 </div>
               ))}
             </div>
-            <div className="col-md-5 cart-summary ">
+            <div className="col-md-5 text-center  cart-summary ">
               <h2>Cart Summary</h2>
               <p>Total | Checkout | Payment</p>
               <hr />
-              {/* <h4>Total : {totalPrice()} </h4> */}
+              <h4>Total : {totalPrice()} </h4>
 
               {/* {auth?.user?.address ? (
                 <>
