@@ -33,17 +33,17 @@ const CartPage = () => {
 //     }
 //   };
   //detele item
-//   const removeCartItem = (pid) => {
-//     try {
-//       let myCart = [...cart];
-//       let index = myCart.findIndex((item) => item._id === pid);
-//       myCart.splice(index, 1);
-//       setCart(myCart);
-//       localStorage.setItem("cart", JSON.stringify(myCart));
-//     } catch (error) {
-//       console.log(error);
-//     }
-//   };
+  const removeCartItem = (pid) => {
+    try {
+      let myCart = [...cart];
+      let index = myCart.findIndex((item) => item._id === pid);
+      myCart.splice(index, 1);
+      setCart(myCart);
+      localStorage.setItem("cart", JSON.stringify(myCart));
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   //get payment gateway token
 //   const getToken = async () => {
@@ -115,14 +115,14 @@ const CartPage = () => {
                     <p>{p.description.substring(0, 30)}</p>
                     <p>Price : {p.price}</p>
                   </div>
-                  {/* <div className="col-md-4 cart-remove-btn">
+                  <div className="col-md-4 cart-remove-btn">
                     <button
                       className="btn btn-danger"
                       onClick={() => removeCartItem(p._id)}
                     >
                       Remove
                     </button>
-                  </div> */}
+                  </div>
                 </div>
               ))}
             </div>
