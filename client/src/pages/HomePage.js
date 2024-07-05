@@ -6,6 +6,7 @@ import { Checkbox, Radio } from 'antd';
 import toast from "react-hot-toast";
 import { Prices } from "../components/Prices";
 import { useNavigate } from "react-router-dom";
+import { AiOutlineReload } from "react-icons/ai";
 const HomePage = () => {
   const navigate = useNavigate();
   const [cart, setCart] = useCart();
@@ -13,6 +14,9 @@ const HomePage = () => {
   const [categories, setCategories] = useState([]);
   const [checked, setChecked] = useState([]);
   const [radio, setRadio] = useState([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
 
   // Function to fetch all categories
   const getAllCategory = async () => {
@@ -30,17 +34,51 @@ const HomePage = () => {
   useEffect(() => {
     getAllCategory();
     getAllProducts();
+    getTotal();
   }, []);
 
   // Function to fetch all products
   const getAllProducts = async () => {
     try {
-      const { data } = await axios.get("https://denapaona-com-webapp-server.vercel.app/api/v1/product/get-product");
+      setLoading(true);
+      const { data } = await axios.get("https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-list/${page}");
+      setLoading(false);
       setProducts(data.products);
     } catch (error) {
+      setLoading(false);
       console.error("Error fetching products:", error);
     }
   };
+
+
+
+    //getTOtal COunt
+    const getTotal = async () => {
+      try {
+        const { data } = await axios.get("https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-count");
+        setTotal(data?.total);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    useEffect(() => {
+      if (page === 1) return;
+      loadMore();
+    }, [page]);
+    //load more
+    const loadMore = async () => {
+      try {
+        setLoading(true);
+        const { data } = await axios.get(`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-list/${page}`);
+        setLoading(false);
+        setProducts([...products, ...data?.products]);
+      } catch (error) {
+        console.log(error);
+        setLoading(false);
+      }
+    };
+
 
   // Handle checkbox change
   const handleFilter = (value, id) => {
@@ -146,6 +184,26 @@ const HomePage = () => {
                 </div>
               </div>
             ))}
+          </div>
+          <div className="m-2 p-3">
+            {products && products.length < total && (
+              <button
+                className="btn loadmore"
+                onClick={(e) => {
+                  e.preventDefault();
+                  setPage(page + 1);
+                }}
+              >
+                {loading ? (
+                  "Loading ..."
+                ) : (
+                  <>
+                    {" "}
+                    Loadmore <AiOutlineReload />
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </div>
       </div>
