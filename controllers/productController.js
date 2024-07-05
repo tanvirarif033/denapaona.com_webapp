@@ -292,6 +292,7 @@ export const realtedProductController = async (req, res) => {
   }
 };
 
+
 // get prdocyst by catgory
 export const productCategoryController = async (req, res) => {
   try {
@@ -311,3 +312,4 @@ export const productCategoryController = async (req, res) => {
     });
   }
 };
+
