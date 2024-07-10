@@ -41,7 +41,7 @@ const Header = () => {
             <Link to="/" className="navbar-brand">
               <img
                 className="logo"
-                src="/images/logo.png"
+                src="/images/logo1.png"
                 alt="logo"
                 style={{ width: "30%", height: "20%" }}
               />
@@ -129,11 +129,13 @@ const Header = () => {
                 </>
               )}
               <li className="nav-item">
-                <NavLink to="/cart" className="nav-link">
+                
                 <Badge count={cart?.length} showZero offset={[10, -5]}>
+                <NavLink to="/cart" className="nav-link">
                     Cart
+                    </NavLink>
                   </Badge>
-                </NavLink>
+                
               </li>
             </ul>
           </div>

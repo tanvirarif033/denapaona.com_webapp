@@ -10,29 +10,98 @@
 /* font-family: 'Playfair Display', serif; */
 
 /* //navbar css */
+/* Navbar Styles */
 .navbar {
   font-family: "Poppins", sans-serif;
   font-size: 17px;
   line-height: 26px;
   text-transform: uppercase;
   box-shadow: 0 8px 6px -6px gray;
-  --webkit-box-shadow: 0 8px 6px -6px gray;
+  -webkit-box-shadow: 0 8px 6px -6px gray;
   border-bottom: solid gray !important;
+  background: radial-gradient(circle, #0d0d3f, #6f0271);
+  padding: 10px 20px;
+  color: white;
+}
+
+.navbar-brand {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.navbar-brand img.logo {
+  width: auto; 
+  height: 50px;
+}
+
+.navbar-nav {
+  display: flex;
+  align-items: center;
+  margin-left: auto;
+}
+
+.nav-item {
+  margin: 0 15px;
 }
 
 .nav-link {
-  font-weight: 300 !important;
+  color: white;
+  text-decoration: none;
+  transition: color 0.3s;
 }
 
-/* .active{
-  border-radius: 2px solid black;
-} */
-
-.navbar-brand {
-  font-weight: 700;
-  font-family: "roboto", sans-serif;
-  letter-spacing: 3px;
+.nav-link:hover {
+  color: #f0f0f0;
 }
+
+.dropdown-menu {
+  background-color: #0d0d3f;
+  border: none;
+}
+
+.dropdown-item {
+  color: white;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.dropdown-item:hover {
+  background-color: #6f0271;
+  color: #f0f0f0;
+}
+
+.navbar .btn {
+  background: white;
+  color: #0d0d3f;
+  border: 1px solid #fff;
+  border-radius: 5px;
+  padding: 5px 15px;
+  text-transform: none;
+  font-size: 14px;
+  transition: background 0.3s, color 0.3s;
+}
+
+.navbar .btn:hover {
+  background: #f0f0f0;
+  color: #0d0d3f;
+}
+
+.navbar-toggler {
+  border-color: white;
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%28255, 255, 255, 1%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+
+.badge {
+  background-color: #ff0000; /* Customize this as needed */
+  color: white;
+  font-size: 14px;
+}
+
+
+
+
 
 /* =============================
 ==========footer============= */
