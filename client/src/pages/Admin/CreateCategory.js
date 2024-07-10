@@ -113,8 +113,6 @@ const CreateCategory = () => {
           <div className="col-md-9">
             <h1>Manage Category</h1>
             <Spin spinning={loading}>
-              {" "}
-              {/* Changed part */}
               <div className="p-3 w-50">
                 <CategoryForm
                   handleSubmit={handleSubmit}
@@ -173,8 +171,7 @@ const CreateCategory = () => {
                   handleSubmit={handleUpdate}
                 />
               </Modal>
-            </Spin>{" "}
-            {/* Changed part */}
+            </Spin>
           </div>
         </div>
       </div>

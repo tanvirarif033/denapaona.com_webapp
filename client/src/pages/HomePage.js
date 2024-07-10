@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout/Layout";
 import axios from "axios";
 import { useCart } from "../context/cart";
-import { Checkbox, Radio, Spin } from "antd"; // Import Spin from antd for loading spinner
+import { Checkbox, Radio, Spin } from "antd";
 import toast from "react-hot-toast";
 import { Prices } from "../components/Prices";
 import { useNavigate } from "react-router-dom";
@@ -18,12 +18,12 @@ const HomePage = () => {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [filterLoading, setFilterLoading] = useState(false); // Added state for filter loading
+  const [filterLoading, setFilterLoading] = useState(false);
 
   // Function to fetch all categories
   const getAllCategory = async () => {
     try {
-      setLoading(true); // Start loading
+      setLoading(true);
       const { data } = await axios.get(
         "https://denapaona-com-webapp-server.vercel.app/api/v1/category/get-category"
       );
@@ -34,7 +34,7 @@ const HomePage = () => {
       console.error("Error fetching categories:", error);
       toast.error("Something went wrong in getting category");
     } finally {
-      setLoading(false); // End loading
+      setLoading(false);
     }
   };
 
@@ -113,7 +113,7 @@ const HomePage = () => {
   // Get filtered products
   const filterProduct = async () => {
     try {
-      setFilterLoading(true); // Start filter loading
+      setFilterLoading(true);
       console.log("Sending filter request with payload:", { checked, radio });
       const { data } = await axios.post(
         "https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-filters",
@@ -127,7 +127,7 @@ const HomePage = () => {
       console.error("Error fetching filtered products:", error);
       toast.error("Something went wrong in fetching filtered products");
     } finally {
-      setFilterLoading(false); // End filter loading
+      setFilterLoading(false);
     }
   };
 
@@ -177,10 +177,7 @@ const HomePage = () => {
             )}
           </div>
           <div className="d-flex flex-column m-2">
-            <button
-              className="btn btn-danger"
-              onClick={resetFilters} // Update button click to resetFilters
-            >
+            <button className="btn btn-danger" onClick={resetFilters}>
               RESET FILTERS
             </button>
           </div>
