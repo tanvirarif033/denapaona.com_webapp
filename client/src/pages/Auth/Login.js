@@ -1,5 +1,3 @@
-//login page
-
 import React, { useState } from "react";
 import Layout from "./../../components/Layout/Layout";
 import axios from "axios";
@@ -7,10 +5,12 @@ import { useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import "../../styles/AuthStyles.css";
 import { useAuth } from "../../context/auth";
+
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [auth, setAuth] = useAuth();
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -18,6 +18,7 @@ const Login = () => {
   // form function
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const res = await axios.post(
         "https://denapaona-com-webapp-server.vercel.app/api/v1/auth/login",
@@ -28,7 +29,6 @@ const Login = () => {
       );
       if (res && res.data.success) {
         toast.success(res.data && res.data.message);
-        // navigate("/");
         setAuth({
           ...auth,
           user: res.data.user,
@@ -42,8 +42,11 @@ const Login = () => {
     } catch (error) {
       console.log(error);
       toast.error("Something went wrong");
+    } finally {
+      setLoading(false);
     }
   };
+
   return (
     <Layout title="Login - Ecommer App">
       <div className="form-container1 " style={{ minHeight: "90vh" }}>
@@ -85,8 +88,8 @@ const Login = () => {
             </button>
           </div>
 
-          <button type="submit" className="btn btn-primary">
-            LOGIN
+          <button type="submit" className="btn btn-primary" disabled={loading}>
+            {loading ? "Logging in..." : "LOGIN"}
           </button>
         </form>
       </div>
