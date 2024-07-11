@@ -1,24 +1,40 @@
 import React from "react";
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useHistory } from "react-router-dom";
 import { useAuth } from "../../context/auth";
 import toast from "react-hot-toast";
 import SearchInput from "../Form/SearchInput";
 import useCategory from "../../hooks/useCategory";
 import { useCart } from "../../context/cart";
 import { Badge } from "antd";
+import axios from "axios";
+
 const Header = () => {
   const [auth, setAuth] = useAuth();
   const [cart, setCart] = useCart();
   const categories = useCategory();
+  const history = useHistory();
 
-  const handleLogout = () => {
-    setAuth({
-      ...auth,
-      user: null,
-      token: "",
-    });
-    localStorage.removeItem("auth");
-    toast.success("Logout Successfully");
+  const handleLogout = async () => {
+    try {
+      const { data } = await axios.post("/api/v1/auth/logout", {
+        userId: auth.user._id,
+      });
+      if (data.success) {
+        setAuth({
+          ...auth,
+          user: null,
+          token: "",
+        });
+        localStorage.removeItem("auth");
+        toast.success("Logout Successfully");
+        history.push("/login");
+      } else {
+        toast.error(data.message);
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+      toast.error("Logout failed, please try again.");
+    }
   };
 
   return (
@@ -68,7 +84,7 @@ const Header = () => {
                     </Link>
                   </li>
                   {categories?.map((c) => (
-                    <li>
+                    <li key={c._id}>
                       <Link
                         className="dropdown-item"
                         to={`/category/${c.slug}`}
@@ -129,13 +145,11 @@ const Header = () => {
                 </>
               )}
               <li className="nav-item">
-                
                 <Badge count={cart?.length} showZero offset={[10, -5]}>
-                <NavLink to="/cart" className="nav-link">
+                  <NavLink to="/cart" className="nav-link">
                     Cart
-                    </NavLink>
-                  </Badge>
-                
+                  </NavLink>
+                </Badge>
               </li>
             </ul>
           </div>

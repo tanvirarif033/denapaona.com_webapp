@@ -65,18 +65,18 @@ const CreateProduct = () => {
       );
       if (data?.success) {
         toast.success("Product Created Successfully", {
-          duration: 5000, // Display toast for 5 seconds
+          duration: 5000,
         });
         navigate("/dashboard/admin/products");
       } else {
         toast.error(data?.message || "Failed to create product", {
-          duration: 5000, // Display toast for 5 seconds
+          duration: 5000,
         });
       }
     } catch (error) {
       console.log(error);
       toast.error("Something went wrong", {
-        duration: 5000, // Display toast for 5 seconds
+        duration: 5000,
       });
     } finally {
       setLoading(false);
