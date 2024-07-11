@@ -8,6 +8,14 @@ import { Prices } from "../components/Prices";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineReload } from "react-icons/ai";
 
+const styles = {
+  gradientBackground: {
+    background: 'linear-gradient(to bottom, #ffffff, #f0f0f0)', // Adjust colors as needed
+    minHeight: '100vh', // Ensure the gradient covers the entire viewport height
+    padding: '20px' // Adjust padding as per your design
+  }
+};
+
 const HomePage = () => {
   const navigate = useNavigate();
   const [cart, setCart] = useCart();
@@ -140,6 +148,9 @@ const HomePage = () => {
 
   return (
     <Layout title={"All products-Best Offers"}>
+      
+
+      
       <div className="row mt-3">
         <div className="col-md-3">
           <h4 className="text-center">Filter By Category</h4>
@@ -257,6 +268,8 @@ const HomePage = () => {
           </div>
         </div>
       </div>
+      
+      
     </Layout>
   );
 };
