@@ -2,13 +2,12 @@ import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout/Layout";
 import axios from "axios";
 import { useCart } from "../context/cart";
-import { Checkbox, Radio, Spin,Carousel } from "antd";
+import { Checkbox, Radio, Spin, Carousel } from "antd";
 import toast from "react-hot-toast";
 import { Prices } from "../components/Prices";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineReload } from "react-icons/ai";
-
-
+import "../styles/Homepage.css";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -243,14 +242,15 @@ const HomePage = () => {
                       {p.description.substring(0, 20)}...
                     </p>
                     <p className="card-text">$ {p.price}</p>
+                    <div className="d-flex justify-content-between">
                     <button
-                      className="btn btn-primary ms-1"
+                      className="btn btn-link text-decoration-none"
                       onClick={() => navigate(`/product/${p.slug}`)}
                     >
-                      More Details
+                     More Details
                     </button>
                     <button
-                      className="btn btn-secondary ms-1"
+                      className="btn btn-link text-decoration-none"
                       onClick={() => {
                         setCart([...cart, p]);
                         localStorage.setItem(
@@ -260,9 +260,10 @@ const HomePage = () => {
                         toast.success("Item Added to Cart");
                       }}
                     >
-                      ADD TO CART
+                      Add To Cart
                     </button>
                   </div>
+                </div>
                 </div>
               ))}
             </div>
@@ -294,4 +295,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default HomePage
