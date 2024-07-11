@@ -2,19 +2,13 @@ import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout/Layout";
 import axios from "axios";
 import { useCart } from "../context/cart";
-import { Checkbox, Radio, Spin } from "antd";
+import { Checkbox, Radio, Spin,Carousel } from "antd";
 import toast from "react-hot-toast";
 import { Prices } from "../components/Prices";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineReload } from "react-icons/ai";
 
-const styles = {
-  gradientBackground: {
-    background: 'linear-gradient(to bottom, #ffffff, #f0f0f0)', // Adjust colors as needed
-    minHeight: '100vh', // Ensure the gradient covers the entire viewport height
-    padding: '20px' // Adjust padding as per your design
-  }
-};
+
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -149,7 +143,36 @@ const HomePage = () => {
   return (
     <Layout title={"All products-Best Offers"}>
       
-
+      <Carousel autoplay>
+        <div>
+          <img
+            src="/images/img1.webp"
+            alt="Slide 1"
+            style={{ width: "100%", height: "300px", objectFit: "cover" }}
+          />
+        </div>
+        <div>
+          <img
+            src="/images/img2.webp"
+            alt="Slide 2"
+            style={{ width: "100%", height: "300px", objectFit: "cover" }}
+          />
+        </div>
+        <div>
+          <img
+            src="/images/img5.webp"
+            alt="Slide 3"
+            style={{ width: "100%", height: "300px", objectFit: "cover" }}
+          />
+        </div>
+        <div>
+          <img
+            src="/images/img3.jpg"
+            alt="Slide 4"
+            style={{ width: "100%", height: "300px", objectFit: "cover" }}
+          />
+        </div>
+      </Carousel>
       
       <div className="row mt-3">
         <div className="col-md-3">
