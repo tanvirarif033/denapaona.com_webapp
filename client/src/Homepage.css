@@ -1,0 +1,42 @@
+/* HomePage.css */
+body {
+    background: radial-gradient(circle, #0d0d3f, #6f0271);
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", sans-serif;
+    color: white;
+}
+
+.carousel img {
+    object-fit: cover;
+}
+
+/* Heading styles */
+h4, h1, p {
+    color: #f1c40f; /* Change heading text color to yellow */
+}
+
+
+/* Card styles */
+.card {
+    background-color: rgba(255, 255, 255, 0.3); /* Semi-transparent white background for cards */
+    border: none;
+    color: #2ecc71; /* Text color for cards */
+}
+
+
+
+.card-title, .card-text  {
+    color: #f39c12; /* Orange text color for card titles and text */
+}
+
+/* Checkbox and radio styles */
+.checkbox, .radio {
+    color: #9b59b6; /* Purple text color for checkboxes and radios */
+}
+
+/* Flex container button styles */
+.d-flex.flex-column.m-2 button {
+    color: #e74c3c; /* Red text color for buttons in flex containers */
+}

@@ -2,19 +2,12 @@ import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout/Layout";
 import axios from "axios";
 import { useCart } from "../context/cart";
-import { Checkbox, Radio, Spin } from "antd";
+import { Checkbox, Radio, Spin, Carousel } from "antd";
 import toast from "react-hot-toast";
 import { Prices } from "../components/Prices";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineReload } from "react-icons/ai";
-
-const styles = {
-  gradientBackground: {
-    background: 'linear-gradient(to bottom, #ffffff, #f0f0f0)', // Adjust colors as needed
-    minHeight: '100vh', // Ensure the gradient covers the entire viewport height
-    padding: '20px' // Adjust padding as per your design
-  }
-};
+import "../styles/Homepage.css";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -149,7 +142,36 @@ const HomePage = () => {
   return (
     <Layout title={"All products-Best Offers"}>
       
-
+      <Carousel autoplay>
+        <div>
+          <img
+            src="/images/img1.webp"
+            alt="Slide 1"
+            style={{ width: "100%", height: "300px", objectFit: "cover" }}
+          />
+        </div>
+        <div>
+          <img
+            src="/images/img2.webp"
+            alt="Slide 2"
+            style={{ width: "100%", height: "300px", objectFit: "cover" }}
+          />
+        </div>
+        <div>
+          <img
+            src="/images/img5.webp"
+            alt="Slide 3"
+            style={{ width: "100%", height: "300px", objectFit: "cover" }}
+          />
+        </div>
+        <div>
+          <img
+            src="/images/img3.jpg"
+            alt="Slide 4"
+            style={{ width: "100%", height: "300px", objectFit: "cover" }}
+          />
+        </div>
+      </Carousel>
       
       <div className="row mt-3">
         <div className="col-md-3">
@@ -220,14 +242,15 @@ const HomePage = () => {
                       {p.description.substring(0, 20)}...
                     </p>
                     <p className="card-text">$ {p.price}</p>
+                    <div className="d-flex justify-content-between">
                     <button
-                      className="btn btn-primary ms-1"
+                      className="btn btn-link text-decoration-none"
                       onClick={() => navigate(`/product/${p.slug}`)}
                     >
-                      More Details
+                     More Details
                     </button>
                     <button
-                      className="btn btn-secondary ms-1"
+                      className="btn btn-link text-decoration-none"
                       onClick={() => {
                         setCart([...cart, p]);
                         localStorage.setItem(
@@ -237,9 +260,10 @@ const HomePage = () => {
                         toast.success("Item Added to Cart");
                       }}
                     >
-                      ADD TO CART
+                      Add To Cart
                     </button>
                   </div>
+                </div>
                 </div>
               ))}
             </div>
@@ -271,4 +295,4 @@ const HomePage = () => {
   );
 };
 
-export default HomePage;
+export default HomePage
