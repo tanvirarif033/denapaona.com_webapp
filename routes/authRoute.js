@@ -12,31 +12,33 @@ import { loginLimiter } from "../middlewares/loginLimiter.js"; // Correct import
 
 const router = express.Router();
 
-//routing
-//REGISTER || METHOD POST
+// Routing
+// REGISTER || METHOD POST
 router.post("/register", registerController);
 
-//LOGIN || POST with loginLimiter middleware
+// LOGIN || POST with loginLimiter middleware
 router.post("/login", loginLimiter, loginController); // Use loginLimiter here
 
-//Forgot Password || POST
+// Forgot Password || POST
 router.post("/forgot-password", forgotPasswordController);
 
+// Refresh Token || POST
 router.post("/refresh-token", refreshTokenController);
-//test routes
+
+// Test routes
 router.get("/test", requireSignIn, isAdmin, testController);
 
-//protected User route auth
+// Protected User route auth
 router.get("/user-auth", requireSignIn, (req, res) => {
   res.status(200).send({ ok: true });
 });
 
-//protected Admin route auth
+// Protected Admin route auth
 router.get("/admin-auth", requireSignIn, isAdmin, (req, res) => {
   res.status(200).send({ ok: true });
 });
 
-//update profile
+// Update profile
 router.put("/profile", requireSignIn, updateProfileController);
 
 export default router;
