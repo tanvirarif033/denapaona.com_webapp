@@ -7,7 +7,7 @@ import authRoutes from "./routes/authRoute.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import cors from "cors";
-import { logger } from "./middlewares/logger.js";
+import logger from "./middlewares/logger.js";
 import errorHandler from "./middlewares/errorHandler.js"; // Import the errorHandler
 
 // Configure environment variables
@@ -36,7 +36,7 @@ app.get("/", (req, res) => {
 });
 
 // Error handling middleware (should be added after all other middleware and routes)
-app.use(errorHandler); // Add the errorHandler middleware here
+app.use(errorHandler);
 
 // Define the port to run the server on
 const PORT = process.env.PORT || 8080;
