@@ -37,10 +37,10 @@ const Profile = () => {
           address,
         }
       );
-      if (data?.errro) {
-        toast.error(data?.error);
+      if (data?.error) {
+        toast.error(data.error);
       } else {
-        setAuth({ ...auth, user: data?.updatedUser });
+        setAuth({ ...auth, user: data.updatedUser });
         let ls = localStorage.getItem("auth");
         ls = JSON.parse(ls);
         ls.user = data.updatedUser;
@@ -52,6 +52,7 @@ const Profile = () => {
       toast.error("Something went wrong");
     }
   };
+
   return (
     <Layout title={"Your Profile"}>
       <div className="container-fluid m-3 p-3">
