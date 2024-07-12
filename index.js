@@ -5,40 +5,46 @@ import morgan from "morgan";
 import connectDB from "./confiq/db.js";
 import authRoutes from "./routes/authRoute.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
-import productRoute from "./routes/productRoutes.js";
+import productRoutes from "./routes/productRoutes.js";
 import cors from "cors";
+import logger from "./middlewares/logger.js";
+import errorHandler from "./middlewares/errorHandler.js"; // Import the errorHandler
 
-//configure env
+// Configure environment variables
 dotenv.config();
 
-//databse config
+// Database connection
 connectDB();
 
-//rest object
+// Initialize express app
 const app = express();
 
-//middelwares
+// Middleware setup
 app.use(cors());
 app.use(express.json());
 app.use(morgan("dev"));
+app.use(logger);
 
-//routes
+// Route handlers
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/category", categoryRoutes);
-app.use("/api/v1/product", productRoute);
+app.use("/api/v1/product", productRoutes);
 
-//rest api
+// Default route
 app.get("/", (req, res) => {
   res.send("<h1>Welcome to ecommerce app</h1>");
 });
 
-//PORT
+// Error handling middleware (should be added after all other middleware and routes)
+app.use(errorHandler);
+
+// Define the port to run the server on
 const PORT = process.env.PORT || 8080;
 
-//run listen
+// Start the server
 app.listen(PORT, () => {
   console.log(
-    `Server Running on ${process.env.DEV_MODE} mode on port ${PORT}`.bgCyan
+    `Server Running in ${process.env.DEV_MODE} mode on port ${PORT}`.bgCyan
       .white
   );
 });

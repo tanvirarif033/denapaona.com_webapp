@@ -1,7 +1,7 @@
 import JWT from "jsonwebtoken";
 import userModel from "../models/userModel.js";
 
-//Protected Routes token base
+// Protected Routes token based
 export const requireSignIn = async (req, res, next) => {
   try {
     const token = req.headers.authorization;
@@ -13,22 +13,33 @@ export const requireSignIn = async (req, res, next) => {
     next();
   } catch (error) {
     console.log(error);
-    res.status(401).send({ success: false, message: "Invalid or expired token" });
+    return res.status(401).send({
+      success: false,
+      message: "Unauthorized access",
+    });
   }
 };
 
-//admin access
+// Admin access
 
 export const isAdmin = async (req, res, next) => {
   try {
     const user = await userModel.findById(req.user._id);
     if (user.role !== 1) {
-      return res.status(401).send({ success: false, message: "Unauthorized Access" });
-    } else {
-      next();
+
+      return res.status(403).send({
+        success: false,
+        message: "Forbidden: Admin access required",
+      });
     }
+    next();
   } catch (error) {
     console.log(error);
-    res.status(401).send({ success: false, error, message: "Error in admin middleware" });
+    res.status(500).send({
+      success: false,
+      message: "Error in admin middleware",
+      error: error.message,
+    });
   }
 };
+
