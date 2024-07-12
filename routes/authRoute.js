@@ -1,9 +1,11 @@
 import express from "express";
 import {
   registerController,
-  loginController,
-  testController,
-  forgotPasswordController,
+   loginController,
+   testController,
+   forgotPasswordController,
+   refreshTokenController,
+
 } from "../controllers/authController.js";
 import { isAdmin, requireSignIn } from "../middlewares/authMiddleware.js";
 import { loginLimiter } from "../middlewares/loginLimiter.js"; // Correct import
@@ -20,6 +22,7 @@ router.post("/login", loginLimiter, loginController); // Use loginLimiter here
 //Forgot Password || POST
 router.post("/forgot-password", forgotPasswordController);
 
+router.post("/refresh-token", refreshTokenController);
 //test routes
 router.get("/test", requireSignIn, isAdmin, testController);
 

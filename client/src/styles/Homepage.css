@@ -1,0 +1,63 @@
+body {
+    background: linear-gradient(to right, #4b006e, #180042);
+    min-height: 100vh;
+    margin: 0;
+    padding: 0;
+    font-family: "Poppins", sans-serif;
+    color: white;
+}
+
+.carousel img {
+    object-fit: cover;
+}
+
+/* Heading styles */
+/* Heading styles */
+h4, h1, p {
+    color: #e3e6e1; /* Change heading text color to a vibrant yellow */
+}
+
+/* Button styles */
+.btn-primary, .btn-secondary, .btn-danger, .btn-warning {
+    color: white;
+    background-color: #411968; /* Standard blue background for buttons */
+    border-color: #ffffff3b; /* Standard blue border for buttons */
+}
+
+ .btn-danger:hover, .btn-warning:hover {
+    color: #24156c; /* Standard blue text on hover */
+    background-color: rgb(61, 10, 98); /* White background on hover */
+    border-color: #ffffff3b;
+}
+
+/* Card styles */
+.card {
+    background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white background for cards */
+    border: 4px solid #411968;
+    
+}
+
+    
+
+.card-title, .card-text {
+    color: #fdfdfd; /* Standard yellow text color for card titles and text */
+}
+
+/* Checkbox and radio styles */
+.checkbox, .radio {
+    color: #f6f6f6; /* Standard purple text color for checkboxes and radios */
+}
+
+/* Flex container button styles */
+.d-flex.flex-column.m-2 button {
+    color: #ffe20abe; /* Standard red text color for buttons in flex containers */
+}
+
+
+.btn-link{
+    color: #ffe20abe;
+
+}
+.btn-link:hover{
+    color:#f7dc0ef6
+}
