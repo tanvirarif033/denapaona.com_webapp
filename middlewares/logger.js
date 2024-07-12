@@ -9,22 +9,16 @@ const logEvents = async (message, logFileName) => {
   const logItem = `${dateTime}\t${uuid()}\t${message}\n`;
 
   try {
-    const logsDir = path.join(path.resolve(), "logs");
-    console.log(`Logs directory: ${logsDir}`); // Debugging log
-
+    const logsDir = path.join(path.dirname(""), "logs");
     if (!fs.existsSync(logsDir)) {
-      console.log("Logs directory does not exist, creating...");
+      console.log("Creating logs directory...");
       await fsPromises.mkdir(logsDir);
       console.log("Logs directory created.");
     }
-
-    const logFilePath = path.join(logsDir, logFileName);
-    console.log(`Writing log to: ${logFilePath}`); // Debugging log
-
-    await fsPromises.appendFile(logFilePath, logItem);
-    console.log("Log entry written."); // Debugging log
+    await fsPromises.appendFile(path.join(logsDir, logFileName), logItem);
+    console.log("Log item appended.");
   } catch (err) {
-    console.error("Error writing to log file:", err);
+    console.error("Error writing log:", err);
   }
 };
 
