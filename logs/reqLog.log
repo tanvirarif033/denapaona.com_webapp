@@ -91,3 +91,4 @@
 20240712	21:14:33	938a081f-6a7f-4bfa-9154-05701cd86abc	POST	/api/v1/auth/login	undefined
 20240712	21:14:33	cf25c144-8fe2-4846-8d03-712892707e0b	POST	/api/v1/auth/login	undefined
 20240712	21:14:34	fe19ef5f-98ea-4926-9329-61a5dae37494	POST	/api/v1/auth/login	undefined
+20240712	22:55:53	88598b02-16cf-4b2d-b6bd-dceaf861c98c	PUT	/api/v1/auth/profile?name=user1&email=user1@gmail.com&phone=132637345454&address=dhaka	undefined
