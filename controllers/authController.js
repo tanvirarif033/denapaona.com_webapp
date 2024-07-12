@@ -62,14 +62,17 @@ export const registerController = async (req, res) => {
 
 // Function to create an access token
 const createAccessToken = (user) => {
-  return JWT.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "15m" });
+  return JWT.sign({ _id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: "15m",
+  });
 };
 
 // Function to create a refresh token
 const createRefreshToken = (user) => {
-  return JWT.sign({ _id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
+  return JWT.sign({ _id: user._id }, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: "7d",
+  });
 };
-
 
 //POST LOGIN
 export const loginController = async (req, res) => {
@@ -98,10 +101,10 @@ export const loginController = async (req, res) => {
       });
     }
 
-      // Generate tokens
-      const accessToken = createAccessToken(user);
-      const refreshToken = createRefreshToken(user);
-  
+    // Generate tokens
+    const accessToken = createAccessToken(user);
+    const refreshToken = createRefreshToken(user);
+
     //token
 
     const token = JWT.sign({ _id: user._id }, process.env.JWT_SECRET, {
@@ -136,7 +139,9 @@ export const loginController = async (req, res) => {
 export const refreshTokenController = (req, res) => {
   const { refreshToken } = req.body;
   if (!refreshToken) {
-    return res.status(403).send({ success: false, message: "Refresh token is required" });
+    return res
+      .status(403)
+      .send({ success: false, message: "Refresh token is required" });
   }
 
   try {
@@ -145,7 +150,9 @@ export const refreshTokenController = (req, res) => {
     res.status(200).send({ success: true, accessToken: newAccessToken });
   } catch (error) {
     console.log(error);
-    res.status(403).send({ success: false, message: "Invalid refresh token", error });
+    res
+      .status(403)
+      .send({ success: false, message: "Invalid refresh token", error });
   }
 };
 
@@ -198,6 +205,37 @@ export const forgotPasswordController = async (req, res) => {
   }
 };
 
-
-
-
+//update profile
+export const updateProfileController = async (req, res) => {
+  try {
+    const { name, email, password, address, phone } = req.body;
+    const user = await userModel.findById(req.user._id);
+    //password
+    if (password && password.length < 6) {
+      return res.json({ error: "Passsword is required and 6 character long" });
+    }
+    const hashedPassword = password ? await hashPassword(password) : undefined;
+    const updatedUser = await userModel.findByIdAndUpdate(
+      req.user._id,
+      {
+        name: name || user.name,
+        password: hashedPassword || user.password,
+        phone: phone || user.phone,
+        address: address || user.address,
+      },
+      { new: true }
+    );
+    res.status(200).send({
+      success: true,
+      message: "Profile Updated SUccessfully",
+      updatedUser,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).send({
+      success: false,
+      message: "Error WHile Update profile",
+      error,
+    });
+  }
+};
