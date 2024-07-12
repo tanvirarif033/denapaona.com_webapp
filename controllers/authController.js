@@ -60,6 +60,17 @@ export const registerController = async (req, res) => {
   }
 };
 
+// Function to create an access token
+const createAccessToken = (user) => {
+  return JWT.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "15m" });
+};
+
+// Function to create a refresh token
+const createRefreshToken = (user) => {
+  return JWT.sign({ _id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
+};
+
+
 //POST LOGIN
 export const loginController = async (req, res) => {
   try {
@@ -86,7 +97,13 @@ export const loginController = async (req, res) => {
         message: "Invalid Password",
       });
     }
+
+      // Generate tokens
+      const accessToken = createAccessToken(user);
+      const refreshToken = createRefreshToken(user);
+  
     //token
+
     const token = JWT.sign({ _id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
     });
@@ -102,6 +119,8 @@ export const loginController = async (req, res) => {
         role: user.role,
       },
       token,
+      accessToken,
+      refreshToken,
     });
   } catch (error) {
     console.log(error);
@@ -110,6 +129,23 @@ export const loginController = async (req, res) => {
       message: "Error in login",
       error,
     });
+  }
+};
+
+// Add a new controller for refreshing tokens
+export const refreshTokenController = (req, res) => {
+  const { refreshToken } = req.body;
+  if (!refreshToken) {
+    return res.status(403).send({ success: false, message: "Refresh token is required" });
+  }
+
+  try {
+    const user = JWT.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    const newAccessToken = createAccessToken(user);
+    res.status(200).send({ success: true, accessToken: newAccessToken });
+  } catch (error) {
+    console.log(error);
+    res.status(403).send({ success: false, message: "Invalid refresh token", error });
   }
 };
 
@@ -161,3 +197,7 @@ export const forgotPasswordController = async (req, res) => {
     });
   }
 };
+
+
+
+
