@@ -15,12 +15,21 @@ const Profile = () => {
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
 
+  //get user data
+  useEffect(() => {
+    const { email, name, phone, address } = auth?.user;
+    setName(name);
+    setPhone(phone);
+    setEmail(email);
+    setAddress(address);
+  }, [auth?.user]);
+
   // form function
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(
-        "https://denapaona-com-webapp-server.vercel.app/api/v1/auth/register",
+      const { data } = await axios.put(
+        "https://denapaona-com-webapp-server.vercel.app/api/v1/auth/profile",
         {
           name,
           email,
@@ -29,6 +38,16 @@ const Profile = () => {
           address,
         }
       );
+      if (data?.error) {
+        toast.error(data?.error);
+      } else {
+        setAuth({ ...auth, user: data?.updatedUser });
+        let ls = localStorage.getItem("auth");
+        ls = JSON.parse(ls);
+        ls.user = data.updatedUser;
+        localStorage.setItem("auth", JSON.stringify(ls));
+        toast.success("Profile Updated Successfully");
+      }
     } catch (error) {
       console.log(error);
       toast.error("Something went wrong");
@@ -53,7 +72,6 @@ const Profile = () => {
                     onChange={(e) => setName(e.target.value)}
                     className="form-control"
                     placeholder="Enter Your Name"
-                    required
                     autoFocus
                   />
                 </div>
@@ -64,7 +82,7 @@ const Profile = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     className="form-control"
                     placeholder="Enter Your Email "
-                    required
+                    disabled
                   />
                 </div>
                 <div className="mb-3">
@@ -74,7 +92,6 @@ const Profile = () => {
                     onChange={(e) => setPassword(e.target.value)}
                     className="form-control"
                     placeholder="Enter Your Password"
-                    required
                   />
                 </div>
                 <div className="mb-3">
@@ -84,7 +101,6 @@ const Profile = () => {
                     onChange={(e) => setPhone(e.target.value)}
                     className="form-control"
                     placeholder="Enter Your Phone"
-                    required
                   />
                 </div>
                 <div className="mb-3">
@@ -94,7 +110,6 @@ const Profile = () => {
                     onChange={(e) => setAddress(e.target.value)}
                     className="form-control"
                     placeholder="Enter Your Address"
-                    required
                   />
                 </div>
                 <button type="submit" className="btn btn-primary">
