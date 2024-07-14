@@ -43,7 +43,13 @@ const Login = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error("Something went wrong");
+      if (error.response && error.response.status === 429) {
+        toast.error(
+          "Too many login attempts. Please try again after 60 seconds."
+        );
+      } else {
+        toast.error("Something went wrong");
+      }
     } finally {
       setLoading(false);
     }
@@ -53,8 +59,7 @@ const Login = () => {
     <Layout title="Login - Ecommer App">
       <div className="page-container">
         <div className="image-container">
-          <img src="/images/loginA.png" alt="Descriptive Alt Text"
-           />
+          <img src="/images/loginA.png" alt="Descriptive Alt Text" />
         </div>
         <div className="form-container1">
           <form onSubmit={handleSubmit}>
@@ -93,7 +98,11 @@ const Login = () => {
                 Forgot Password
               </button>
             </div>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={loading}
+            >
               {loading ? "Logging in..." : "LOGIN"}
             </button>
           </form>
