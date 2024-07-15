@@ -6,10 +6,9 @@ import SearchInput from "../Form/SearchInput";
 import useCategory from "../../hooks/useCategory";
 import { useCart } from "../../context/cart";
 import { Badge } from "antd";
-
 const Header = () => {
   const [auth, setAuth] = useAuth();
-  const [cart] = useCart();
+  const [cart, setCart] = useCart();
   const categories = useCategory();
 
   const handleLogout = () => {
@@ -50,38 +49,32 @@ const Header = () => {
             <ul className="navbar-nav ms-auto mb-2 mb-lg-0">
               <SearchInput />
               <li className="nav-item">
-                <NavLink to="/" className="nav-link" activeClassName="active">
+                <NavLink to="/" className="nav-link">
                   Home
                 </NavLink>
               </li>
               <li className="nav-item dropdown">
-                <NavLink
+                <Link
                   className="nav-link dropdown-toggle"
                   to={"/categories"}
                   data-bs-toggle="dropdown"
-                  activeClassName="active"
                 >
                   Categories
-                </NavLink>
+                </Link>
                 <ul className="dropdown-menu">
                   <li>
-                    <NavLink
-                      className="dropdown-item"
-                      to={"/categories"}
-                      activeClassName="active"
-                    >
+                    <Link className="dropdown-item" to={"/categories"}>
                       All Categories
-                    </NavLink>
+                    </Link>
                   </li>
                   {categories?.map((c) => (
-                    <li key={c.slug}>
-                      <NavLink
+                    <li>
+                      <Link
                         className="dropdown-item"
                         to={`/category/${c.slug}`}
-                        activeClassName="active"
                       >
                         {c.name}
-                      </NavLink>
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -89,20 +82,12 @@ const Header = () => {
               {!auth.user ? (
                 <>
                   <li className="nav-item">
-                    <NavLink
-                      to="/register"
-                      className="nav-link"
-                      activeClassName="active"
-                    >
+                    <NavLink to="/register" className="nav-link">
                       Register
                     </NavLink>
                   </li>
                   <li className="nav-item">
-                    <NavLink
-                      to="/login"
-                      className="nav-link"
-                      activeClassName="active"
-                    >
+                    <NavLink to="/login" className="nav-link">
                       Login
                     </NavLink>
                   </li>
@@ -126,7 +111,6 @@ const Header = () => {
                             auth?.user?.role === 1 ? "admin" : "user"
                           }`}
                           className="dropdown-item"
-                          activeClassName="active"
                         >
                           Dashboard
                         </NavLink>
@@ -136,7 +120,6 @@ const Header = () => {
                           onClick={handleLogout}
                           to="/login"
                           className="dropdown-item"
-                          activeClassName="active"
                         >
                           Logout
                         </NavLink>
@@ -146,11 +129,13 @@ const Header = () => {
                 </>
               )}
               <li className="nav-item">
+                
                 <Badge count={cart?.length} showZero offset={[10, -5]}>
-                  <NavLink to="/cart" className="nav-link" activeClassName="active">
+                <NavLink to="/cart" className="nav-link">
                     Cart
-                  </NavLink>
-                </Badge>
+                    </NavLink>
+                  </Badge>
+                
               </li>
             </ul>
           </div>
