@@ -9,95 +9,116 @@
 /* font-family: 'Poppins', sans-serif; */
 /* font-family: 'Playfair Display', serif; */
 
-/* //navbar css */
+/* Navbar Styles */
+/* Navbar Styles */
+/* Navbar Styles */
 /* Navbar Styles */
 .navbar {
-  font-family: "Poppins", sans-serif;
-  font-size: 17px;
-  line-height: 26px;
-  text-transform: uppercase;
-  box-shadow: 0 8px 6px -6px gray;
-  -webkit-box-shadow: 0 8px 6px -6px gray;
-  border-bottom: solid gray !important;
-  background: radial-gradient(circle, #0d0d3f, #6f0271);
-  padding: 10px 20px;
-  color: white;
+  font-family: "Amazon Ember", Arial, sans-serif; /* Amazon's font stack */
+  background: linear-gradient(to right, #000000, #131921); /* Gradient background */
+  padding: 10px 20px; /* Vertical and horizontal padding */
+  display: flex; /* Flexbox for alignment */
+  align-items: center; /* Center items vertically */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow */
 }
 
 .navbar-brand {
-  font-size: 24px;
-  font-weight: bold;
+  font-size: 24px; /* Larger font for brand */
+  font-weight: bold; /* Bold text */
+  color: #fff; /* White text */
 }
 
 .navbar-brand img.logo {
-  width: auto; 
-  height: 50px;
+  height: 40px; /* Adjust logo height */
+  margin-right: 10px; /* Space between logo and brand */
 }
 
 .navbar-nav {
-  display: flex;
-  align-items: center;
-  margin-left: auto;
+  display: flex; /* Flex for navigation items */
+  margin-left: auto; /* Align items to the right */
 }
 
 .nav-item {
-  margin: 0 15px;
+  margin: 0 15px; /* Space between nav items */
 }
 
 .nav-link {
-  color: white;
-  text-decoration: none;
-  transition: color 0.3s;
+  color: #fff; /* Always white text for links */
+  text-decoration: none; /* Remove underline */
+  padding: 10px 15px; /* Add padding */
+  position: relative; /* Position for the border effect */
+}
+
+.nav-link.active {
+  color: #febd69; /* Amazon's yellow for active link */
+}
+
+.nav-link::after {
+  content: '';
+  display: block;
+  width: 0; /* Start with no width */
+  height: 2px; /* Height of the bottom border */
+  background: #febd69; /* Amazon's yellow */
+  transition: width 0.3s; /* Smooth width transition */
+  position: absolute; /* Position relative to the link */
+  left: 50%; /* Center the border */
+  bottom: 0; /* Position at the bottom */
+  transform: translateX(-50%); /* Center it */
+}
+
+.nav-link:hover::after {
+  width: 100%; /* Expand the width on hover */
 }
 
 .nav-link:hover {
-  color: #f0f0f0;
+  color: #f0f0f0; /* Lighter grey on hover */
 }
 
 .dropdown-menu {
-  background-color: #0d0d3f;
-  border: none;
+  background-color: #131921; /* Dark background for dropdown */
+  border: none; /* No border */
 }
 
 .dropdown-item {
-  color: white;
-  transition: background-color 0.3s, color 0.3s;
+  color: #fff !important; /* White text */
+  transition: background-color 0.3s; /* Smooth transition */
 }
 
 .dropdown-item:hover {
-  background-color: #6f0271;
-  color: #f0f0f0;
+  background-color: #232f3e; /* Darker hover color */
 }
 
 .navbar .btn {
-  background: white;
-  color: #0d0d3f;
-  border: 1px solid #fff;
-  border-radius: 5px;
-  padding: 5px 15px;
-  text-transform: none;
-  font-size: 14px;
-  transition: background 0.3s, color 0.3s;
+  background: #febd69; /* Amazon's yellow */
+  color: #111; /* Dark text */
+  border: 1px solid #a88734; /* Border color */
+  border-radius: 5px; /* Rounded corners */
+  padding: 5px 15px; /* Button padding */
+  margin-left: 10px; /* Space from other elements */
+  transition: background 0.3s, color 0.3s; /* Smooth transition */
 }
 
 .navbar .btn:hover {
-  background: #f0f0f0;
-  color: #0d0d3f;
+  background: #f3c94c; /* Slightly darker yellow on hover */
+  color: #111; /* Keep dark text */
 }
 
 .navbar-toggler {
-  border-color: white;
+  border-color: white; /* White border for toggler */
 }
 
 .navbar-toggler-icon {
-  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba%28255, 255, 255, 1%29' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E"); /* White hamburger icon */
 }
 
 .badge {
-  background-color: #ff0000; /* Customize this as needed */
-  color: white;
-  font-size: 14px;
+  background-color: #f08804; /* Amazon's badge color */
+  color: white; /* White text */
+  font-size: 12px; /* Font size */
+  padding: 3px 6px; /* Padding */
+  border-radius: 10px; /* Rounded corners */
 }
+
 
 
 
