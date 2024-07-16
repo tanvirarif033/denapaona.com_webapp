@@ -175,7 +175,7 @@ const HomePage = () => {
       
       <div className="row mt-3">
         <div className="col-md-3">
-          <h4 className="text-center">Filter By Category</h4>
+          <h4 className="text-left">Filter By Category</h4>
           <div className="d-flex flex-column">
             {loading ? (
               <Spin size="large" />
@@ -192,7 +192,7 @@ const HomePage = () => {
             )}
           </div>
 
-          <h4 className="text-center mt-4">Filter By Price</h4>
+          <h4 className="text-left mt-4">Filter By Price</h4>
           <div className="d-flex flex-column">
             {loading ? (
               <Spin size="large" />
@@ -216,7 +216,7 @@ const HomePage = () => {
           </div>
         </div>
         <div className="col-md-9">
-          <h1 className="text-center">All Products</h1>
+          <h1 className="text-left">All Products</h1>
           {loading ? (
             <Spin
               size="large"
@@ -289,6 +289,7 @@ const HomePage = () => {
           </div>
         </div>
       </div>
+      
       
       
     </Layout>

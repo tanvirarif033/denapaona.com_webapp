@@ -3,7 +3,8 @@
 body, html {
   height: 100%;
   margin: 0;
-  font-family: Arial, sans-serif;
+  /* font-family: Arial, sans-serif; */
+  font-family: "Amazon Ember", Arial, sans-serif;
 }
 
 .page-container {
@@ -11,6 +12,7 @@ body, html {
   height: 100vh;
   background: linear-gradient(to right, #4b006e, #180042);
   color: #fff;
+  
 }
 
 .image-container {
@@ -122,7 +124,8 @@ body, html {
 body, html {
   height: 100%;
   margin: 0;
-  font-family: Arial, sans-serif;
+  /* font-family: Arial, sans-serif; */
+  font-family: "Amazon Ember", Arial, sans-serif;
 }
 
 .page-container {
@@ -242,7 +245,7 @@ body, html {
 .page-container {
   display: flex;
   height: 100vh;
-  background: linear-gradient(to right, #4b006e, #180042);
+  background: linear-gradient(to right, #f2f2f2, #febd69);
   color: #fff;
 }
 

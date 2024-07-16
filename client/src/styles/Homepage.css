@@ -3,7 +3,7 @@ body {
     min-height: 100vh;
     margin: 0;
     padding: 0;
-    font-family: Arial, sans-serif;
+ font-family: "Amazon Ember", Arial, sans-serif;;
     color: #333; /* Dark text for readability */
 }
 
@@ -38,6 +38,12 @@ h4, h1, p {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Soft shadow effect */
     transition: transform 0.2s; /* Smooth scaling */
 }
+.card-img-top {
+    height: 25vh; /* Reduced height for card images */
+    
+    
+}
+
 
 .card:hover {
     transform: scale(1.05); /* Slight scaling on hover */
