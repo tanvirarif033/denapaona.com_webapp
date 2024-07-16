@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 // import { AiFillWarning } from "react-icons/ai";
 import axios from "axios";
 import toast from "react-hot-toast";
-// import "../styles/CartStyles.css";
+import "../styles/CartStyles.css";
 
 const CartPage = () => {
   const [auth, setAuth] = useAuth();
