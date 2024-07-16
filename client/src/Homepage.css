@@ -1,42 +1,101 @@
-/* HomePage.css */
 body {
-    background: radial-gradient(circle, #0d0d3f, #6f0271);
+    background: #f2f2f2; /* Light gray background */
     min-height: 100vh;
     margin: 0;
     padding: 0;
-    font-family: "Poppins", sans-serif;
-    color: white;
+    font-family: "Amazon Ember", Arial, sans-serif;
+    color: #333; /* Dark text for readability */
 }
 
 .carousel img {
     object-fit: cover;
+    border-radius: 8px; /* Rounded corners for carousel images */
 }
 
 /* Heading styles */
 h4, h1, p {
-    color: #f1c40f; /* Change heading text color to yellow */
+    color: #111; /* Darker color for headings */
 }
 
+/* Button styles */
+.btn-primary, .btn-secondary, .btn-danger, .btn-warning {
+    color: white;
+    background-color: #ffa41c; /* Amazon orange */
+    border-color: #ffa41c; /* Matching border */
+}
+
+.btn-danger:hover, .btn-warning:hover {
+    color: white; /* White text on hover */
+    background-color: #d88f00; /* Darker orange on hover */
+    border-color: #d88f00;
+}
 
 /* Card styles */
 .card {
-    background-color: rgba(255, 255, 255, 0.3); /* Semi-transparent white background for cards */
-    border: none;
-    color: #2ecc71; /* Text color for cards */
+    background-color: #fff; /* White background for cards */
+    border: 1px solid #e7e7e7; /* Light gray border */
+    border-radius: 4px; /* Subtle rounding for cards */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Soft shadow effect */
+    transition: transform 0.2s; /* Smooth scaling */
+    width: 150px; /* Reduced width for smaller cards */
+    margin: 10px; /* Add some margin around cards */
 }
 
+.card:hover {
+    transform: scale(1.05); /* Slight scaling on hover */
+}
 
-
-.card-title, .card-text  {
-    color: #f39c12; /* Orange text color for card titles and text */
+.card-title, .card-text {
+    color: #333; /* Dark text color for card titles and text */
+    font-size: 0.9rem; /* Smaller text size */
 }
 
 /* Checkbox and radio styles */
 .checkbox, .radio {
-    color: #9b59b6; /* Purple text color for checkboxes and radios */
+    color: #333; /* Dark text color for checkboxes and radios */
 }
 
 /* Flex container button styles */
 .d-flex.flex-column.m-2 button {
-    color: #e74c3c; /* Red text color for buttons in flex containers */
+    color: #333; /* Dark text color for buttons in flex containers */
+}
+
+/* Link button styles */
+.btn-link {
+    color: #007185; /* Amazon blue for links */
+    font-size: 0.8rem; /* Smaller text size */
+}
+
+.btn-link:hover {
+    color: #005f6e; /* Darker blue on hover */
+}
+
+/* Additional styles for the layout */
+.row {
+    margin: 0;
+}
+
+.col-md-3, .col-md-9 {
+    padding: 15px;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.mt-3 {
+    margin-top: 1rem;
+}
+
+.m-2 {
+    margin: 0.5rem;
+}
+
+.p-3 {
+    padding: 1rem;
+}
+
+/* Loading spinner styles */
+.spin {
+    margin: 20px auto;
 }
