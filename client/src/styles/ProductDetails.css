@@ -1,0 +1,119 @@
+/* General page layout */
+.product-details {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  
+  /* Product details section */
+  .product-details-info {
+    flex: 1;
+    padding: 10px; 
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    max-width: 400px; 
+  }
+  
+  .product-details-info h1 {
+    font-size: 20px; 
+    color: #333;
+  }
+  
+  .product-details-info h6 {
+    font-size: 16px; 
+    color: #555;
+    margin: 5px 0; 
+  }
+  
+  .product-details-info button {
+    background-color: #ff9900;
+    color: #fff;
+    border: none;
+    padding: 5px 10px; 
+    font-size: 14px; 
+    cursor: pointer;
+    margin-top: 10px; /* Added margin-top for spacing */
+  }
+  
+  .product-details-info button:hover {
+    background-color: #e68a00;
+  }
+  
+  /* Product image */
+  .product-details .card-img-top {
+    width: 100%; /* Make image responsive */
+    max-width: 300px; /* Reduced max width */
+    height: auto;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+  }
+  
+  /* Similar products section */
+  .similar-products {
+    margin-top: 40px;
+  }
+  
+  .similar-products h4 {
+    font-size: 20px;
+    color: #333;
+    margin-bottom: 20px;
+  }
+  
+  .similar-products .card {
+    flex: 1;
+    max-width: 180px; 
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: #fff;
+    margin-bottom: 20px;
+  }
+  
+  .similar-products .card img {
+    width: 100%;
+    height: auto;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .similar-products .card-body {
+    padding: 10px;
+  }
+  
+  .similar-products .card-title {
+    font-size: 14px; 
+    color: #333;
+  }
+  
+  .similar-products .card-text {
+    font-size: 12px; 
+    color: #555;
+  }
+  
+  .similar-products .card button {
+    background-color: #ff9900;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    font-size: 12px; 
+    cursor: pointer;
+  }
+  .similar-products .card button:hover {
+    background-color: #e68a00;
+  }
+  
+  /* Button styling */
+  .btn-secondary {
+    background-color: #ff9900;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #e68a00;
+  }
+  
