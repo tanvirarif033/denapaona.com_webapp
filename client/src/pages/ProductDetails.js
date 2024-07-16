@@ -61,7 +61,7 @@ const ProductDetails = () => {
         <h6>Price : {product.price}</h6>
         <h6>Category : {product?.category?.name}</h6>
         <button class="btn btn-secondary ms-1">ADD TO CART</button>
-        <button class="btn btn-secondary ms-1">MORE DETAILS</button>
+
           </div>
           
 
@@ -84,8 +84,12 @@ const ProductDetails = () => {
                   <p className="card-text">{p.description.substring(0, 20)}...</p>
                   <p className="card-text">$ {p.price}</p>
                 
-                  <button className="btn btn-secondary ms-1">ADD TO CART</button>
-                  <button class="btn btn-secondary ms-1">MORE DETAILS</button>
+                  <button
+                      className="btn btn-link text-decoration-none"
+                    
+                    >
+                     More Details
+                    </button>
                 </div>
               </div>
             ))}
