@@ -88,7 +88,7 @@ const ProductDetails = () => {
                       className="btn btn-link text-decoration-none"
                     
                     >
-                     More Details
+                     ADD TO CART
                     </button>
                 </div>
               </div>
