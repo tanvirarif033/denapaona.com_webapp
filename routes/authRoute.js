@@ -7,6 +7,7 @@ import {
   refreshTokenController,
   updateProfileController,
   getOrdersController,
+  getAllOrdersController,
 } from "../controllers/authController.js";
 import { isAdmin, requireSignIn } from "../middlewares/authMiddleware.js";
 import { loginLimiter } from "../middlewares/loginLimiter.js"; // Correct import
@@ -45,4 +46,8 @@ router.put("/profile", requireSignIn, updateProfileController);
 //orders
 
 router.get("/orders", requireSignIn, getOrdersController);
+
+//all orders
+router.get("/all-orders", requireSignIn, isAdmin, getAllOrdersController);
+
 export default router;
