@@ -24,6 +24,7 @@ import CategoryProduct from "./pages/CategoryProduct";
 import ProductDetails from "./pages/ProductDetails";
 import CartPage from "./pages/CartPage";
 import AdminOrders from "./pages/Admin/AdminOrders";
+import CreatePopularProduct from "./pages/Admin/CreatePopularProduct";
 
 
 function App() {
@@ -50,6 +51,7 @@ function App() {
           <Route path="admin/product/:slug" element={<UpdateProduct />} />
           <Route path="admin/products" element={<Products />} />
           <Route path="admin/users" element={<Users />} />
+          <Route path="admin/popular-product" element={<CreatePopularProduct />} />
           <Route path="admin/orders" element={<AdminOrders />} />
         </Route>
         <Route path="/forgot-password" element={<ForgotPassword />} />

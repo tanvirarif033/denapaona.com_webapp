@@ -7,7 +7,7 @@ import { Select, Spin } from "antd";
 import { useNavigate } from "react-router-dom";
 const { Option } = Select;
 
-const CreateProduct = () => {
+const CreatePopularProduct = () => {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [name, setName] = useState("");
@@ -60,7 +60,7 @@ const CreateProduct = () => {
       productData.append("photo", photo);
       productData.append("category", category);
       const { data } = await axios.post(
-        "https://denapaona-com-webapp-server.vercel.app/api/v1/product/create-product",
+        "https://denapaona-com-webapp-server.vercel.app/api/v1/product/popular-product",
         productData
       );
       if (data?.success) {
@@ -84,14 +84,14 @@ const CreateProduct = () => {
   };
 
   return (
-    <Layout title={"Dashboard - Create Product"}>
+    <Layout title={"Dashboard - Popular Product"}>
       <div className="container-fluid m-3 p-3">
         <div className="row">
           <div className="col-md-3">
             <AdminMenu />
           </div>
           <div className="col-md-9">
-            <h1>Create Product</h1>
+            <h1>Create Popular Product</h1>
             <Spin spinning={loading}>
               <div className="m-1 w-75">
                 <Select
@@ -189,7 +189,7 @@ const CreateProduct = () => {
                 </div>
                 <div className="mb-3">
                   <button className="btn btn-primary" onClick={handleCreate}>
-                    Create Product
+                  Create Product
                   </button>
                 </div>
               </div>
@@ -201,4 +201,4 @@ const CreateProduct = () => {
   );
 };
 
-export default CreateProduct;
+export default CreatePopularProduct;
