@@ -52,6 +52,20 @@ const HomePage = () => {
     getTotal();
   }, []);
 
+ 
+axios.get('https://denapaona-com-webapp-server.vercel.app/api/v1/category/get-category', {
+  headers: {
+    'x-api-key': 'rnaei23ndfwe3nke'
+  }
+})
+  .then(response => {
+    console.log('Response:', response.data);
+  })
+  .catch(error => {
+    console.error('Error:', error.response ? error.response.data : error.message);
+  });
+
+
   // Function to fetch all products
   const getAllProducts = async () => {
     try {

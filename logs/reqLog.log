@@ -103,3 +103,5 @@
 20240714	11:08:43	eadd1cfd-926f-4b1e-b24b-e0e1eea06d4d	POST	/api/v1/auth/login	undefined
 20240714	11:08:44	b81f201c-021a-4dce-8477-b8bab1c55b63	POST	/api/v1/auth/login	undefined
 20240714	11:08:45	72820793-79f8-465a-8ef7-f6c9aeb7be01	POST	/api/v1/auth/login	undefined
+20240813	23:00:36	47317ec0-a6f4-407b-b756-610500e5ea29	GET	/api/v1/category/get-category	undefined
+20240813	23:02:12	4fa766f4-56df-4224-844c-6b1b450ef92d	GET	/api/v1/category/get-category	undefined

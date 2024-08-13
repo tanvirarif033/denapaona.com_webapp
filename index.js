@@ -19,25 +19,27 @@ connectDB();
 // Initialize express app
 const app = express();
 
-// List of allowed origins
 const allowedOrigins = [
-  "https://denapaona-com-webapp-server.vercel.app",
-  "https://another-frontend-url.com",
-  "http://localhost:3000", // For local development
+  'http://localhost:3000',
+  'https://denapaona-com-webapp-server.vercel.app',
 ];
 
-// Middleware setup
-app.use(cors({
+const corsOptions = {
   origin: function(origin, callback) {
-    // Allow requests with no origin (e.g., mobile apps, curl requests)
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      return callback(null, true);
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
     }
-    return callback(new Error('Not allowed by CORS'));
   },
-  methods: "GET,POST,PUT,DELETE",
-  allowedHeaders: "Content-Type,Authorization,x-api-key",
-}));
+  methods: 'GET,POST,PUT,DELETE',
+  allowedHeaders: 'Content-Type,Authorization,x-api-key',
+};
+
+// Apply CORS middleware
+app.use(cors(corsOptions));
+
+app.options('*', cors()); // Enable preflight requests for all routes
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(logger);
