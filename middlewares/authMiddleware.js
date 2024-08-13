@@ -46,6 +46,7 @@ export const isAdmin = async (req, res, next) => {
 
 //API key Validation
  export const validateApiKey = (req, res, next) => {
+  console.log("API Key from request headers:", req.headers['x-api-key']);
   const apiKey = req.headers['x-api-key'];
   if (apiKey && apiKey === process.env.API_KEY) {
     next();

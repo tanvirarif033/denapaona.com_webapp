@@ -20,7 +20,11 @@ connectDB();
 const app = express();
 
 // Middleware setup
-app.use(cors());
+app.use(cors({
+  origin: "https://denapaona-com-webapp-server.vercel.app", // Update with your frontend URL
+  methods: "GET,POST,PUT,DELETE",
+  allowedHeaders: "Content-Type,Authorization,x-api-key",
+}));
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(logger);
