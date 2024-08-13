@@ -1,5 +1,5 @@
 import express from "express";
-import { isAdmin, requireSignIn } from "./../middlewares/authMiddleware.js";
+import { isAdmin, requireSignIn,validateApiKey } from "./../middlewares/authMiddleware.js";
 import {
   categoryControlller,
   createCategoryController,
@@ -26,10 +26,10 @@ router.put(
   updateCategoryController
 );
 //getALl category
-router.get("/get-category" ,categoryControlller);
+router.get("/get-category" ,validateApiKey,categoryControlller);
 
 //single category
-router.get("/single-category/:slug",singleCategoryController);
+router.get("/single-category/:slug",validateApiKey,singleCategoryController);
 
 //delete category
 router.delete(

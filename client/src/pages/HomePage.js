@@ -26,7 +26,12 @@ const HomePage = () => {
     try {
       setLoading(true);
       const { data } = await axios.get(
-        "https://denapaona-com-webapp-server.vercel.app/api/v1/category/get-category"
+        "https://denapaona-com-webapp-server.vercel.app/api/v1/category/get-category",
+        {
+          headers: {
+            "x-api-key": process.env.REACT_APP_API_KEY,
+          },
+        }
       );
       if (data?.success) {
         setCategories(data?.category);
@@ -141,7 +146,6 @@ const HomePage = () => {
 
   return (
     <Layout title={"All products-Best Offers"}>
-      
       <Carousel autoplay>
         <div>
           <img
@@ -172,7 +176,7 @@ const HomePage = () => {
           />
         </div>
       </Carousel>
-      
+
       <div className="row mt-3">
         <div className="col-md-3">
           <h4 className="text-left">Filter By Category</h4>
@@ -243,27 +247,27 @@ const HomePage = () => {
                     </p>
                     <p className="card-text">$ {p.price}</p>
                     <div className="d-flex justify-content-between">
-                    <button
-                      className="btn btn-link text-decoration-none"
-                      onClick={() => navigate(`/product/${p.slug}`)}
-                    >
-                     More Details
-                    </button>
-                    <button
-                      className="btn btn-link text-decoration-none"
-                      onClick={() => {
-                        setCart([...cart, p]);
-                        localStorage.setItem(
-                          "cart",
-                          JSON.stringify([...cart, p])
-                        );
-                        toast.success("Item Added to Cart");
-                      }}
-                    >
-                      Add To Cart
-                    </button>
+                      <button
+                        className="btn btn-link text-decoration-none"
+                        onClick={() => navigate(`/product/${p.slug}`)}
+                      >
+                        More Details
+                      </button>
+                      <button
+                        className="btn btn-link text-decoration-none"
+                        onClick={() => {
+                          setCart([...cart, p]);
+                          localStorage.setItem(
+                            "cart",
+                            JSON.stringify([...cart, p])
+                          );
+                          toast.success("Item Added to Cart");
+                        }}
+                      >
+                        Add To Cart
+                      </button>
+                    </div>
                   </div>
-                </div>
                 </div>
               ))}
             </div>
@@ -289,11 +293,8 @@ const HomePage = () => {
           </div>
         </div>
       </div>
-      
-      
-      
     </Layout>
   );
 };
 
-export default HomePage
+export default HomePage;
