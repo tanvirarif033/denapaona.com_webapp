@@ -39,13 +39,13 @@ router.put(
 );
 
 //get products
-router.get("/get-product",requireSignIn, getProductController);
+router.get("/get-product", getProductController);
 
 //single product
-router.get("/get-product/:slug",requireSignIn, getSingleProductController);
+router.get("/get-product/:slug", getSingleProductController);
 
 //get photo
-router.get("/product-photo/:pid",requireSignIn ,productPhotoController);
+router.get("/product-photo/:pid" ,productPhotoController);
 
 //delete rproduct
 router.delete("/delete-product/:pid", deleteProductController);
