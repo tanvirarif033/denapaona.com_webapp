@@ -19,9 +19,22 @@ connectDB();
 // Initialize express app
 const app = express();
 
+// List of allowed origins
+const allowedOrigins = [
+  "https://denapaona-com-webapp-server.vercel.app",
+  "https://another-frontend-url.com",
+  "http://localhost:3000", // For local development
+];
+
 // Middleware setup
 app.use(cors({
-  origin: "https://denapaona-com-webapp-server.vercel.app", // Update with your frontend URL
+  origin: function(origin, callback) {
+    // Allow requests with no origin (e.g., mobile apps, curl requests)
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    }
+    return callback(new Error('Not allowed by CORS'));
+  },
   methods: "GET,POST,PUT,DELETE",
   allowedHeaders: "Content-Type,Authorization,x-api-key",
 }));
