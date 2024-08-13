@@ -39,13 +39,13 @@ router.put(
 );
 
 //get products
-router.get("/get-product", getProductController);
+router.get("/get-product",requireSignIn, getProductController);
 
 //single product
-router.get("/get-product/:slug", getSingleProductController);
+router.get("/get-product/:slug",requireSignIn, getSingleProductController);
 
 //get photo
-router.get("/product-photo/:pid", productPhotoController);
+router.get("/product-photo/:pid",requireSignIn ,productPhotoController);
 
 //delete rproduct
 router.delete("/delete-product/:pid", deleteProductController);
@@ -69,12 +69,12 @@ router.get("/product-category/:slug", productCategoryController);
 //similar product
 router.get("/related-product/:pid/:cid", realtedProductController);
 
-// //payments routes
-// //token
+//payments routes
+//token
 router.get("/braintree/token", braintreeTokenController);
 
 
-// //payments
+//payments
 router.post("/braintree/payment", requireSignIn, brainTreePaymentController);
 
 export default router;

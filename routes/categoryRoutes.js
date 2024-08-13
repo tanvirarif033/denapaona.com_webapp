@@ -26,10 +26,10 @@ router.put(
   updateCategoryController
 );
 //getALl category
-router.get("/get-category", categoryControlller);
+router.get("/get-category",requireSignIn ,categoryControlller);
 
 //single category
-router.get("/single-category/:slug", singleCategoryController);
+router.get("/single-category/:slug", requireSignIn,singleCategoryController);
 
 //delete category
 router.delete(
