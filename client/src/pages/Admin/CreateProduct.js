@@ -24,7 +24,12 @@ const CreateProduct = () => {
     setLoading(true);
     try {
       const { data } = await axios.get(
-        "https://denapaona-com-webapp-server.vercel.app/api/v1/category/get-category"
+        "https://denapaona-com-webapp-server.vercel.app/api/v1/category/get-category",
+        {
+          headers: {
+            "x-api-key": process.env.REACT_APP_API_KEY,
+          },
+        }
       );
       if (data?.success) {
         setCategories(data?.category);

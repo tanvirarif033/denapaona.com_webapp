@@ -21,7 +21,7 @@ const HomePage = () => {
   const [loading, setLoading] = useState(false);
   const [filterLoading, setFilterLoading] = useState(false);
 
-  console.log("API Key from environment:", process.env.REACT_APP_API_KEY);
+  
 
   // Function to fetch all categories
   const getAllCategory = async () => {
