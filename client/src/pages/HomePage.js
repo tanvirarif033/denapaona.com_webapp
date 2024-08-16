@@ -71,7 +71,11 @@ axios.get('https://denapaona-com-webapp-server.vercel.app/api/v1/category/get-ca
     try {
       setLoading(true);
       const { data } = await axios.get(
-        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-list/${page}`
+        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-list/${page}`,{
+          headers: {
+            "x-api-key": process.env.REACT_APP_API_KEY,
+          },
+        }
       );
       setProducts(data.products);
     } catch (error) {
@@ -85,7 +89,11 @@ axios.get('https://denapaona-com-webapp-server.vercel.app/api/v1/category/get-ca
   const getTotal = async () => {
     try {
       const { data } = await axios.get(
-        "https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-count"
+        "https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-count",{
+          headers: {
+            "x-api-key": process.env.REACT_APP_API_KEY,
+          },
+        }
       );
       setTotal(data?.total);
     } catch (error) {
@@ -103,7 +111,11 @@ axios.get('https://denapaona-com-webapp-server.vercel.app/api/v1/category/get-ca
     try {
       setLoading(true);
       const { data } = await axios.get(
-        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-list/${page}`
+        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-list/${page}`,{
+          headers: {
+            "x-api-key": process.env.REACT_APP_API_KEY,
+          },
+        }
       );
       setProducts([...products, ...data?.products]);
     } catch (error) {

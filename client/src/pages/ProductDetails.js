@@ -19,7 +19,11 @@ const ProductDetails = () => {
   const getProduct = async () => {
     try {
       const { data } = await axios.get(
-        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/get-product/${params.slug}`
+        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/get-product/${params.slug}`,{
+          headers: {
+            "x-api-key": process.env.REACT_APP_API_KEY,
+          },
+        }
       );
       setProduct(data?.product);
       getSimilarProduct(data?.product._id, data?.product.category._id);

@@ -15,7 +15,12 @@ const Products = () => {
     try {
       setLoading(true); // Changed part
       const { data } = await axios.get(
-        "https://denapaona-com-webapp-server.vercel.app/api/v1/product/get-product"
+        "https://denapaona-com-webapp-server.vercel.app/api/v1/product/get-product",
+        {
+          headers: {
+            "x-api-key": process.env.REACT_APP_API_KEY,
+          },
+        }
       );
       setProducts(data.products);
     } catch (error) {

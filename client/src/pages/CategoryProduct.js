@@ -15,7 +15,11 @@ const CategoryProduct = () => {
   const getPrductsByCat = async () => {
     try {
       const { data } = await axios.get(
-        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-category/${params.slug}`
+        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-category/${params.slug}`,{
+          headers: {
+            "x-api-key": process.env.REACT_APP_API_KEY,
+          },
+        }
       );
       setProducts(data?.products);
       setCategory(data?.category);
