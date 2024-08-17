@@ -22,6 +22,7 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:3000',
   'https://denapaona-com-webapp-server.vercel.app',
+  "https://denapaona-com-webapp.vercel.app",
 ];
 
 const corsOptions = {
