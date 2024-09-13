@@ -1,122 +1,158 @@
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Poppins:wght@300;400&display=swap");
-
+/* General Reset */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-/* font-family: 'Poppins', sans-serif; */
-/* font-family: 'Playfair Display', serif; */
+body {
+  font-family: 'Amazon Ember', Arial, sans-serif;
+}
 
-/* Navbar Styles */
-/* Navbar Styles */
-/* Navbar Styles */
 /* Navbar Styles */
 .navbar {
   font-family: "Amazon Ember", Arial, sans-serif; /* Amazon's font stack */
-  background: linear-gradient(to right, #000000, #131921); /* Gradient background */
+   background: linear-gradient(to right, #000000, #131921);
   padding: 10px 20px; /* Vertical and horizontal padding */
   display: flex; /* Flexbox for alignment */
   align-items: center; /* Center items vertically */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Subtle shadow */
 }
 
-.navbar-brand {
-  font-size: 24px; /* Larger font for brand */
-  font-weight: bold; /* Bold text */
-  color: #fff; /* White text */
-}
-
-.navbar-brand img.logo {
-  height: 40px; /* Adjust logo height */
-  margin-right: 10px; /* Space between logo and brand */
-}
-
-.navbar-nav {
-  display: flex; /* Flex for navigation items */
-  margin-left: auto; /* Align items to the right */
-}
-
-.nav-item {
-  margin: 0 15px; /* Space between nav items */
-}
-
-.nav-link {
-  color: #fff; /* Always white text for links */
-  text-decoration: none; /* Remove underline */
-  padding: 10px 15px; /* Add padding */
-  position: relative; /* Position for the border effect */
-}
-
-.nav-link.active {
-  color: #febd69; /* Amazon's yellow for active link */
-}
-
-.nav-link::after {
-  content: '';
-  display: block;
-  width: 0; /* Start with no width */
-  height: 2px; /* Height of the bottom border */
-  background: #febd69; /* Amazon's yellow */
-  transition: width 0.3s; /* Smooth width transition */
-  position: absolute; /* Position relative to the link */
-  left: 50%; /* Center the border */
-  bottom: 0; /* Position at the bottom */
-  transform: translateX(-50%); /* Center it */
-}
-
-.nav-link:hover::after {
-  width: 100%; /* Expand the width on hover */
-}
-
-.nav-link:hover {
-  color: #f0f0f0; /* Lighter grey on hover */
-}
-
-.dropdown-menu {
-  background-color: #131921; /* Dark background for dropdown */
-  border: none; /* No border */
-}
-
-.dropdown-item {
-  color: #fff !important; /* White text */
-  transition: background-color 0.3s; /* Smooth transition */
-}
-
-.dropdown-item:hover {
-  background-color: #232f3e; /* Darker hover color */
-}
-
-.navbar .btn {
-  background: #febd69; /* Amazon's yellow */
-  color: #111; /* Dark text */
-  border: 1px solid #a88734; /* Border color */
-  border-radius: 5px; /* Rounded corners */
-  padding: 5px 15px; /* Button padding */
-  margin-left: 10px; /* Space from other elements */
-  transition: background 0.3s, color 0.3s; /* Smooth transition */
-}
-
-.navbar .btn:hover {
-  background: #f3c94c; /* Slightly darker yellow on hover */
-  color: #111; /* Keep dark text */
-}
-
 .navbar-toggler {
-  border-color: white; /* White border for toggler */
+  border: none;
+  outline: none;
+}
+
+/* Brand Logo */
+.navbar-brand img {
+  width: 120px; /* Adjusted for a smaller logo like Amazon's */
+  height: auto;
 }
 
 .navbar-toggler-icon {
-  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E"); /* White hamburger icon */
+  color: white;
 }
 
-.badge {
-  background-color: #f08804; /* Amazon's badge color */
-  color: white; /* White text */
-  font-size: 12px; /* Font size */
-  padding: 3px 6px; /* Padding */
-  border-radius: 10px; /* Rounded corners */
+/* Search Input (centered) */
+.search-input {
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+  margin: 0 20px;
+}
+
+.search-input input {
+  width: 100%;
+  max-width: 600px;
+  padding: 10px;
+  border-radius: 5px;
+  border: none;
+  font-size: 14px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.search-input button {
+  background-color: #febd69;
+  border: none;
+  padding: 10px 15px;
+  margin-left: -5px;
+  border-radius: 0 5px 5px 0;
+  cursor: pointer;
+}
+
+.search-input button:hover {
+  background-color: #f3a847;
+}
+
+/* Navbar Links */
+.navbar-nav {
+  display: flex;
+  align-items: center;
+}
+
+.nav-item {
+  margin: 0 15px;
+  transition: background-color 0.3s ease; /* Smooth background transition */
+}
+.nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.1); /* Slight off-white hover effect */
+}
+.nav-link.active {
+  color: #febd69 !important; /* Active link color similar to Amazon's yellow */
+  border-bottom: 2px solid #febd69; /* Bottom border for active link */
+}
+
+.nav-link {
+  color: white !important; /* Force white text */
+  text-decoration: none;
+  font-size: 14px;
+  padding: 10px;
+  transition: color 0.3s ease, border-bottom 0.3s ease; /* Smooth transition for both color and border */
+}
+
+.nav-link:hover {
+  color: #f0f0f0 !important; /* Hover effect to lighter white */
+  border-bottom: 2px solid transparent; /* Remove border on hover if not active */
+}
+
+.nav-link.active:hover {
+  border-bottom-color: #f3a847; /* Slightly lighter orange when hovering over active link */
+}
+
+.navbar .dropdown-menu {
+  background-color: #232f3e !important; /* Dark dropdown background */
+  border: none;
+  margin-top: 0;
+}
+
+.dropdown-item {
+  color: white !important; /* Force white text */
+  transition: background-color 0.3s ease;
+}
+
+.dropdown-item:hover {
+  background-color: #37475a; /* Slightly lighter hover effect */
+}
+
+.navbar .btn {
+  background: #febd69 !important;
+  color: #111 !important;
+  border: 1px solid #a88734;
+  padding: 5px 15px;
+  border-radius: 3px;
+}
+
+.navbar .btn:hover {
+  background-color: #f3a847 !important;
+}
+
+/* Cart Badge */
+.ant-badge-count {
+  background-color: #f08804 !important;
+}
+
+.nav-item .nav-link {
+  position: relative;
+  color: white !important;
+}
+
+.nav-item .nav-link .badge {
+  position: absolute;
+  top: -5px;
+  right: -15px;
+  background-color: #f08804;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 50%;
+}
+
+/* Media Queries */
+@media (max-width: 768px) {
+  .search-input {
+    margin: 10px 0;
+    
+  }
 }
 
 
