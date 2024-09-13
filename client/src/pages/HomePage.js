@@ -21,9 +21,6 @@ const HomePage = () => {
   const [loading, setLoading] = useState(false);
   const [filterLoading, setFilterLoading] = useState(false);
 
-  
-
-  // Function to fetch all categories
   const getAllCategory = async () => {
     try {
       setLoading(true);
@@ -52,9 +49,6 @@ const HomePage = () => {
     getTotal();
   }, []);
 
- 
-
-  // Function to fetch all products
   const getAllProducts = async () => {
     try {
       setLoading(true);
@@ -73,7 +67,6 @@ const HomePage = () => {
     }
   };
 
-  // Get total count of products
   const getTotal = async () => {
     try {
       const { data } = await axios.get(
@@ -94,7 +87,6 @@ const HomePage = () => {
     loadMore();
   }, [page]);
 
-  // Load more products
   const loadMore = async () => {
     try {
       setLoading(true);
@@ -113,7 +105,6 @@ const HomePage = () => {
     }
   };
 
-  // Handle checkbox change
   const handleFilter = (value, id) => {
     let all = [...checked];
     if (value) {
@@ -132,7 +123,6 @@ const HomePage = () => {
     if (checked.length || radio.length) filterProduct();
   }, [checked, radio]);
 
-  // Get filtered products
   const filterProduct = async () => {
     try {
       setFilterLoading(true);
@@ -153,7 +143,6 @@ const HomePage = () => {
     }
   };
 
-  // Reset filters function
   const resetFilters = () => {
     setChecked([]);
     setRadio([]);
@@ -162,7 +151,8 @@ const HomePage = () => {
 
   return (
     <Layout title={"All products-Best Offers"}>
-      <Carousel autoplay>
+
+       <Carousel autoplay>
         <div>
           <img
             src="/images/img1.webp"
@@ -193,17 +183,17 @@ const HomePage = () => {
         </div>
       </Carousel>
 
-      <div className="row mt-3">
-        <div className="col-md-3">
-          <h4 className="text-left">Filter By Category</h4>
-          <div className="d-flex flex-column">
+      <div className="filter-section">
+        <div className="filter-category">
+          <h4>Filter By Category</h4>
+          <div className="filter-checkboxes">
             {loading ? (
               <Spin size="large" />
             ) : (
               categories?.map((c) => (
                 <Checkbox
                   key={c._id}
-                  checked={checked.includes(c._id)} // Set checked state
+                  checked={checked.includes(c._id)}
                   onChange={(e) => handleFilter(e.target.checked, c._id)}
                 >
                   {c.name}
@@ -211,31 +201,35 @@ const HomePage = () => {
               ))
             )}
           </div>
+        
 
-          <h4 className="text-left mt-4">Filter By Price</h4>
-          <div className="d-flex flex-column">
+        <div className="filter-price">
+          <h4>Filter By Price</h4>
+          <div className="filter-radios">
             {loading ? (
               <Spin size="large" />
             ) : (
               <Radio.Group
-                value={radio} // Set selected radio value
+                value={radio}
                 onChange={(e) => setRadio(e.target.value)}
               >
                 {Prices?.map((p) => (
-                  <div key={p._id}>
-                    <Radio value={p.array}>{p.name}</Radio>
-                  </div>
+                  <Radio value={p.array} key={p._id}>
+                    {p.name}
+                  </Radio>
                 ))}
               </Radio.Group>
             )}
           </div>
-          <div className="d-flex flex-column m-2">
-            <button className="btn btn-danger" onClick={resetFilters}>
-              RESET FILTERS
-            </button>
           </div>
+          <button className="btn btn-danger" onClick={resetFilters}>
+            RESET FILTERS
+          </button>
         </div>
-        <div className="col-md-9">
+      </div>
+
+      <div className="row mt-3">
+        <div className="col-md-12">
           <h1 className="text-left">All Products</h1>
           {loading ? (
             <Spin
@@ -297,13 +291,7 @@ const HomePage = () => {
                   setPage(page + 1);
                 }}
               >
-                {loading ? (
-                  "Loading ..."
-                ) : (
-                  <>
-                    Loadmore <AiOutlineReload />
-                  </>
-                )}
+                {loading ? "Loading ..." : <>Loadmore <AiOutlineReload /></>}
               </button>
             )}
           </div>

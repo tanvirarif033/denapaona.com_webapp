@@ -1,101 +1,151 @@
+/* Global Styles */
 body {
-    background: #f2f2f2; /* Light gray background */
-    min-height: 100vh;
+    font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    font-family: "Amazon Ember", Arial, sans-serif;
-    color: #333; /* Dark text for readability */
-}
-
-.carousel img {
+    background-color: #f1f1f1;
+  }
+  
+  /* Carousel */
+  .carousel img {
+    width: 100%;
+    height: 400px;
     object-fit: cover;
-    border-radius: 8px; /* Rounded corners for carousel images */
-}
-
-/* Heading styles */
-h4, h1, p {
-    color: #111; /* Darker color for headings */
-}
-
-/* Button styles */
-.btn-primary, .btn-secondary, .btn-danger, .btn-warning {
-    color: white;
-    background-color: #ffa41c; /* Amazon orange */
-    border-color: #ffa41c; /* Matching border */
-}
-
-.btn-danger:hover, .btn-warning:hover {
-    color: white; /* White text on hover */
-    background-color: #d88f00; /* Darker orange on hover */
-    border-color: #d88f00;
-}
-
-/* Card styles */
-.card {
-    background-color: #fff; /* White background for cards */
-    border: 1px solid #e7e7e7; /* Light gray border */
-    border-radius: 4px; /* Subtle rounding for cards */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Soft shadow effect */
-    transition: transform 0.2s; /* Smooth scaling */
-    width: 150px; /* Reduced width for smaller cards */
-    margin: 10px; /* Add some margin around cards */
-}
-
-.card:hover {
-    transform: scale(1.05); /* Slight scaling on hover */
-}
-
-.card-title, .card-text {
-    color: #333; /* Dark text color for card titles and text */
-    font-size: 0.9rem; /* Smaller text size */
-}
-
-/* Checkbox and radio styles */
-.checkbox, .radio {
-    color: #333; /* Dark text color for checkboxes and radios */
-}
-
-/* Flex container button styles */
-.d-flex.flex-column.m-2 button {
-    color: #333; /* Dark text color for buttons in flex containers */
-}
-
-/* Link button styles */
-.btn-link {
-    color: #007185; /* Amazon blue for links */
-    font-size: 0.8rem; /* Smaller text size */
-}
-
-.btn-link:hover {
-    color: #005f6e; /* Darker blue on hover */
-}
-
-/* Additional styles for the layout */
-.row {
-    margin: 0;
-}
-
-.col-md-3, .col-md-9 {
+  }
+  
+  .carousel {
+    margin-bottom: 20px;
+  }
+  
+  /* Filter Section */
+  .filter-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px;
+    background-color: white;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .filter-category, .filter-price {
+    flex: 1;
+    margin-right: 20px;
+  }
+  
+  .filter-category h4, .filter-price h4 {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 15px;
+  }
+  
+  .filter-checkboxes, .filter-radios {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .filter-checkboxes .ant-checkbox-wrapper, .filter-radios .ant-radio-wrapper {
+    margin-bottom: 10px;
+  }
+  
+  /* All Products Section */
+  .row {
+    padding: 0 20px;
+  }
+  
+  .text-left {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-left: 10px;
+  }
+  
+  .card {
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin: 15px;
     padding: 15px;
-}
-
-.text-center {
-    text-align: center;
-}
-
-.mt-3 {
-    margin-top: 1rem;
-}
-
-.m-2 {
-    margin: 0.5rem;
-}
-
-.p-3 {
-    padding: 1rem;
-}
-
-/* Loading spinner styles */
-.spin {
-    margin: 20px auto;
-}
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+    cursor: pointer;
+  }
+  
+  .card:hover {
+    transform: scale(1.05);
+  }
+  
+  .card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .card-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 10px;
+  }
+  
+  .card-text {
+    font-size: 14px;
+    color: #555;
+  }
+  
+  .card .btn {
+    background-color: #ff9900;
+    color: white;
+    font-weight: bold;
+    margin-top: 10px;
+    padding: 8px 12px;
+  }
+  
+  .card .btn:hover {
+    background-color: #ff7700;
+  }
+  
+  /* Load More Button */
+  .btn-warning {
+    width: 100%;
+    padding: 10px;
+    margin-top: 20px;
+    font-size: 16px;
+    background-color: #ff9900;
+    color: white;
+    border: none;
+  }
+  
+  .btn-warning:hover {
+    background-color: #ff7700;
+  }
+  
+  .btn-danger {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .btn-danger:hover {
+    background-color: #c82333;
+  }
+  
+  /* Responsive Styles */
+  @media (max-width: 768px) {
+    .filter-section {
+      flex-direction: column;
+    }
+  
+    .filter-category, .filter-price {
+      margin-right: 0;
+      margin-bottom: 20px;
+    }
+  
+    .text-left {
+      text-align: center;
+    }
+  
+    .card {
+      margin: 10px;
+    }
+  }
+  

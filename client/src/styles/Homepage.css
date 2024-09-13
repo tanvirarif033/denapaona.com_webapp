@@ -1,5 +1,5 @@
 body {
-    background: #f2f2f2; /* Light gray background */
+    background:  #F0F8FF; /* Light gray background */
     min-height: 100vh;
     margin: 0;
     padding: 0;
@@ -29,6 +29,9 @@ h4, h1, p {
     background-color: #d88f00; /* Darker orange on hover */
     border-color: #d88f00;
 }
+.btn-danger{
+    margin-top: 15px;
+}
 
 /* Card styles */
 .card {
@@ -37,6 +40,7 @@ h4, h1, p {
     border-radius: 4px; /* Subtle rounding for cards */
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Soft shadow effect */
     transition: transform 0.2s; /* Smooth scaling */
+   
 }
 .card-img-top {
     height: 25vh; /* Reduced height for card images */
@@ -100,4 +104,42 @@ h4, h1, p {
 /* Loading spinner styles */
 .spin {
     margin: 20px auto;
+}
+/* Filter section with left margin */
+.filter-section {
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 20px;
+    background-color: #FFF9E3;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+   margin: 15px 15px;
+}
+
+.filter-category, .filter-price {
+    flex: 1;
+    margin-right: 20px;
+    margin-top: 10px;
+}
+
+.filter-category h4, .filter-price h4 {
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+
+/* Adjusting margin for product section */
+.row {
+    padding: 0 20px;
+    margin-left: 15px; /* Added left margin */
+}
+
+/* Additional left margin for headings */
+.text-left {
+    font-size: 30px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    padding-left: 10px;
+    margin-left: 15px; /* Added left margin */
 }
