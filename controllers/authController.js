@@ -61,13 +61,6 @@ export const registerController = async (req, res) => {
   }
 };
 
-// Function to create an access token
-const createAccessToken = (user) => {
-  return JWT.sign({ _id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: "15m",
-  });
-};
-
 // Function to create a refresh token
 const createRefreshToken = (user) => {
   return JWT.sign({ _id: user._id }, process.env.REFRESH_TOKEN_SECRET, {
@@ -103,13 +96,13 @@ export const loginController = async (req, res) => {
     }
 
     // Generate tokens
-    const accessToken = createAccessToken(user);
+
     const refreshToken = createRefreshToken(user);
 
     //token
 
     const token = JWT.sign({ _id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
+      expiresIn: "15s",
     });
     res.status(200).send({
       success: true,
@@ -123,7 +116,7 @@ export const loginController = async (req, res) => {
         role: user.role,
       },
       token,
-      accessToken,
+
       refreshToken,
     });
   } catch (error) {
@@ -147,8 +140,6 @@ export const refreshTokenController = (req, res) => {
 
   try {
     const user = JWT.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-    const newAccessToken = createAccessToken(user);
-    res.status(200).send({ success: true, accessToken: newAccessToken });
   } catch (error) {
     console.log(error);
     res
@@ -241,7 +232,6 @@ export const updateProfileController = async (req, res) => {
   }
 };
 
-
 //orders
 export const getOrdersController = async (req, res) => {
   try {
@@ -258,7 +248,7 @@ export const getOrdersController = async (req, res) => {
       error,
     });
   }
-}; 
+};
 
 // All-orders
 export const getAllOrdersController = async (req, res) => {
@@ -278,7 +268,6 @@ export const getAllOrdersController = async (req, res) => {
     });
   }
 };
-
 
 //order status
 export const orderStatusController = async (req, res) => {
