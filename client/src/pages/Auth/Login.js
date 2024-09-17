@@ -33,7 +33,7 @@ const Login = () => {
           ...auth,
           user: res.data.user,
           token: res.data.token,
-
+          accessToken: res.data.accessToken,
           refreshToken: res.data.refreshToken,
         });
         localStorage.setItem("auth", JSON.stringify(res.data));

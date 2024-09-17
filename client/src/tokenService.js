@@ -7,7 +7,7 @@ export const refreshToken = async (refreshToken) => {
       { refreshToken }
     );
     if (res.data.success) {
-      return res.data.token;
+      return res.data.accessToken;
     }
   } catch (error) {
     console.log("Error refreshing token:", error);
