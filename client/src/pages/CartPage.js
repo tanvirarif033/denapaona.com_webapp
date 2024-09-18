@@ -4,7 +4,6 @@ import { useCart } from "../context/cart";
 import { useAuth } from "../context/auth";
 import { useNavigate } from "react-router-dom";
 import DropIn from "braintree-web-drop-in-react";
-// import { AiFillWarning } from "react-icons/ai";
 import axios from "axios";
 import toast from "react-hot-toast";
 import "../styles/CartStyles.css";
@@ -17,13 +16,27 @@ const CartPage = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  // Load user-specific cart when user logs in
+  useEffect(() => {
+    if (auth?.user) {
+      const savedCart = localStorage.getItem(`cart-${auth.user.email}`); // Associate cart with the user's email
+      if (savedCart) {
+        setCart(JSON.parse(savedCart)); // Restore the cart from localStorage
+      }
+    }
+  }, [auth?.user]);
+
+  // Save the cart to localStorage whenever it changes
+  useEffect(() => {
+    if (auth?.user) {
+      localStorage.setItem(`cart-${auth.user.email}`, JSON.stringify(cart)); // Save cart specific to user
+    }
+  }, [cart, auth?.user]);
+
   //total price
   const totalPrice = () => {
     try {
-      let total = 0;
-      cart?.map((item) => {
-        total = total + item.price;
-      });
+      let total = cart?.reduce((acc, item) => acc + item.price, 0);
       return total.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
@@ -32,23 +45,27 @@ const CartPage = () => {
       console.log(error);
     }
   };
-  //detele item
+
+  // Remove item from cart
   const removeCartItem = (pid) => {
     try {
       let myCart = [...cart];
       let index = myCart.findIndex((item) => item._id === pid);
       myCart.splice(index, 1);
       setCart(myCart);
-      localStorage.setItem("cart", JSON.stringify(myCart));
+      // Update user-specific cart in localStorage
+      localStorage.setItem(`cart-${auth.user.email}`, JSON.stringify(myCart));
     } catch (error) {
       console.log(error);
     }
   };
 
-  //get payment gateway token
+  // Get payment gateway token
   const getToken = async () => {
     try {
-      const { data } = await axios.get("https://denapaona-com-webapp-server.vercel.app/api/v1/product/braintree/token");
+      const { data } = await axios.get(
+        "https://denapaona-com-webapp-server.vercel.app/api/v1/product/braintree/token"
+      );
       setClientToken(data?.clientToken);
     } catch (error) {
       console.log(error);
@@ -59,43 +76,51 @@ const CartPage = () => {
     getToken();
   }, [auth?.token]);
 
-  //handle payment
+  // Handle payment
   const handlePayment = async () => {
     try {
       setLoading(true);
-      const { nonce } = await instance.requestPaymentMethod();
-      const { data } = await axios.post("https://denapaona-com-webapp-server.vercel.app/api/v1/product/braintree/payment", {
-        nonce,
-        cart,
-      });
-      setLoading(false);
-      localStorage.removeItem("cart");
-      setCart([]);
+      const { nonce } = await instance.requestPaymentMethod(); // Get the payment nonce
+      const { data } = await axios.post(
+        "https://denapaona-com-webapp-server.vercel.app/api/v1/product/braintree/payment",
+        {
+          nonce,
+          cart,
+        }
+      );
+
+      // Clear the cart after successful payment
+      localStorage.removeItem(`cart-${auth.user.email}`); // Clear user-specific cart from localStorage
+      setCart([]); // Update cart state to empty
+
+      // Navigate to the user's order page after payment
       navigate("/dashboard/user/orders");
-      toast.success("Payment Completed Successfully ");
+
+      toast.success("Payment Completed Successfully");
+      setLoading(false);
     } catch (error) {
       console.log(error);
       setLoading(false);
+      toast.error("Payment Failed. Please try again.");
     }
   };
+
   return (
     <Layout>
-      <div className=" cart-page">
+      <div className="cart-page">
         <div className="row">
           <div className="col-md-12">
             <h1 className="text-center bg-light p-2 mb-1">
-              {!auth?.user
-                ? "Hello Guest"
-                : `Hello  ${auth?.token && auth?.user?.name}`}
+              {!auth?.user ? "Hello Guest" : `Hello  ${auth?.user?.name}`}
               <p className="text-center">
                 {cart?.length
                   ? `You Have ${cart.length} items in your cart ${
                       auth?.token ? "" : "please login to checkout !"
                     }`
-                  : " Your Cart Is Empty"}
+                  : "Your Cart Is Empty"}
               </p>
             </h1>
-          </div> 
+          </div>
         </div>
         <div className="container ">
           <div className="row ">
@@ -163,15 +188,13 @@ const CartPage = () => {
                         })
                       }
                     >
-                      Plase Login to checkout
+                      Please Login to checkout
                     </button>
                   )}
-
-                  
                 </div>
               )}
-            <div className="mt-2">
-            {!clientToken || !auth?.token || !cart?.length ? (
+              <div className="mt-2">
+                {!clientToken || !auth?.token || !cart?.length ? (
                   ""
                 ) : (
                   <>
@@ -194,8 +217,7 @@ const CartPage = () => {
                     </button>
                   </>
                 )}
-            </div>
-
+              </div>
             </div>
           </div>
         </div>
