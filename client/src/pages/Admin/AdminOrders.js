@@ -1,43 +1,32 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Pie } from "react-chartjs-2";
-import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import Layout from "../../components/Layout/Layout";
+import toast from "react-hot-toast";
 import AdminMenu from "../../components/Layout/AdminMenu";
+import Layout from "../../components/Layout/Layout";
 import { useAuth } from "../../context/auth";
-
-ChartJS.register(ArcElement, Tooltip, Legend);
+import moment from "moment";
+import { Select } from "antd";
+const { Option } = Select;
 
 const AdminOrders = () => {
+  const [status, setStatus] = useState([
+    "Not Process",
+    "Processing",
+    "Shipped",
+    "deliverd",
+    "cancel",
+  ]);
+  const [changeStatus, setCHangeStatus] = useState("");
   const [orders, setOrders] = useState([]);
-  const [auth] = useAuth();
-  const [productAvailability, setProductAvailability] = useState([]);
-
+  const [auth, setAuth] = useAuth();
   const getOrders = async () => {
     try {
       const { data } = await axios.get(
         "https://denapaona-com-webapp-server.vercel.app/api/v1/auth/all-orders"
       );
       setOrders(data);
-
-      // Extract product data and calculate availability count
-      const productData = {};
-      data.forEach((order) => {
-        order.products.forEach((product) => {
-          if (!productData[product.name]) {
-            productData[product.name] = product.countInStock;
-          } else {
-            productData[product.name] += product.countInStock;
-          }
-        });
-      });
-
-      // Convert the product data to an array format that Chart.js expects
-      setProductAvailability(
-        Object.entries(productData).map(([name, count]) => ({ name, count }))
-      );
     } catch (error) {
-      console.error(error);
+      console.log(error);
     }
   };
 
@@ -45,34 +34,19 @@ const AdminOrders = () => {
     if (auth?.token) getOrders();
   }, [auth?.token]);
 
-  // Prepare data for the pie chart
-  const chartData = {
-    labels: productAvailability.map((item) => item.name), // Product names
-    datasets: [
-      {
-        label: "Product Availability",
-        data: productAvailability.map((item) => item.count), // Availability count
-        backgroundColor: [
-          "rgba(255, 99, 132, 0.6)",
-          "rgba(54, 162, 235, 0.6)",
-          "rgba(255, 206, 86, 0.6)",
-          "rgba(75, 192, 192, 0.6)",
-          "rgba(153, 102, 255, 0.6)",
-          "rgba(255, 159, 64, 0.6)",
-        ],
-        borderColor: [
-          "rgba(255, 99, 132, 1)",
-          "rgba(54, 162, 235, 1)",
-          "rgba(255, 206, 86, 1)",
-          "rgba(75, 192, 192, 1)",
-          "rgba(153, 102, 255, 1)",
-          "rgba(255, 159, 64, 1)",
-        ],
-        borderWidth: 1,
-      },
-    ],
+  const handleChange = async (orderId, value) => {
+    try {
+      const { data } = await axios.put(
+        `https://denapaona-com-webapp-server.vercel.app/api/v1/auth/order-status/${orderId}`,
+        {
+          status: value,
+        }
+      );
+      getOrders();
+    } catch (error) {
+      console.log(error);
+    }
   };
-
   return (
     <Layout title={"All Orders Data"}>
       <div className="row dashboard">
@@ -81,22 +55,16 @@ const AdminOrders = () => {
         </div>
         <div className="col-md-9">
           <h1 className="text-center">All Orders</h1>
-          <div className="my-4">
-            <h2>Product Availability</h2>
-            <Pie data={chartData} />
-          </div>
-
-          {/* Existing code for displaying orders */}
           {orders?.map((o, i) => {
             return (
-              <div className="border shadow" key={o._id}>
+              <div className="border shadow">
                 <table className="table">
                   <thead>
                     <tr>
                       <th scope="col">#</th>
                       <th scope="col">Status</th>
                       <th scope="col">Buyer</th>
-                      <th scope="col">Date</th>
+                      <th scope="col"> date</th>
                       <th scope="col">Payment</th>
                       <th scope="col">Quantity</th>
                     </tr>
@@ -104,10 +72,22 @@ const AdminOrders = () => {
                   <tbody>
                     <tr>
                       <td>{i + 1}</td>
-                      <td>{o?.status}</td>
+                      <td>
+                        <Select
+                          bordered={false}
+                          onChange={(value) => handleChange(o._id, value)}
+                          defaultValue={o?.status}
+                        >
+                          {status.map((s, i) => (
+                            <Option key={i} value={s}>
+                              {s}
+                            </Option>
+                          ))}
+                        </Select>
+                      </td>
                       <td>{o?.buyer?.name}</td>
-                      <td>{new Date(o?.createAt).toLocaleDateString()}</td>
-                      <td>{o?.payment?.success ? "Success" : "Failed"}</td>
+                      <td>{moment(o?.createAt).fromNow()}</td>
+                      <td>{o?.payment.success ? "Success" : "Failed"}</td>
                       <td>{o?.products?.length}</td>
                     </tr>
                   </tbody>
@@ -127,8 +107,7 @@ const AdminOrders = () => {
                       <div className="col-md-8">
                         <p>{p.name}</p>
                         <p>{p.description.substring(0, 30)}</p>
-                        <p>Price: {p.price}</p>
-                        <p>Availability: {p.countInStock}</p>
+                        <p>Price : {p.price}</p>
                       </div>
                     </div>
                   ))}
