@@ -129,3 +129,10 @@
 20240818	03:23:53	3fa820ec-5611-470d-9314-12dbe2bb4602	GET	/api/v1/auth/all-orders	undefined
 20240818	03:23:54	0b61bf18-b57e-4134-be1a-060d2ef58149	GET	/api/v1/auth/all-orders	undefined
 20240818	03:23:54	1af7d89f-ed7b-4ab1-a7a1-a23d0149ee20	GET	/api/v1/auth/all-orders	undefined
+20240918	20:43:54	4f09c579-1338-4a6d-98ad-36e7a93ca76e	POST	/api/v1/auth/login	undefined
+20240918	20:45:05	e9afe5af-c453-45fd-9a91-b6e592e6f118	POST	/api/v1/auth/login	undefined
+20240918	20:45:55	847bef02-0bcd-4b68-be2f-e24804090e3f	POST	/api/v1/auth/login	undefined
+20240918	20:46:00	fe7b72d9-0b18-4c6d-8565-87c8b5066ea3	POST	/api/v1/auth/login	undefined
+20240918	20:46:32	52797f63-e64a-4b7e-9d9c-17f4b7545b0a	POST	/api/v1/auth/login	undefined
+20240918	20:46:36	b97bbad9-c35f-4669-b3e1-a9973ac610fc	POST	/api/v1/auth/login	undefined
+20240918	20:46:53	6565b6a3-f0be-4090-82d4-d18ec9ab12cd	POST	/api/v1/auth/login	undefined

@@ -1,9 +1,6 @@
 import { useState, useEffect, useContext, createContext } from "react";
 import axios from "axios";
 
-
-
-
 const AuthContext = createContext();
 const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState({
@@ -11,7 +8,7 @@ const AuthProvider = ({ children }) => {
     token: "",
   });
 
-  //default axios
+  // Set default axios headers
   axios.defaults.headers.common["Authorization"] = auth?.token;
 
   useEffect(() => {
@@ -26,14 +23,23 @@ const AuthProvider = ({ children }) => {
     }
     //eslint-disable-next-line
   }, []);
+
+  const logout = () => {
+    setAuth({ user: null, token: "" });
+    localStorage.removeItem("auth"); // Remove auth data
+
+    // Remove the cart associated with the logged-in user
+    if (auth?.user?.email) {
+      localStorage.removeItem(`cart-${auth.user.email}`);
+    }
+  };
+
   return (
-    <AuthContext.Provider value={[auth, setAuth]}>
+    <AuthContext.Provider value={[auth, setAuth, logout]}>
       {children}
     </AuthContext.Provider>
   );
 };
-
-
 
 // custom hook
 const useAuth = () => useContext(AuthContext);

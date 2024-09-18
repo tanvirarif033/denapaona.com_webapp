@@ -3,6 +3,7 @@ import Layout from "../components/Layout/Layout";
 import axios from "axios";
 import { useCart } from "../context/cart";
 import { Checkbox, Radio, Spin, Carousel } from "antd";
+import { useAuth } from "../context/auth";
 import toast from "react-hot-toast";
 import { Prices } from "../components/Prices";
 import { useNavigate } from "react-router-dom";
@@ -13,6 +14,7 @@ const HomePage = () => {
   const navigate = useNavigate();
   const [cart, setCart] = useCart();
   const [products, setProducts] = useState([]);
+  const [auth] = useAuth();
   const [categories, setCategories] = useState([]);
   const [checked, setChecked] = useState([]);
   const [radio, setRadio] = useState([]);
@@ -20,6 +22,20 @@ const HomePage = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [filterLoading, setFilterLoading] = useState(false);
+
+  // Load user-specific cart when user logs in
+  useEffect(() => {
+    if (auth?.user) {
+      const savedCart = localStorage.getItem(`cart-${auth.user.email}`);
+      if (savedCart) {
+        setCart(JSON.parse(savedCart)); // Restore the cart from localStorage if it exists
+      } else {
+        setCart([]); // Initialize the cart as empty if nothing is found in localStorage
+      }
+    } else {
+      setCart([]); // Reset the cart when the user logs out
+    }
+  }, [auth?.user, setCart]);
 
   const getAllCategory = async () => {
     try {
@@ -53,7 +69,8 @@ const HomePage = () => {
     try {
       setLoading(true);
       const { data } = await axios.get(
-        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-list/${page}`,{
+        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-list/${page}`,
+        {
           headers: {
             "x-api-key": process.env.REACT_APP_API_KEY,
           },
@@ -70,7 +87,8 @@ const HomePage = () => {
   const getTotal = async () => {
     try {
       const { data } = await axios.get(
-        "https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-count",{
+        "https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-count",
+        {
           headers: {
             "x-api-key": process.env.REACT_APP_API_KEY,
           },
@@ -91,7 +109,8 @@ const HomePage = () => {
     try {
       setLoading(true);
       const { data } = await axios.get(
-        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-list/${page}`,{
+        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-list/${page}`,
+        {
           headers: {
             "x-api-key": process.env.REACT_APP_API_KEY,
           },
@@ -148,11 +167,23 @@ const HomePage = () => {
     setRadio([]);
     getAllProducts();
   };
-
+  const handleAddToCart = (product) => {
+    if (!auth?.user) {
+      toast.error("Please log in to add items to the cart");
+      navigate("/login"); // Redirect to login page if not authenticated
+    } else {
+      const updatedCart = [...cart, product];
+      setCart(updatedCart);
+      localStorage.setItem(
+        `cart-${auth.user.email}`,
+        JSON.stringify(updatedCart)
+      ); // Save cart associated with user's email
+      toast.success("Item Added to Cart");
+    }
+  };
   return (
     <Layout title={"All products-Best Offers"}>
-
-       <Carousel autoplay>
+      <Carousel autoplay>
         <div>
           <img
             src="/images/img1.webp"
@@ -201,26 +232,25 @@ const HomePage = () => {
               ))
             )}
           </div>
-        
 
-        <div className="filter-price">
-          <h4>Filter By Price</h4>
-          <div className="filter-radios">
-            {loading ? (
-              <Spin size="large" />
-            ) : (
-              <Radio.Group
-                value={radio}
-                onChange={(e) => setRadio(e.target.value)}
-              >
-                {Prices?.map((p) => (
-                  <Radio value={p.array} key={p._id}>
-                    {p.name}
-                  </Radio>
-                ))}
-              </Radio.Group>
-            )}
-          </div>
+          <div className="filter-price">
+            <h4>Filter By Price</h4>
+            <div className="filter-radios">
+              {loading ? (
+                <Spin size="large" />
+              ) : (
+                <Radio.Group
+                  value={radio}
+                  onChange={(e) => setRadio(e.target.value)}
+                >
+                  {Prices?.map((p) => (
+                    <Radio value={p.array} key={p._id}>
+                      {p.name}
+                    </Radio>
+                  ))}
+                </Radio.Group>
+              )}
+            </div>
           </div>
           <button className="btn btn-danger" onClick={resetFilters}>
             RESET FILTERS
@@ -265,14 +295,7 @@ const HomePage = () => {
                       </button>
                       <button
                         className="btn btn-link text-decoration-none"
-                        onClick={() => {
-                          setCart([...cart, p]);
-                          localStorage.setItem(
-                            "cart",
-                            JSON.stringify([...cart, p])
-                          );
-                          toast.success("Item Added to Cart");
-                        }}
+                        onClick={() => handleAddToCart(p)} // Use the new handler here
                       >
                         Add To Cart
                       </button>
@@ -291,7 +314,13 @@ const HomePage = () => {
                   setPage(page + 1);
                 }}
               >
-                {loading ? "Loading ..." : <>Loadmore <AiOutlineReload /></>}
+                {loading ? (
+                  "Loading ..."
+                ) : (
+                  <>
+                    Loadmore <AiOutlineReload />
+                  </>
+                )}
               </button>
             )}
           </div>
