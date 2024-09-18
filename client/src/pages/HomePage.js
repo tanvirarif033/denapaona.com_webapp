@@ -26,12 +26,16 @@ const HomePage = () => {
   // Load user-specific cart when user logs in
   useEffect(() => {
     if (auth?.user) {
-      const savedCart = localStorage.getItem(`cart-${auth.user.email}`); // Associate cart with the user's email
+      const savedCart = localStorage.getItem(`cart-${auth.user.email}`);
       if (savedCart) {
-        setCart(JSON.parse(savedCart)); // Restore the cart from localStorage
+        setCart(JSON.parse(savedCart)); // Restore the cart from localStorage if it exists
+      } else {
+        setCart([]); // Initialize the cart as empty if nothing is found in localStorage
       }
+    } else {
+      setCart([]); // Reset the cart when the user logs out
     }
-  }, [auth?.user]);
+  }, [auth?.user, setCart]);
 
   const getAllCategory = async () => {
     try {

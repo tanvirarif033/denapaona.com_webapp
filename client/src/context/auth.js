@@ -24,11 +24,14 @@ const AuthProvider = ({ children }) => {
     //eslint-disable-next-line
   }, []);
 
-  // Log out function
   const logout = () => {
     setAuth({ user: null, token: "" });
     localStorage.removeItem("auth"); // Remove auth data
-    localStorage.removeItem("cart"); // Clear cart on logout
+
+    // Remove the cart associated with the logged-in user
+    if (auth?.user?.email) {
+      localStorage.removeItem(`cart-${auth.user.email}`);
+    }
   };
 
   return (
