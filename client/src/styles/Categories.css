@@ -1,0 +1,38 @@
+.container {
+    margin-top: 20px;
+  }
+  
+  .category-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .category-card:hover {
+    transform: scale(1.05);
+  }
+  
+  .category-card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+  
+  .category-link {
+    text-decoration: none;
+    color: inherit;
+  }
+  
+  .category-card .card-title {
+    font-size: 1.2rem;
+    text-align: center;
+    margin-top: 10px;
+  }
+  
+  .card-body {
+    padding: 10px;
+    background-color: #f8f9fa;
+  }
+  
