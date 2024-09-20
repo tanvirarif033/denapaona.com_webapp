@@ -33,10 +33,14 @@ const Login = () => {
           ...auth,
           user: res.data.user,
           token: res.data.token,
-          accessToken: res.data.accessToken,
           refreshToken: res.data.refreshToken,
         });
         localStorage.setItem("auth", JSON.stringify(res.data));
+         // Log the previous tokens before refreshing
+      console.log("Previous Access Token: ", auth.token);
+      console.log("Previous Refresh Token: ", auth.refreshToken);
+        console.log("New Access Token: ", res.data.accessToken);
+        console.log("New Refresh Token: ", res.data.refreshToken);
         navigate(location.state || "/");
       } else {
         toast.error(res.data.message);
