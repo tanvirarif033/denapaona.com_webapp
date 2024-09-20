@@ -36,9 +36,7 @@ const Login = () => {
           refreshToken: res.data.refreshToken,
         });
         localStorage.setItem("auth", JSON.stringify(res.data));
-         // Log the previous tokens before refreshing
-      console.log(" Access Token: ", auth.token);
-      console.log(" Refresh Token: ", auth.refreshToken);
+       
       
         navigate(location.state || "/");
       } else {
