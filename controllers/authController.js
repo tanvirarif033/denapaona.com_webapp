@@ -127,15 +127,11 @@ export const refreshTokenController = (req, res) => {
     const user = JWT.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
     const newAccessToken = JWT.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "15s" });
     const newRefreshToken = createRefreshToken(user);
-        // Log the new access token and refresh token
-        console.log("New Access Token: ", newAccessToken);
-        console.log("New Refresh Token: ", newRefreshToken);
 
     res.status(200).json({
       success: true,
       accessToken: newAccessToken,
       refreshToken: newRefreshToken, // Optionally return a new refresh token
-      
     });
   } catch (error) {
     console.log(error);
