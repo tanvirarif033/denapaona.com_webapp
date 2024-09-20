@@ -5,19 +5,27 @@
   .category-card {
     border: 1px solid #ddd;
     border-radius: 8px;
-    overflow: hidden;
-    transition: transform 0.3s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    text-align: center;
+    background-color: #f8f9fa;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
   }
   
   .category-card:hover {
     transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
   }
   
-  .category-card img {
-    width: 100%;
-    height: 200px;
-    object-fit: cover;
+  .no-photo-card {
+    background: linear-gradient(135deg, #6b9dd0, #80b8de);
+    color: white;
+  }
+  
+  .category-card .card-title {
+    font-size: 1.5rem;
+    margin: 20px 0;
+    font-weight: 600;
+    color: #fff;
   }
   
   .category-link {
@@ -25,14 +33,8 @@
     color: inherit;
   }
   
-  .category-card .card-title {
-    font-size: 1.2rem;
-    text-align: center;
-    margin-top: 10px;
-  }
-  
   .card-body {
-    padding: 10px;
-    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
   }
   
