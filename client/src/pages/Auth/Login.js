@@ -37,10 +37,9 @@ const Login = () => {
         });
         localStorage.setItem("auth", JSON.stringify(res.data));
          // Log the previous tokens before refreshing
-      console.log("Previous Access Token: ", auth.token);
-      console.log("Previous Refresh Token: ", auth.refreshToken);
-        console.log("New Access Token: ", res.data.accessToken);
-        console.log("New Refresh Token: ", res.data.refreshToken);
+      console.log(" Access Token: ", auth.token);
+      console.log(" Refresh Token: ", auth.refreshToken);
+      
         navigate(location.state || "/");
       } else {
         toast.error(res.data.message);
