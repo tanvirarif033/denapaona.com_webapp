@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import useCategory from "../hooks/useCategory";
 import Layout from "../components/Layout/Layout";
 import "../styles/Categories.css";
+
 const Categories = () => {
   const categories = useCategory();
 
@@ -13,12 +14,7 @@ const Categories = () => {
           {categories.map((c) => (
             <div className="col-md-4 mt-5 mb-3" key={c._id}>
               <Link to={`/category/${c.slug}`} className="category-link">
-                <div className="card category-card">
-                  <img
-                    src={`https://denapaona-com-webapp-server.vercel.app/api/v1/category/photo/${c._id}`}
-                    className="card-img-top"
-                    alt={c.name}
-                  />
+                <div className="card category-card no-photo-card">
                   <div className="card-body">
                     <h5 className="card-title">{c.name}</h5>
                   </div>
