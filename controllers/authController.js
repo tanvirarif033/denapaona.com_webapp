@@ -89,7 +89,7 @@ export const loginController = async (req, res) => {
     // Generate tokens
     const refreshToken = createRefreshToken(user);
     const token = JWT.sign({ _id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "15m",
+      expiresIn: "15s",
     });
 
     res.status(200).send({
@@ -120,21 +120,31 @@ export const loginController = async (req, res) => {
 export const refreshTokenController = (req, res) => {
   const { refreshToken } = req.body;
   if (!refreshToken) {
-    return res
-      .status(403)
-      .send({ success: false, message: "Refresh token is required" });
+    return res.status(403).send({ success: false, message: "Refresh token is required" });
   }
 
   try {
     const user = JWT.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-    // Additional logic for generating a new access token can be added here
+    const newAccessToken = JWT.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "15s" });
+    const newRefreshToken = createRefreshToken(user);
+
+    res.status(200).json({
+      success: true,
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken, // Optionally return a new refresh token
+    });
   } catch (error) {
     console.log(error);
-    res
-      .status(403)
-      .send({ success: false, message: "Invalid refresh token", error });
+    res.status(403).send({ success: false, message: "Invalid refresh token", error });
   }
+  res.cookie('refreshToken', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production', // Ensure it's secure in production
+    sameSite: 'Strict',
+    maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+  }); 
 };
+
 
 // Test Controller
 export const testController = (req, res) => {

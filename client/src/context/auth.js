@@ -24,9 +24,10 @@ const AuthProvider = ({ children }) => {
     //eslint-disable-next-line
   }, []);
 
-  const logout = () => {
+  const logout = async() => {
     setAuth({ user: null, token: "" });
-    localStorage.removeItem("auth"); // Remove auth data
+  localStorage.removeItem("auth");
+  await axios.post("https://denapaona-com-webapp-server.vercel.app/api/v1/auth/logout");
 
     // Remove the cart associated with the logged-in user
     if (auth?.user?.email) {
