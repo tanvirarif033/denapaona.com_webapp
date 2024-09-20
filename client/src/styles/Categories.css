@@ -1,0 +1,30 @@
+.container {
+    margin-top: 20px;
+  }
+  
+  .category-card {
+    border: 1px solid #ddd;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+  }
+  
+  .category-card:hover {
+    transform: scale(1.05);
+  }
+  
+  .category-card img {
+    height: 200px;
+    object-fit: cover;
+  }
+  
+  .category-link {
+    text-decoration: none;
+    color: #000;
+  }
+  
+  .category-link .card-title {
+    font-size: 1.2rem;
+    text-align: center;
+    margin-top: 10px;
+  }
+  
