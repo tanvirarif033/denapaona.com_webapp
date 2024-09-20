@@ -15,20 +15,21 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // form function
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       const res = await axios.post(
         "https://denapaona-com-webapp-server.vercel.app/api/v1/auth/login",
-        {
-          email,
-          password,
-        }
+        { email, password }
       );
       if (res && res.data.success) {
-        toast.success(res.data && res.data.message);
+        toast.success(res.data.message);
+  
+        // Log the tokens from the login response
+        console.log("Login: Access Token: ", res.data.token);
+        console.log("Login: Refresh Token: ", res.data.refreshToken);
+  
         setAuth({
           ...auth,
           user: res.data.user,
@@ -36,11 +37,7 @@ const Login = () => {
           refreshToken: res.data.refreshToken,
         });
         localStorage.setItem("auth", JSON.stringify(res.data));
-         // Log the previous tokens before refreshing
-      console.log("Previous Access Token: ", auth.token);
-      console.log("Previous Refresh Token: ", auth.refreshToken);
-        console.log("New Access Token: ", res.data.accessToken);
-        console.log("New Refresh Token: ", res.data);
+  
         navigate(location.state || "/");
       } else {
         toast.error(res.data.message);
@@ -48,9 +45,7 @@ const Login = () => {
     } catch (error) {
       console.log(error);
       if (error.response && error.response.status === 429) {
-        toast.error(
-          "Too many login attempts. Please try again after 60 seconds."
-        );
+        toast.error("Too many login attempts. Please try again after 60 seconds.");
       } else {
         toast.error("Something went wrong");
       }
@@ -58,6 +53,7 @@ const Login = () => {
       setLoading(false);
     }
   };
+  
 
   return (
     <Layout title="Login - Ecommer App">
