@@ -105,31 +105,33 @@ export const addReplyController = async (req, res) => {
   }
 };
 
-// controllers/reviewController.js
 export const deleteReviewController = async (req, res) => {
   try {
     const { reviewId } = req.params;
 
-    // Find the review by ID
     const review = await Review.findById(reviewId);
-
     if (!review) {
       return res.status(404).json({ message: "Review not found" });
     }
 
-    // Check if the user making the request is the owner of the review or an admin
-    if (
-      review.user.toString() !== req.user._id.toString() &&
-      !req.user.isAdmin
-    ) {
+    console.log("User attempting to delete review:", req.user); // Log user
+    console.log("Review user ID:", review.user); // Log review user ID
+
+    // Check if the user is the owner or an admin
+    const isOwner = review.user.toString() === req.user._id.toString();
+    const isAdmin = req.user.role === 1; // Assuming role 1 is admin
+
+    console.log("Is owner:", isOwner); // Log ownership check
+    console.log("Is admin:", isAdmin); // Log admin check
+    console.log("Decoded user:", req.user);
+
+    if (!isOwner && !isAdmin) {
       return res
         .status(403)
         .json({ message: "Unauthorized to delete this review" });
     }
 
-    // If authorized, delete the review
     await review.deleteOne();
-
     res
       .status(200)
       .json({ success: true, message: "Review deleted successfully" });
