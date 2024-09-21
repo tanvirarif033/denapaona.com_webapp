@@ -64,6 +64,12 @@ const ProductDetails = () => {
 
   // Add a new review
   const addReview = async () => {
+    if (!product?._id) {
+      console.error("Product not found or invalid product ID.");
+      setError("Unable to add review. Product not found.");
+      return;
+    }
+
     try {
       const { data } = await axios.post(
         "https://denapaona-com-webapp-server.vercel.app/api/v1/review/add-review",
@@ -85,7 +91,7 @@ const ProductDetails = () => {
   };
 
   useEffect(() => {
-    if (auth?.token) addReview();
+    if (auth?.token) getProduct(); // Fetch the product details first
   }, [auth?.token]);
 
   // Delete a review
