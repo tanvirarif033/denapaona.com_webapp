@@ -3,6 +3,7 @@ import Layout from "./../components/Layout/Layout";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import "../styles/ProductDetails.css";
+import { useAuth } from "../context/auth";
 
 const ProductDetails = () => {
   const params = useParams();
@@ -11,6 +12,7 @@ const ProductDetails = () => {
   const [reviews, setReviews] = useState([]);
   const [newReview, setNewReview] = useState({ rating: "", comment: "" });
   const [error, setError] = useState("");
+  const [auth, setAuth] = useAuth();
 
   // Fetch product details
   useEffect(() => {
@@ -64,25 +66,27 @@ const ProductDetails = () => {
   const addReview = async () => {
     try {
       const { data } = await axios.post(
-        `https://denapaona-com-webapp-server.vercel.app/api/v1/review/add-review`,
+        "https://denapaona-com-webapp-server.vercel.app/api/v1/review/add-review",
         {
           productId: product._id,
           rating: newReview.rating,
           comment: newReview.comment,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
         }
       );
-      setReviews([...reviews, data.review]); // Update state with new review
-      setNewReview({ rating: "", comment: "" }); // Reset form
+
+      // Update state with new review
+      setReviews([...reviews, data.review]);
+      // Reset form
+      setNewReview({ rating: "", comment: "" });
     } catch (error) {
       console.log(error);
       setError("Error adding review. Please try again.");
     }
   };
+
+  useEffect(() => {
+    if (auth?.token) addReview();
+  }, [auth?.token]);
 
   // Delete a review
   const deleteReview = async (reviewId) => {
