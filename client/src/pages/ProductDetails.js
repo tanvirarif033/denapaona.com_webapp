@@ -173,12 +173,15 @@ const ProductDetails = () => {
                 <strong>Admin Reply:</strong> {review.reply}
               </p>
             )}
-            <button
-              className="btn btn-danger"
-              onClick={() => deleteReview(review._id)}
-            >
-              Delete
-            </button>
+            {/* Only show the delete button for the authenticated user's own reviews */}
+            {auth?.user?._id === review.user._id && (
+              <button
+                className="btn btn-danger"
+                onClick={() => deleteReview(review._id)}
+              >
+                Delete
+              </button>
+            )}
           </div>
         ))}
 
