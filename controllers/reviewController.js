@@ -114,16 +114,9 @@ export const deleteReviewController = async (req, res) => {
       return res.status(404).json({ message: "Review not found" });
     }
 
-    console.log("User attempting to delete review:", req.user); // Log user
-    console.log("Review user ID:", review.user); // Log review user ID
-
     // Check if the user is the owner or an admin
     const isOwner = review.user.toString() === req.user._id.toString();
     const isAdmin = req.user.role === 1; // Assuming role 1 is admin
-
-    console.log("Is owner:", isOwner); // Log ownership check
-    console.log("Is admin:", isAdmin); // Log admin check
-    console.log("Decoded user:", req.user);
 
     if (!isOwner && !isAdmin) {
       return res
