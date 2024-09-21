@@ -5,6 +5,8 @@ import { useParams } from "react-router-dom";
 import "../styles/ProductDetails.css";
 import { useAuth } from "../context/auth";
 import { toast } from "react-hot-toast"; // Importing toast
+import { useNavigate } from "react-router-dom";
+import { useCart } from "../context/cart";
 
 const ProductDetails = () => {
   const params = useParams();
@@ -12,8 +14,10 @@ const ProductDetails = () => {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [newReview, setNewReview] = useState({ rating: "", comment: "" });
-  const [error, setError] = useState("");
-  const [auth, setAuth] = useAuth();
+  const [error, setError] = useState(""); // Define the error state
+  const [auth] = useAuth();
+  const [cart, setCart] = useCart();
+  const navigate = useNavigate();
 
   // Fetch product details
   useEffect(() => {
@@ -51,6 +55,22 @@ const ProductDetails = () => {
     }
   };
 
+  // Handle adding product to cart
+  const handleAddToCart = (product) => {
+    if (!auth?.user) {
+      toast.error("Please log in to add items to the cart");
+      navigate("/login"); // Redirect to login page if not authenticated
+    } else {
+      const updatedCart = [...cart, product];
+      setCart(updatedCart);
+      localStorage.setItem(
+        `cart-${auth.user.email}`,
+        JSON.stringify(updatedCart)
+      ); // Save cart associated with user's email
+      toast.success("Item Added to Cart");
+    }
+  };
+
   // Get reviews for the product
   const getReviews = async (productId) => {
     try {
@@ -66,7 +86,12 @@ const ProductDetails = () => {
   // Add a new review
   const addReview = async () => {
     if (!product?._id) {
-      toast.error("Unable to add review. Product not found.");
+      setError("Unable to add review. Product not found."); // Set error
+      return;
+    }
+
+    if (!newReview.rating || !newReview.comment) {
+      setError("Please provide both a rating and a comment."); // Set error if inputs are incomplete
       return;
     }
 
@@ -83,11 +108,12 @@ const ProductDetails = () => {
       // Update state with new review
       setReviews([...reviews, data.review]);
       toast.success("Review added successfully!"); // Success toast
+      setError(""); // Clear error on success
       // Reset form
       setNewReview({ rating: "", comment: "" });
     } catch (error) {
       console.log(error);
-      toast.error("Error adding review. Please try again."); // Error toast
+      setError("Error adding review. Please try again."); // Set error on failure
     }
   };
 
@@ -130,33 +156,12 @@ const ProductDetails = () => {
           <h6>Description: {product.description}</h6>
           <h6>Price: {product.price}</h6>
           <h6>Category: {product?.category?.name}</h6>
-          <button className="btn btn-secondary ms-1">ADD TO CART</button>
+          <button className="btn btn-secondary ms-1" onClick={() => handleAddToCart(product)}>
+            ADD TO CART
+          </button>
         </div>
       </div>
       <hr />
-      <div className="row container similar-products">
-        <h4>Similar Products</h4>
-        {relatedProducts.length < 1 && (
-          <p className="text-center">No Similar Products found</p>
-        )}
-        {relatedProducts.map((p) => (
-          <div className="card m-2" style={{ width: "18rem" }} key={p._id}>
-            <img
-              src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${p._id}`}
-              className="card-img-top"
-              alt={p.name}
-            />
-            <div className="card-body">
-              <h5 className="card-title">{p.name}</h5>
-              <p className="card-text">{p.description.substring(0, 20)}...</p>
-              <p className="card-text">$ {p.price}</p>
-              <button className="btn btn-link text-decoration-none">
-                ADD TO CART
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
 
       <hr />
       <div className="container reviews">
@@ -173,7 +178,6 @@ const ProductDetails = () => {
                 <strong>Admin Reply:</strong> {review.reply}
               </p>
             )}
-            {/* Only show the delete button for the authenticated user's own reviews */}
             {auth?.user?._id === review.user._id && (
               <button
                 className="btn btn-danger"
@@ -186,7 +190,7 @@ const ProductDetails = () => {
         ))}
 
         <h4>Add a Review</h4>
-        {error && <p className="text-danger">{error}</p>}
+        {error && <p className="text-danger">{error}</p>} {/* Display error */}
         <input
           type="number"
           min="1"
@@ -209,6 +213,32 @@ const ProductDetails = () => {
         <button className="btn btn-primary" onClick={addReview}>
           Submit Review
         </button>
+      </div>
+      <div className="row container similar-products">
+        <h4>Similar Products</h4>
+        {relatedProducts.length < 1 && (
+          <p className="text-center">No Similar Products found</p>
+        )}
+        {relatedProducts.map((p) => (
+          <div className="card m-2" style={{ width: "18rem" }} key={p._id}>
+            <img
+              src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${p._id}`}
+              className="card-img-top"
+              alt={p.name}
+            />
+            <div className="card-body">
+              <h5 className="card-title">{p.name}</h5>
+              <p className="card-text">{p.description.substring(0, 20)}...</p>
+              <p className="card-text">$ {p.price}</p>
+              <button
+                        className="btn btn-link text-decoration-none"
+                        onClick={() => navigate(`/product/${p.slug}`)}
+                      >
+                        More Details
+                      </button>
+            </div>
+          </div>
+        ))}
       </div>
     </Layout>
   );
