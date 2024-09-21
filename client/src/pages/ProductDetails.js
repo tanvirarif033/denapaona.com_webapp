@@ -154,7 +154,7 @@ const ProductDetails = () => {
           <hr />
           <h6>Name: {product.name}</h6>
           <h6>Description: {product.description}</h6>
-          <h6>Price: {product.price}</h6>
+          <h6>Price: ${product.price}</h6>
           <h6>Category: {product?.category?.name}</h6>
           <button className="btn btn-link text-decoration-none" onClick={() => handleAddToCart(product)}>
             ADD TO CART
@@ -214,6 +214,7 @@ const ProductDetails = () => {
           Submit Review
         </button>
       </div>
+
       <div className="row container similar-products">
         <h4>Similar Products</h4>
         {relatedProducts.length < 1 && (
