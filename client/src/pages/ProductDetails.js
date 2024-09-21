@@ -4,6 +4,7 @@ import axios from "axios";
 import { useParams } from "react-router-dom";
 import "../styles/ProductDetails.css";
 import { useAuth } from "../context/auth";
+import { toast } from "react-hot-toast"; // Importing toast
 
 const ProductDetails = () => {
   const params = useParams();
@@ -65,8 +66,7 @@ const ProductDetails = () => {
   // Add a new review
   const addReview = async () => {
     if (!product?._id) {
-      console.error("Product not found or invalid product ID.");
-      setError("Unable to add review. Product not found.");
+      toast.error("Unable to add review. Product not found.");
       return;
     }
 
@@ -82,33 +82,32 @@ const ProductDetails = () => {
 
       // Update state with new review
       setReviews([...reviews, data.review]);
+      toast.success("Review added successfully!"); // Success toast
       // Reset form
       setNewReview({ rating: "", comment: "" });
     } catch (error) {
       console.log(error);
-      setError("Error adding review. Please try again.");
+      toast.error("Error adding review. Please try again."); // Error toast
     }
   };
 
   useEffect(() => {
-    if (auth?.token) getProduct(); // Fetch the product details first
+    if (auth?.token) getProduct();
   }, [auth?.token]);
 
   // Delete a review
   const deleteReview = async (reviewId) => {
     try {
       await axios.delete(
-        `https://denapaona-com-webapp-server.vercel.app/api/v1/review/delete-review/${reviewId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
+        `https://denapaona-com-webapp-server.vercel.app/api/v1/review/delete-review/${reviewId}`
       );
-      setReviews(reviews.filter((review) => review._id !== reviewId)); // Remove deleted review from state
+
+      // Remove the deleted review from state
+      setReviews(reviews.filter((review) => review._id !== reviewId));
+      toast.success("Review deleted successfully!"); // Success toast
     } catch (error) {
       console.log(error);
-      setError("Error deleting review. Please try again.");
+      toast.error("Error deleting review. Please try again."); // Error toast
     }
   };
 

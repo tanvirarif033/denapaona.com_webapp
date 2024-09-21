@@ -110,12 +110,25 @@ export const deleteReviewController = async (req, res) => {
   try {
     const { reviewId } = req.params;
 
-    // Find and delete the review by ID
-    const review = await Review.findByIdAndDelete(reviewId);
+    // Find the review by ID
+    const review = await Review.findById(reviewId);
 
     if (!review) {
       return res.status(404).json({ message: "Review not found" });
     }
+
+    // Check if the user making the request is the owner of the review or an admin
+    if (
+      review.user.toString() !== req.user._id.toString() &&
+      !req.user.isAdmin
+    ) {
+      return res
+        .status(403)
+        .json({ message: "Unauthorized to delete this review" });
+    }
+
+    // If authorized, delete the review
+    await review.deleteOne();
 
     res
       .status(200)
