@@ -42,7 +42,7 @@ router.get("/admin-auth", requireSignIn, isAdmin, (req, res) => {
 });
 
 // Update profile
-router.put("/profile", requireSignIn, updateProfileController);
+router.put("/profile", updateProfileController);
 
 //orders
 
