@@ -186,28 +186,28 @@ const HomePage = () => {
       <Carousel autoplay>
         <div>
           <img
-            src="/images/img1.webp"
+            src="/images/c1.png"
             alt="Slide 1"
             style={{ width: "100%", height: "300px", objectFit: "cover" }}
           />
         </div>
         <div>
           <img
-            src="/images/img2.webp"
+            src="/images/c2.png"
             alt="Slide 2"
             style={{ width: "100%", height: "300px", objectFit: "cover" }}
           />
         </div>
         <div>
           <img
-            src="/images/img5.webp"
+            src="/images/c3.png"
             alt="Slide 3"
             style={{ width: "100%", height: "300px", objectFit: "cover" }}
           />
         </div>
         <div>
           <img
-            src="/images/img3.jpg"
+            src="/images/c41.png"
             alt="Slide 4"
             style={{ width: "100%", height: "300px", objectFit: "cover" }}
           />
