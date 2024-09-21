@@ -88,9 +88,13 @@ export const loginController = async (req, res) => {
 
     // Generate tokens
     const refreshToken = createRefreshToken(user);
-    const token = JWT.sign({ _id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "15m",
-    });
+    const token = JWT.sign(
+      { _id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "15m",
+      }
+    );
 
     res.status(200).send({
       success: true,
