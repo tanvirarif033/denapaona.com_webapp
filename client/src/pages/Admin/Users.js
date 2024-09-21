@@ -7,9 +7,9 @@ import { useAuth } from "../../context/auth";
 
 const Users = () => {
   const [reviews, setReviews] = useState([]);
-  const [reply, setReply] = useState(""); // For reply input
-  const [selectedReviewId, setSelectedReviewId] = useState(null); // To track the review being replied to
-  const [auth, setAuth] = useAuth();
+  const [reply, setReply] = useState("");
+  const [selectedReviewId, setSelectedReviewId] = useState(null);
+  const [auth] = useAuth(); // Destructure auth to get user
 
   // Fetch all reviews when the component mounts
   useEffect(() => {
@@ -46,22 +46,23 @@ const Users = () => {
     }
   };
 
-  // Function to handle deleting a review
   const handleDeleteReview = async (reviewId) => {
-    if (!auth.user || !auth.user.isAdmin) {
+    if (!auth.user || auth.user.role !== 1) {
       toast.error("Unauthorized to delete this review.");
       return;
     }
 
     try {
-      await axios.delete(
+      const response = await axios.delete(
         `https://denapaona-com-webapp-server.vercel.app/api/v1/review/delete-review/${reviewId}`
       );
-      toast.success("Review deleted successfully!");
-      fetchReviews(); // Refresh reviews after deletion
+      if (response.data.success) {
+        toast.success("Review deleted successfully!");
+        fetchReviews(); // Refresh reviews after deletion
+      }
     } catch (error) {
       console.error("Error deleting review:", error);
-      toast.error("Failed to delete review.");
+      toast.error(error.response?.data?.message || "Failed to delete review.");
     }
   };
 
