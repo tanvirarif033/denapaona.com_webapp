@@ -277,9 +277,13 @@ const HomePage = () => {
               alt={p.name}
             />
             <div className="card-body">
-              <h5 className="card-title">{p.name}</h5>
+            <h5 className="card-title bold">{p.name}</h5>
+
               <p className="card-text">{p.description.substring(0, 20)}...</p>
-              <p className="card-text">$ {p.price}</p>
+              <p className="card-text1">
+              <span style={{ color: "green" }}>$</span> {p.price}   
+                </p>
+
               <div className="d-flex justify-content-between">
                 <button
                   className="btn btn-link text-decoration-none"

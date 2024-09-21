@@ -1,126 +1,116 @@
 /* General page layout */
 .product-details {
-    margin-top: 20px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-  }
-  
-  /* Product details section */
-  .product-details-info {
-    flex: 1;
-    padding: 10px; 
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #fff;
-    max-width: 400px; 
-  }
-  
-  .product-details-info h1 {
-    font-size: 20px; 
-    color: #333;
-  }
-  
-  .product-details-info h6 {
-    font-size: 16px; 
-    color: #555;
-    margin: 5px 0; 
-  }
-  
-  /*
-   .product-details-info button {
-    background-color: #ff9900;
-    color: #fff;
-    border: none;
-    padding: 5px 10px; 
-    font-size: 14px; 
-    cursor: pointer;
-    margin-top: 10px; 
-  }
+  margin-top: 20px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
 
-  */
-  
-  
-  /* Product image */
-  .product-details .card-img-top {
-    width: 100%; /* Make image responsive */
-    max-width: 300px; /* Reduced max width */
-    height: auto;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-  }
-  
-  /* Similar products section */
-  .similar-products {
-    margin-top: 40px;
-  }
-  
-  .similar-products h4 {
-    font-size: 20px;
-    color: #333;
-    margin-bottom: 20px;
-    display: flex;
-    font-weight: bold;
-    justify-content: center; /* Centers the products horizontally */
-    flex-wrap: wrap; /* Ensures the products wrap to the next row if there's not enough space */
-   
-  
-   
-  }
-  
-  .similar-products .card {
-    flex: 1;
-    max-width: 180px; 
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    background-color: #fff;
-    margin-bottom: 20px;
-    
-  }
-  
-  .similar-products .card img {
-    width: 100%;
-    height: auto;
-    border-bottom: 1px solid #ddd;
-  }
-  
-  .similar-products .card-body {
-    padding: 10px;
-  }
-  
-  .similar-products .card-title {
-    font-size: 14px; 
-    color: #333;
-  }
-  
-  .similar-products .card-text {
-    font-size: 12px; 
-    color: #555;
-  }
-  
-  /* .similar-products .card button {
-    background-color: #ff9900;
-    color: #fff;
-    border: none;
-    padding: 5px 10px;
-    font-size: 12px; 
-    cursor: pointer;
-  } */
+/* Product details section */
+.product-details-info {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fff;
+  max-width: 400px;
+}
 
-  /* Button styling */
-  .btn-secondary {
-    background-color: #ff9900;
-    color: #fff;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
-    margin-top: 10px;
-  }
-  
-  .btn-secondary:hover {
-    background-color: #e68a00;
-  }
+.product-details-info h1 {
+  font-size: 20px;
+  color: #333;
+}
+
+.product-details-info h6 {
+  font-size: 16px;
+  color: #555;
+  margin: 5px 0;
+}
+
+/* Product name bold styling */
+.product-name {
+  font-weight: bold;
+  font-size: 18px;
+  color: #333;
+}
+
+/* Product price colorful styling */
+.product-price {
+  font-size: 16px;
+  font-weight: bold;
+  color: #6ab18e; /* Amazon orange color */
+  margin-top: 10px;
+}
+
+/* Product image larger display */
+.product-image-large {
+  width: 100%; /* Full width */
+  max-width: 450px; /* Larger max width */
+  height: auto;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+/* Similar products section */
+.similar-products {
+  margin-top: 40px;
+}
+
+.similar-products h4 {
+  font-size: 20px;
+  color: #333;
+  margin-bottom: 20px;
+  display: flex;
+  font-weight: bold;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.similar-products .card {
+  flex: 1;
+  max-width: 180px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background-color: #fff;
+  margin-bottom: 20px;
+}
+
+.similar-products .card img {
+  width: 100%;
+  height: auto;
+  border-bottom: 1px solid #ddd;
+}
+
+.similar-products .card-body {
+  padding: 10px;
+}
+
+.similar-products .card-title {
+  font-size: 14px;
+  color: #333;
+  font-weight: bold;
+}
+
+.similar-products .card-text {
+  font-size: 12px;
+  color: #555;
+}
+
+/* Button styling */
+.btn-secondary {
+  background-color: #ff9900;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.btn-secondary:hover {
+  background-color: #e68a00;
+}
+
 
   /* General container styling */
 .container.reviews {
@@ -229,5 +219,13 @@ textarea {
 .btn-primary:hover {
   background-color: #e68a00; /* Slightly darker orange on hover */
 }
+.dollar-sign {
+  color: green;
+}
+
+.price-value {
+  color: #ffa41c;
+}
+
 
   
