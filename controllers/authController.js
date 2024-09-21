@@ -89,7 +89,7 @@ export const loginController = async (req, res) => {
     // Generate tokens
     const refreshToken = createRefreshToken(user);
     const token = JWT.sign({ _id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "15s",
+      expiresIn: "15m",
     });
 
     res.status(200).send({
@@ -115,7 +115,7 @@ export const loginController = async (req, res) => {
     });
   }
 };
- 
+
 // Refresh Token Controller
 export const refreshTokenController = (req, res) => {
   const { refreshToken } = req.body;
@@ -128,33 +128,28 @@ export const refreshTokenController = (req, res) => {
   try {
     const user = JWT.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
     const newAccessToken = JWT.sign({ _id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "15s", // Example short expiry for testing
+      expiresIn: "15s",
     });
     const newRefreshToken = createRefreshToken(user);
-
-    // Set the new refresh token in the cookie (if needed)
-    res.cookie("refreshToken", newRefreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production", // Ensure it's secure in production
-      sameSite: "Strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
 
     res.status(200).json({
       success: true,
       accessToken: newAccessToken,
-      refreshToken: newRefreshToken, // Optionally return the new refresh token
+      refreshToken: newRefreshToken, // Optionally return a new refresh token
     });
   } catch (error) {
     console.log(error);
-    res.status(403).send({
-      success: false,
-      message: "Invalid refresh token",
-      error,
-    });
+    res
+      .status(403)
+      .send({ success: false, message: "Invalid refresh token", error });
   }
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production", // Ensure it's secure in production
+    sameSite: "Strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
 };
-
 
 // Test Controller
 export const testController = (req, res) => {

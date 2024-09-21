@@ -1,36 +1,40 @@
-import axios from 'axios';
-import refreshToken from './refreshToken'; // Import the function from above
+import axios from "axios";
+import { useAuth } from "./context/auth";
 
-// Create an Axios instance
-const api = axios.create({
-  baseURL: '/api', // Your API base URL
-});
-
-// Axios interceptor to handle token refresh on 403 response
-api.interceptors.response.use(
-  response => response,
+// Setup an Axios interceptor for automatic token refresh
+axios.interceptors.response.use(
+  (response) => {
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
+    const [auth, setAuth] = useAuth();
 
-    // If the access token has expired (403) and we haven't retried yet
     if (error.response.status === 403 && !originalRequest._retry) {
       originalRequest._retry = true;
-      
-      const newAccessToken = await refreshToken(); // Get a new access token
+      const res = await axios.post("https://denapaona-com-webapp-server.vercel.app/api/v1/auth/refresh-token", {
+        refreshToken: auth.refreshToken,
+      });
 
-      if (newAccessToken) {
-        // Update the authorization header with the new token
-        axios.defaults.headers.common['Authorization'] = `Bearer ${newAccessToken}`;
-        originalRequest.headers['Authorization'] = `Bearer ${newAccessToken}`;
+      if (res.data.success) {
+        setAuth({
+          ...auth,
+          token: res.data.accessToken,
+          refreshToken: res.data.refreshToken,
+        });
+        localStorage.setItem("auth", JSON.stringify({
+          ...auth,
+          token: res.data.accessToken,
+          refreshToken: res.data.refreshToken,
+        }));
 
-        // Retry the original request with the new token
-        return api(originalRequest);
+        // Update Authorization header and retry the original request
+        axios.defaults.headers.common["Authorization"] = res.data.accessToken;
+        originalRequest.headers["Authorization"] = res.data.accessToken;
+        return axios(originalRequest);
       }
     }
-    
-    // If the error is not due to token expiry or retry failed, reject
+
     return Promise.reject(error);
   }
 );
-
-export default api;
