@@ -2,12 +2,14 @@ import React, { useState, useEffect } from "react";
 import Layout from "../../components/Layout/Layout";
 import AdminMenu from "../../components/Layout/AdminMenu";
 import axios from "axios";
-import { toast } from "react-hot-toast"; // For notifications
+import { toast } from "react-hot-toast";
+import { useAuth } from "../../context/auth";
 
 const Users = () => {
   const [reviews, setReviews] = useState([]);
   const [reply, setReply] = useState(""); // For reply input
   const [selectedReviewId, setSelectedReviewId] = useState(null); // To track the review being replied to
+  const [auth, setAuth] = useAuth();
 
   // Fetch all reviews when the component mounts
   useEffect(() => {
@@ -46,6 +48,11 @@ const Users = () => {
 
   // Function to handle deleting a review
   const handleDeleteReview = async (reviewId) => {
+    if (!auth.user || !auth.user.isAdmin) {
+      toast.error("Unauthorized to delete this review.");
+      return;
+    }
+
     try {
       await axios.delete(
         `https://denapaona-com-webapp-server.vercel.app/api/v1/review/delete-review/${reviewId}`
