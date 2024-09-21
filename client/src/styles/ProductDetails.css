@@ -27,19 +27,19 @@
     margin: 5px 0; 
   }
   
-  .product-details-info button {
+  /*
+   .product-details-info button {
     background-color: #ff9900;
     color: #fff;
     border: none;
     padding: 5px 10px; 
     font-size: 14px; 
     cursor: pointer;
-    margin-top: 10px; /* Added margin-top for spacing */
+    margin-top: 10px; 
   }
+
+  */
   
-  .product-details-info button:hover {
-    background-color: #e68a00;
-  }
   
   /* Product image */
   .product-details .card-img-top {
@@ -90,18 +90,15 @@
     color: #555;
   }
   
-  .similar-products .card button {
+  /* .similar-products .card button {
     background-color: #ff9900;
     color: #fff;
     border: none;
     padding: 5px 10px;
     font-size: 12px; 
     cursor: pointer;
-  }
-  .similar-products .card button:hover {
-    background-color: #e68a00;
-  }
-  
+  } */
+
   /* Button styling */
   .btn-secondary {
     background-color: #ff9900;

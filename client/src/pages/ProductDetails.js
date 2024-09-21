@@ -156,7 +156,7 @@ const ProductDetails = () => {
           <h6>Description: {product.description}</h6>
           <h6>Price: {product.price}</h6>
           <h6>Category: {product?.category?.name}</h6>
-          <button className="btn btn-secondary ms-1" onClick={() => handleAddToCart(product)}>
+          <button className="btn btn-link text-decoration-none" onClick={() => handleAddToCart(product)}>
             ADD TO CART
           </button>
         </div>
