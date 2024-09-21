@@ -59,6 +59,13 @@
     font-size: 20px;
     color: #333;
     margin-bottom: 20px;
+    display: flex;
+    font-weight: bold;
+    justify-content: center; /* Centers the products horizontally */
+    flex-wrap: wrap; /* Ensures the products wrap to the next row if there's not enough space */
+   
+  
+   
   }
   
   .similar-products .card {
@@ -68,6 +75,7 @@
     border-radius: 4px;
     background-color: #fff;
     margin-bottom: 20px;
+    
   }
   
   .similar-products .card img {
@@ -113,4 +121,113 @@
   .btn-secondary:hover {
     background-color: #e68a00;
   }
+
+  /* General container styling */
+.container.reviews {
+  background-color: #f9f9f9; /* Light background for review section */
+  border: 1px solid #e7e7e7; /* Subtle border */
+  padding: 20px; /* Padding around the content */
+  border-radius: 5px; /* Rounded corners */
+  
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Soft shadow effect */
+  max-width: 1000px;
+  margin: 20px auto;
+}
+
+/* Section headings */
+.container.reviews h4 {
+  font-size: 22px;
+  color: #111; /* Darker text for headings */
+  font-weight: 600;
+  margin-bottom: 15px; /* Space under the heading */
+}
+
+/* Individual review styling */
+.review {
+  border-bottom: 1px solid #ddd; /* Divider between reviews */
+  padding: 15px 0; /* Padding between reviews */
+  font-size: 16px;
+  color: #333; /* Dark text for readability */
+}
+
+.review p {
+  margin-bottom: 8px; /* Spacing between paragraphs */
+}
+
+.review strong {
+  color: #333; /* Strong text emphasis */
+  font-weight: 600; /* Bold for user name and admin reply */
+}
+
+/* Admin reply styling */
+.review p strong {
+  color: #FF9900; /* Amazon orange color for admin reply label */
+}
+
+/* Delete button styling */
+.review .btn-danger {
+  background-color: #B12704; /* Amazon's red for delete */
+  border: none; /* Remove border */
+  padding: 5px 10px; /* Button padding */
+  color: white; /* White text */
+  border-radius: 3px; /* Rounded corners */
+  font-size: 14px; /* Slightly smaller text */
+  cursor: pointer; /* Pointer on hover */
+}
+
+.review .btn-danger:hover {
+  background-color: #A12404; /* Slightly darker red on hover */
+}
+
+/* Add a review section */
+.container.reviews h4 {
+  font-size: 20px;
+  color: #111; /* Dark heading color */
+  margin-top: 30px; /* Space before the add review section */
+}
+
+/* Error message */
+.text-danger {
+  color: #d9534f; /* Standard red for error messages */
+}
+
+/* Rating input styling */
+input[type="number"] {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  box-sizing: border-box; /* Ensure proper sizing */
+}
+
+/* Comment textarea styling */
+textarea {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  resize: vertical; /* Allow vertical resize */
+  min-height: 100px;
+  box-sizing: border-box;
+}
+
+/* Submit button styling */
+.btn-primary {
+  background-color: #FF9900; /* Amazon orange for primary button */
+  border: none; /* Remove default border */
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #e68a00; /* Slightly darker orange on hover */
+}
+
   
