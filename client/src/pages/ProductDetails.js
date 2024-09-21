@@ -7,13 +7,14 @@ import { useAuth } from "../context/auth";
 import { toast } from "react-hot-toast"; // Importing toast
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/cart";
+import ReactStars from "react-stars"; // Import react-stars for star ratings
 
 const ProductDetails = () => {
   const params = useParams();
   const [product, setProduct] = useState({});
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [reviews, setReviews] = useState([]);
-  const [newReview, setNewReview] = useState({ rating: "", comment: "" });
+  const [newReview, setNewReview] = useState({ rating: 0, comment: "" }); // Initialize rating as 0
   const [error, setError] = useState(""); // Define the error state
   const [auth] = useAuth();
   const [cart, setCart] = useCart();
@@ -110,7 +111,7 @@ const ProductDetails = () => {
       toast.success("Review added successfully!"); // Success toast
       setError(""); // Clear error on success
       // Reset form
-      setNewReview({ rating: "", comment: "" });
+      setNewReview({ rating: 0, comment: "" });
     } catch (error) {
       console.log(error);
       setError("Error adding review. Please try again."); // Set error on failure
@@ -139,48 +140,52 @@ const ProductDetails = () => {
 
   return (
     <Layout>
-<div className="row container product-details">
-  <div className="col-md-6">
-    <img
-      src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${product._id}`}
-      className="product-image-large"
-      alt={product.name}
-      height="400"
-      width="450"
-    />
-  </div>
-  <div className="col-md-6 product-details-info">
-    <h1 className="text-center">Product Details</h1>
-    <hr />
-    <h6 className="product-name">Name: {product.name}</h6>
-    <h6>Description: {product.description}</h6>
-    <h6 className="product-price">
-  Price: <span style={{ color: "green" }}>$</span>
-  <span style={{ color: "#ffa41c" }}>{product.price}</span>
-</h6>
-
-    <h6>Category: {product?.category?.name}</h6>
-    <button
-      className="btn btn-link text-decoration-none"
-      onClick={() => handleAddToCart(product)}
-    >
-      ADD TO CART
-    </button>
-  </div>
-</div>
-
-      <hr />
+      <div className="row container product-details">
+        <div className="col-md-6">
+          <img
+            src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${product._id}`}
+            className="product-image-large"
+            alt={product.name}
+            height="400"
+            width="450"
+          />
+        </div>
+        <div className="col-md-6 product-details-info">
+          <h1 className="text-center">Product Details</h1>
+          <hr />
+          <h6 className="product-name">Name: {product.name}</h6>
+          <h6>Description: {product.description}</h6>
+          <h6 className="product-price">
+            Price: <span style={{ color: "green" }}>$</span>
+            <span style={{ color: "#ffa41c" }}>{product.price}</span>
+          </h6>
+          <h6>Category: {product?.category?.name}</h6>
+          <button
+            className="btn btn-link text-decoration-none"
+            onClick={() => handleAddToCart(product)}
+          >
+            ADD TO CART
+          </button>
+        </div>
+      </div>
 
       <hr />
+
       <div className="container reviews">
         <h4>User Reviews</h4>
         {reviews.length < 1 && <p>No reviews yet.</p>}
         {reviews.map((review) => (
           <div key={review._id} className="review">
             <p>
-              <strong>{review.user.name}:</strong> {review.comment} (Rating:{" "}
-              {review.rating})
+              <strong>{review.user.name}:</strong> {review.comment}
             </p>
+            <ReactStars
+              count={5}
+              value={review.rating}
+              size={24}
+              color2={"#ffd700"}
+              edit={false} // Disable editing for displayed reviews
+            />
             {review.reply && (
               <p>
                 <strong>Admin Reply:</strong> {review.reply}
@@ -199,16 +204,14 @@ const ProductDetails = () => {
 
         <h4>Add a Review</h4>
         {error && <p className="text-danger">{error}</p>} {/* Display error */}
-        <input
-          type="number"
-          min="1"
-          max="5"
-          placeholder="Rating (1-5)"
+        <ReactStars
+          count={5}
           value={newReview.rating}
-          onChange={(e) =>
-            setNewReview({ ...newReview, rating: e.target.value })
-          }
-          className="form-control mb-2"
+          size={24}
+          color2={"#ffd700"}
+          onChange={(newRating) =>
+            setNewReview({ ...newReview, rating: newRating })
+          } // Update rating in newReview state
         />
         <textarea
           placeholder="Comment"
@@ -239,14 +242,14 @@ const ProductDetails = () => {
               <h5 className="card-title">{p.name}</h5>
               <p className="card-text">{p.description.substring(0, 20)}...</p>
               <p className="card-text1">
-              <span style={{ color: "green" }}>$</span> {p.price}   
-                </p>
+                <span style={{ color: "green" }}>$</span> {p.price}
+              </p>
               <button
-                        className="btn btn-link text-decoration-none"
-                        onClick={() => navigate(`/product/${p.slug}`)}
-                      >
-                        More Details
-                      </button>
+                className="btn btn-link text-decoration-none"
+                onClick={() => navigate(`/product/${p.slug}`)}
+              >
+                More Details
+              </button>
             </div>
           </div>
         ))}

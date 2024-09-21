@@ -19,9 +19,9 @@ const CartPage = () => {
   // Load user-specific cart when user logs in
   useEffect(() => {
     if (auth?.user) {
-      const savedCart = localStorage.getItem(`cart-${auth.user.email}`); // Associate cart with the user's email
+      const savedCart = localStorage.getItem(`cart-${auth.user.email}`);
       if (savedCart) {
-        setCart(JSON.parse(savedCart)); // Restore the cart from localStorage
+        setCart(JSON.parse(savedCart));
       }
     }
   }, [auth?.user]);
@@ -29,11 +29,11 @@ const CartPage = () => {
   // Save the cart to localStorage whenever it changes
   useEffect(() => {
     if (auth?.user) {
-      localStorage.setItem(`cart-${auth.user.email}`, JSON.stringify(cart)); // Save cart specific to user
+      localStorage.setItem(`cart-${auth.user.email}`, JSON.stringify(cart));
     }
   }, [cart, auth?.user]);
 
-  //total price
+  // Total price
   const totalPrice = () => {
     try {
       let total = cart?.reduce((acc, item) => acc + item.price, 0);
@@ -53,7 +53,6 @@ const CartPage = () => {
       let index = myCart.findIndex((item) => item._id === pid);
       myCart.splice(index, 1);
       setCart(myCart);
-      // Update user-specific cart in localStorage
       localStorage.setItem(`cart-${auth.user.email}`, JSON.stringify(myCart));
     } catch (error) {
       console.log(error);
@@ -80,7 +79,7 @@ const CartPage = () => {
   const handlePayment = async () => {
     try {
       setLoading(true);
-      const { nonce } = await instance.requestPaymentMethod(); // Get the payment nonce
+      const { nonce } = await instance.requestPaymentMethod();
       const { data } = await axios.post(
         "https://denapaona-com-webapp-server.vercel.app/api/v1/product/braintree/payment",
         {
@@ -89,11 +88,8 @@ const CartPage = () => {
         }
       );
 
-      // Clear the cart after successful payment
-      localStorage.removeItem(`cart-${auth.user.email}`); // Clear user-specific cart from localStorage
-      setCart([]); // Update cart state to empty
-
-      // Navigate to the user's order page after payment
+      localStorage.removeItem(`cart-${auth.user.email}`);
+      setCart([]);
       navigate("/dashboard/user/orders");
 
       toast.success("Payment Completed Successfully");
@@ -115,16 +111,16 @@ const CartPage = () => {
               <p className="text-center">
                 {cart?.length
                   ? `You Have ${cart.length} items in your cart ${
-                      auth?.token ? "" : "please login to checkout !"
+                      auth?.token ? "" : "please login to checkout!"
                     }`
                   : "Your Cart Is Empty"}
               </p>
             </h1>
           </div>
         </div>
-        <div className="container ">
-          <div className="row ">
-            <div className="col-md-7  p-0 m-0">
+        <div className="container">
+          <div className="row">
+            <div className="col-md-7 p-0 m-0">
               {cart?.map((p) => (
                 <div className="row mb-2 p-3 card flex-row" key={p._id}>
                   <div className="col-md-4">
@@ -133,13 +129,13 @@ const CartPage = () => {
                       className="card-img-top"
                       alt={p.name}
                       width="100%"
-                      height={"130px"}
+                      height={"180px"} // Adjusted height for larger image
                     />
                   </div>
                   <div className="col-md-4">
                     <p>{p.name}</p>
                     <p>{p.description.substring(0, 30)}</p>
-                    <p>Price : {p.price}</p>
+                    <h6 className="product-price">Price: <span className="price">${p.price}</span></h6>
                   </div>
                   <div className="col-md-4 cart-remove-btn">
                     <button
@@ -152,11 +148,11 @@ const CartPage = () => {
                 </div>
               ))}
             </div>
-            <div className="col-md-5 text-center  cart-summary ">
+            <div className="col-md-5 text-center cart-summary">
               <h2>Cart Summary</h2>
               <p>Total | Checkout | Payment</p>
               <hr />
-              <h4>Total : {totalPrice()} </h4>
+              <h4>Total: {totalPrice()}</h4>
               {auth?.user?.address ? (
                 <>
                   <div className="mb-3">
