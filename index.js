@@ -6,6 +6,7 @@ import connectDB from "./confiq/db.js";
 import authRoutes from "./routes/authRoute.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
+import reviewRoutes from "./routes/reviewRoutes.js";
 import cors from "cors";
 import logger from "./middlewares/logger.js";
 import errorHandler from "./middlewares/errorHandler.js"; // Import the errorHandler
@@ -20,27 +21,27 @@ connectDB();
 const app = express();
 
 const allowedOrigins = [
-  'http://localhost:3000',
-  'https://denapaona-com-webapp-server.vercel.app',
+  "http://localhost:3000",
+  "https://denapaona-com-webapp-server.vercel.app",
   "https://denapaona-com-webapp.vercel.app",
 ];
 
 const corsOptions = {
-  origin: function(origin, callback) {
+  origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(new Error("Not allowed by CORS"));
     }
   },
-  methods: 'GET,POST,PUT,DELETE',
-  allowedHeaders: 'Content-Type,Authorization,x-api-key',
+  methods: "GET,POST,PUT,DELETE",
+  allowedHeaders: "Content-Type,Authorization,x-api-key",
 };
 
 // Apply CORS middleware
 app.use(cors(corsOptions));
 
-app.options('*', cors()); // Enable preflight requests for all routes
+app.options("*", cors()); // Enable preflight requests for all routes
 app.use(express.json());
 app.use(morgan("dev"));
 app.use(logger);
@@ -49,6 +50,7 @@ app.use(logger);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/product", productRoutes);
+app.use("/api/v1/review", reviewRoutes);
 
 // Default route
 app.get("/", (req, res) => {
