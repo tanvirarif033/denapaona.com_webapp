@@ -139,28 +139,36 @@ const ProductDetails = () => {
 
   return (
     <Layout>
-      <div className="row container product-details">
-        <div className="col-md-6">
-          <img
-            src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${product._id}`}
-            className="card-img-top"
-            alt={product.name}
-            height="300"
-            width={"350px"}
-          />
-        </div>
-        <div className="col-md-6 product-details-info">
-          <h1 className="text-center">Product Details</h1>
-          <hr />
-          <h6>Name: {product.name}</h6>
-          <h6>Description: {product.description}</h6>
-          <h6>Price: ${product.price}</h6>
-          <h6>Category: {product?.category?.name}</h6>
-          <button className="btn btn-link text-decoration-none" onClick={() => handleAddToCart(product)}>
-            ADD TO CART
-          </button>
-        </div>
-      </div>
+<div className="row container product-details">
+  <div className="col-md-6">
+    <img
+      src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${product._id}`}
+      className="product-image-large"
+      alt={product.name}
+      height="400"
+      width="450"
+    />
+  </div>
+  <div className="col-md-6 product-details-info">
+    <h1 className="text-center">Product Details</h1>
+    <hr />
+    <h6 className="product-name">Name: {product.name}</h6>
+    <h6>Description: {product.description}</h6>
+    <h6 className="product-price">
+  Price: <span style={{ color: "green" }}>$</span>
+  <span style={{ color: "#ffa41c" }}>{product.price}</span>
+</h6>
+
+    <h6>Category: {product?.category?.name}</h6>
+    <button
+      className="btn btn-link text-decoration-none"
+      onClick={() => handleAddToCart(product)}
+    >
+      ADD TO CART
+    </button>
+  </div>
+</div>
+
       <hr />
 
       <hr />
@@ -230,7 +238,9 @@ const ProductDetails = () => {
             <div className="card-body">
               <h5 className="card-title">{p.name}</h5>
               <p className="card-text">{p.description.substring(0, 20)}...</p>
-              <p className="card-text">$ {p.price}</p>
+              <p className="card-text1">
+              <span style={{ color: "green" }}>$</span> {p.price}   
+                </p>
               <button
                         className="btn btn-link text-decoration-none"
                         onClick={() => navigate(`/product/${p.slug}`)}

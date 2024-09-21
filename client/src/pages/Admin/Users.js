@@ -10,6 +10,9 @@ const Users = () => {
   const [reply, setReply] = useState("");
   const [selectedReviewId, setSelectedReviewId] = useState(null);
   const [auth] = useAuth(); // Destructure auth to get user
+  const [isHoveringPrimary, setIsHoveringPrimary] = useState(null); // Track which button is being hovered
+  const [isHoveringSecondary, setIsHoveringSecondary] = useState(null);
+  const [isHoveringDanger, setIsHoveringDanger] = useState(null);
 
   // Fetch all reviews when the component mounts
   useEffect(() => {
@@ -46,6 +49,7 @@ const Users = () => {
     }
   };
 
+  // Function to delete a review
   const handleDeleteReview = async (reviewId) => {
     if (!auth.user || auth.user.role !== 1) {
       toast.error("Unauthorized to delete this review.");
@@ -66,6 +70,99 @@ const Users = () => {
     }
   };
 
+  // Define styles for the component
+  const styles = {
+ 
+    reviewItem: {
+      border: "1px solid #ddd",
+      padding: "20px",
+      marginBottom: "20px",
+      borderRadius: "8px",
+      backgroundColor: "#f5f5f5",
+      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    },
+    strongText: {
+      color: "#333",
+      fontWeight: "bold",
+    },
+    formControl: {
+      width: "100%",
+      padding: "12px",
+      margin: "10px 0",
+      borderRadius: "5px",
+      border: "1px solid #ccc",
+      boxSizing: "border-box",
+    },
+    btnLink: {
+      color: "#007bff",
+      background: "none",
+      border: "none",
+      padding: 0,
+      textDecoration: "underline",
+      cursor: "pointer",
+      marginTop: "10px",
+    },
+    // Amazon-style primary button (orange) with hover effect
+    btnPrimary: {
+      backgroundColor: "#ff9900", // Amazon's orange color
+      borderColor: "#ff9900",
+      color: "#fff",
+      padding: "8px 16px",
+      cursor: "pointer",
+      borderRadius: "5px",
+      border: "none",
+      marginTop: "10px",
+      fontWeight: "bold",
+      transition: "background-color 0.3s ease", // Smooth transition
+    },
+    btnPrimaryHover: {
+      backgroundColor: "#e68a00", // Slightly darker orange on hover
+    },
+    // Amazon-style secondary button (gray) with hover effect
+    btnSecondary: {
+      backgroundColor: "#f3f3f3", // Light gray background
+      borderColor: "#d5d5d5",
+      color: "#333", // Darker text
+      padding: "8px 16px",
+      cursor: "pointer",
+      borderRadius: "5px",
+      border: "1px solid #d5d5d5", // Border to match the color
+      marginLeft: "10px",
+      marginTop: "10px",
+      transition: "background-color 0.3s ease", // Smooth transition
+    },
+    btnSecondaryHover: {
+      backgroundColor: "#e0e0e0", // Darker gray on hover
+    },
+    // Amazon-style danger button (red) with hover effect
+    btnDanger: {
+      backgroundColor: "#d9534f", // Red for destructive actions
+      borderColor: "#d9534f",
+      color: "#fff",
+      padding: "8px 16px",
+      cursor: "pointer",
+      borderRadius: "5px",
+      border: "none",
+      marginLeft: "10px",
+      marginTop: "10px",
+      fontWeight: "bold",
+      transition: "background-color 0.3s ease", // Smooth transition
+    },
+    btnDangerHover: {
+      backgroundColor: "#c9302c", // Darker red on hover
+    },
+    reviewsList: {
+      maxWidth: "900px",
+      margin: "0 auto",
+    },
+    reviewHeader: {
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      marginBottom: "15px",
+    },
+  };
+
   return (
     <Layout title={"Dashboard - Manage Reviews"}>
       <div className="container-fluid m-3 p-3">
@@ -75,18 +172,27 @@ const Users = () => {
           </div>
           <div className="col-md-9">
             <h1>Manage Reviews</h1>
-            <div className="reviews-list">
+            <div style={styles.reviewsList}>
               {reviews.length > 0 ? (
                 reviews.map((review) => (
-                  <div key={review._id} className="review-item">
-                    <p>
-                      <strong>{review.user.name}:</strong> {review.comment}
-                    </p>
-                    {review.reply && (
+                  <div key={review._id} style={styles.reviewItem}>
+                    <div style={styles.reviewHeader}>
                       <p>
-                        <strong>Admin Reply:</strong> {review.reply}
+                        <strong style={styles.strongText}>
+                          {review.user.name}:
+                        </strong>{" "}
+                        {review.comment}
                       </p>
-                    )}
+                      {review.reply && (
+                        <p>
+                          <strong style={styles.strongText}>
+                            Admin Reply:
+                          </strong>{" "}
+                          {review.reply}
+                        </p>
+                      )}
+                    </div>
+
                     {/* Reply Section */}
                     {selectedReviewId === review._id ? (
                       <div>
@@ -94,16 +200,28 @@ const Users = () => {
                           placeholder="Write a reply..."
                           value={reply}
                           onChange={(e) => setReply(e.target.value)}
-                          className="form-control mb-2"
+                          style={styles.formControl}
                         />
                         <button
-                          className="btn btn-primary"
+                          style={
+                            isHoveringPrimary === review._id
+                              ? { ...styles.btnPrimary, ...styles.btnPrimaryHover }
+                              : styles.btnPrimary
+                          }
+                          onMouseEnter={() => setIsHoveringPrimary(review._id)}
+                          onMouseLeave={() => setIsHoveringPrimary(null)}
                           onClick={() => handleReplySubmit(review._id)}
                         >
                           Submit Reply
                         </button>
                         <button
-                          className="btn btn-secondary ms-2"
+                          style={
+                            isHoveringSecondary === review._id
+                              ? { ...styles.btnSecondary, ...styles.btnSecondaryHover }
+                              : styles.btnSecondary
+                          }
+                          onMouseEnter={() => setIsHoveringSecondary(review._id)}
+                          onMouseLeave={() => setIsHoveringSecondary(null)}
                           onClick={() => setSelectedReviewId(null)}
                         >
                           Cancel
@@ -111,7 +229,7 @@ const Users = () => {
                       </div>
                     ) : (
                       <button
-                        className="btn btn-link text-decoration-none"
+                        style={styles.btnLink}
                         onClick={() => setSelectedReviewId(review._id)}
                       >
                         Reply
@@ -120,7 +238,13 @@ const Users = () => {
 
                     {/* Delete Review */}
                     <button
-                      className="btn btn-danger ms-3"
+                      style={
+                        isHoveringDanger === review._id
+                          ? { ...styles.btnDanger, ...styles.btnDangerHover }
+                          : styles.btnDanger
+                      }
+                      onMouseEnter={() => setIsHoveringDanger(review._id)}
+                      onMouseLeave={() => setIsHoveringDanger(null)}
                       onClick={() => handleDeleteReview(review._id)}
                     >
                       Delete
