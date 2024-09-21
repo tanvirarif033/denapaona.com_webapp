@@ -23,25 +23,21 @@ h4, h1, p {
     background-color: #ffa41c; /* Amazon orange */
     border-color: #ffa41c; /* Matching border */
 }
+.btn-warning{
+    margin-left: 80px;
+}
 
 .btn-danger:hover, .btn-warning:hover {
     color: white; /* White text on hover */
-    background-color: #d88f00; /* Darker orange on hover */
-    border-color: #d88f00;
+    background-color: #eda410; /* Darker orange on hover */
+    border-color: #e9a722;
 }
 .btn-danger{
     margin-top: 15px;
 }
 
 /* Card styles */
-.card {
-    background-color: #fff; /* White background for cards */
-    border: 1px solid #e7e7e7; /* Light gray border */
-    border-radius: 4px; /* Subtle rounding for cards */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Soft shadow effect */
-    transition: transform 0.2s; /* Smooth scaling */
-   
-}
+
 .card-img-top {
     height: 25vh; /* Reduced height for card images */
     
@@ -76,9 +72,18 @@ h4, h1, p {
     color: #005f6e; /* Darker blue on hover */
 }
 
-/* Additional styles for the layout */
+/* Center the product cards in the middle of the page */
 .row {
-    margin: 0;
+    display: flex;
+    justify-content: center; /* Centers the products horizontally */
+    flex-wrap: wrap; /* Ensures the products wrap to the next row if there's not enough space */
+    padding: 0 20px;
+    margin: 0 auto; /* This centers the content within the page */
+}
+
+/* Adjust margin for each card to have equal spacing */
+.card {
+    margin: 15px; /* Add margin to ensure space between cards */
 }
 
 .col-md-3, .col-md-9 {
@@ -137,9 +142,15 @@ h4, h1, p {
 
 /* Additional left margin for headings */
 .text-left {
-    font-size: 30px;
+    font-size: 40px;
     font-weight: 600;
     margin-bottom: 20px;
-    padding-left: 10px;
-    margin-left: 15px; /* Added left margin */
+    display: flex;
+    justify-content: center; /* Centers the products horizontally */
+    flex-wrap: wrap; /* Ensures the products wrap to the next row if there's not enough space */
+    padding: 0 20px;
+    margin: 0 auto;
+   
+    
+    
 }

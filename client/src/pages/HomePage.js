@@ -259,73 +259,68 @@ const HomePage = () => {
       </div>
 
       <div className="row mt-3">
-        <div className="col-md-12">
-          <h1 className="text-left">All Products</h1>
-          {loading ? (
-            <Spin
-              size="large"
-              className="d-flex justify-content-center align-items-center"
-              style={{ minHeight: "50vh" }}
+  <div className="col-md-12">
+    <h1 className="text-left">All Products</h1>
+    {loading ? (
+      <Spin
+        size="large"
+        className="d-flex justify-content-center align-items-center"
+        style={{ minHeight: "50vh" }}
+      />
+    ) : (
+      <div className="d-flex justify-content-center flex-wrap">
+        {products?.map((p) => (
+          <div className="card" style={{ width: "18rem" }} key={p._id}>
+            <img
+              src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${p._id}`}
+              className="card-img-top"
+              alt={p.name}
             />
-          ) : (
-            <div className="d-flex flex-wrap">
-              {products?.map((p) => (
-                <div
-                  className="card m-2"
-                  style={{ width: "18rem" }}
-                  key={p._id}
+            <div className="card-body">
+              <h5 className="card-title">{p.name}</h5>
+              <p className="card-text">{p.description.substring(0, 20)}...</p>
+              <p className="card-text">$ {p.price}</p>
+              <div className="d-flex justify-content-between">
+                <button
+                  className="btn btn-link text-decoration-none"
+                  onClick={() => navigate(`/product/${p.slug}`)}
                 >
-                  <img
-                    src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${p._id}`}
-                    className="card-img-top"
-                    alt={p.name}
-                  />
-                  <div className="card-body">
-                    <h5 className="card-title">{p.name}</h5>
-                    <p className="card-text">
-                      {p.description.substring(0, 20)}...
-                    </p>
-                    <p className="card-text">$ {p.price}</p>
-                    <div className="d-flex justify-content-between">
-                      <button
-                        className="btn btn-link text-decoration-none"
-                        onClick={() => navigate(`/product/${p.slug}`)}
-                      >
-                        More Details
-                      </button>
-                      <button
-                        className="btn btn-link text-decoration-none"
-                        onClick={() => handleAddToCart(p)} // Use the new handler here
-                      >
-                        Add To Cart
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                  More Details
+                </button>
+                <button
+                  className="btn btn-link text-decoration-none"
+                  onClick={() => handleAddToCart(p)}
+                >
+                  Add To Cart
+                </button>
+              </div>
             </div>
-          )}
-          <div className="m-2 p-3">
-            {products && products.length < total && (
-              <button
-                className="btn btn-warning"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setPage(page + 1);
-                }}
-              >
-                {loading ? (
-                  "Loading ..."
-                ) : (
-                  <>
-                    Loadmore <AiOutlineReload />
-                  </>
-                )}
-              </button>
-            )}
           </div>
-        </div>
+        ))}
       </div>
+    )}
+    <div className="m-2 p-3">
+      {products && products.length < total && (
+        <button
+          className="btn btn-warning"
+          onClick={(e) => {
+            e.preventDefault();
+            setPage(page + 1);
+          }}
+        >
+          {loading ? (
+            "Loading ..."
+          ) : (
+            <>
+              Loadmore <AiOutlineReload />
+            </>
+          )}
+        </button>
+      )}
+    </div>
+  </div>
+</div>
+
     </Layout>
   );
 };
