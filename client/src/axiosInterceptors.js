@@ -12,7 +12,7 @@ axios.interceptors.response.use(
 
     if (error.response.status === 403 && !originalRequest._retry) {
       originalRequest._retry = true;
-      const res = await axios.post("https://yourapi.com/api/v1/auth/refresh-token", {
+      const res = await axios.post("/api/v1/auth/refresh-token", {
         refreshToken: auth.refreshToken,
       });
 

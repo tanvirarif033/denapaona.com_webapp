@@ -1,13 +1,16 @@
 import React from "react";
 import Layout from "./../components/Layout/Layout";
 import { useSearch } from "../context/search";
+import "../styles/Search.css";
+
 const Search = () => {
-  const [values, setValues] = useSearch();
+  const [values] = useSearch(); // Removed setValues since it's not used here
+
   return (
     <Layout title={"Search results"}>
       <div className="container">
         <div className="text-center">
-          <h1>Search Resuts</h1>
+          <h1>Search Results</h1>
           <h6>
             {values?.results.length < 1
               ? "No Products Found"
@@ -15,7 +18,7 @@ const Search = () => {
           </h6>
           <div className="d-flex flex-wrap mt-4">
             {values?.results.map((p) => (
-              <div className="card m-2" style={{ width: "18rem" }}>
+              <div className="card m-2" style={{ width: "18rem" }} key={p._id}>
                 <img
                   src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${p._id}`}
                   className="card-img-top"
@@ -27,8 +30,20 @@ const Search = () => {
                     {p.description.substring(0, 30)}...
                   </p>
                   <p className="card-text"> $ {p.price}</p>
-                  <button class="btn btn-primary ms-1">More Details</button>
-                  <button class="btn btn-secondary ms-1">ADD TO CART</button>
+                  <div className="d-flex justify-content-between">
+                    <button
+                      className="btn btn-link text-decoration-none"
+                      onClick={() => console.log(`More details for ${p.name}`)} // Replace with your navigate function
+                    >
+                      More Details
+                    </button>
+                    <button
+                      className="btn btn-link text-decoration-none"
+                      onClick={() => console.log(`Add ${p.name} to cart`)} // Replace with your add to cart function
+                    >
+                      Add To Cart
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}
