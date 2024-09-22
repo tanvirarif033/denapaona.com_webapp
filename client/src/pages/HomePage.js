@@ -8,11 +8,8 @@ import toast from "react-hot-toast";
 import { Prices } from "../components/Prices";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineReload } from "react-icons/ai";
-import "../styles/Homepage.css";
 import { LeftOutlined, RightOutlined } from "@ant-design/icons";
-
-
-
+import "../styles/Homepage.css";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -185,65 +182,64 @@ const HomePage = () => {
       toast.success("Item Added to Cart");
     }
   };
-    // Custom arrows for Carousel
-    const PrevArrow = (props) => {
-      const { className, style, onClick } = props;
-      return (
-        <LeftOutlined
-          className={className}
-          style={{ ...style, fontSize: "32px", color: "black", left: "10px" }} // Large and bold
-          onClick={onClick}
-        />
-      );
-    };
-  
-    const NextArrow = (props) => {
-      const { className, style, onClick } = props;
-      return (
-        <RightOutlined
-          className={className}
-          style={{ ...style, fontSize: "32px", color: "black", right: "10px" }} // Large and bold
-          onClick={onClick}
-        />
-      );
-    };
+  const PrevArrow = (props) => {
+    const { className, style, onClick } = props;
+    return (
+      <LeftOutlined
+        className={className}
+        style={{ ...style, fontSize: "32px", color: "black", left: "10px" }} // Large and bold
+        onClick={onClick}
+      />
+    );
+  };
+
+  const NextArrow = (props) => {
+    const { className, style, onClick } = props;
+    return (
+      <RightOutlined
+        className={className}
+        style={{ ...style, fontSize: "32px", color: "black", right: "10px" }} // Large and bold
+        onClick={onClick}
+      />
+    );
+  };
   return (
     <Layout title={"All products-Best Offers"}>
-<Carousel
-  autoplay
-  arrows={true} // Enable arrows to allow custom arrows to be shown
-  prevArrow={<PrevArrow />}
-  nextArrow={<NextArrow />}
->
-  <div>
-    <img
-      src="/images/c1.png"
-      alt="Slide 1"
-      style={{ width: "100%", height: "300px", objectFit: "cover" }}
-    />
-  </div>
-  <div>
-    <img
-      src="/images/c2.png"
-      alt="Slide 2"
-      style={{ width: "100%", height: "300px", objectFit: "cover" }}
-    />
-  </div>
-  <div>
-    <img
-      src="/images/c3.png"
-      alt="Slide 3"
-      style={{ width: "100%", height: "300px", objectFit: "cover" }}
-    />
-  </div>
-  <div>
-    <img
-      src="/images/c41.png"
-      alt="Slide 4"
-      style={{ width: "100%", height: "300px", objectFit: "cover" }}
-    />
-  </div>
-</Carousel>
+       <Carousel
+        autoplay
+        arrows
+        prevArrow={<PrevArrow />}
+        nextArrow={<NextArrow />}
+      >
+        <div>
+          <img
+            src="/images/c1.png"
+            alt="Slide 1"
+            style={{ width: "100%", height: "300px", objectFit: "cover" }}
+          />
+        </div>
+        <div>
+          <img
+            src="/images/c2.png"
+            alt="Slide 2"
+            style={{ width: "100%", height: "300px", objectFit: "cover" }}
+          />
+        </div>
+        <div>
+          <img
+            src="/images/c3.png"
+            alt="Slide 3"
+            style={{ width: "100%", height: "300px", objectFit: "cover" }}
+          />
+        </div>
+        <div>
+          <img
+            src="/images/c41.png"
+            alt="Slide 4"
+            style={{ width: "100%", height: "300px", objectFit: "cover" }}
+          />
+        </div>
+      </Carousel>
 
 
       <div className="filter-section">
