@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { Prices } from "../components/Prices";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineReload } from "react-icons/ai";
+import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import "../styles/Homepage.css";
 
 const HomePage = () => {
@@ -181,9 +182,35 @@ const HomePage = () => {
       toast.success("Item Added to Cart");
     }
   };
+  const PrevArrow = (props) => {
+    const { className, style, onClick } = props;
+    return (
+      <LeftOutlined
+        className={className}
+        style={{ ...style, fontSize: "32px", color: "black", left: "10px" }} // Large and bold
+        onClick={onClick}
+      />
+    );
+  };
+
+  const NextArrow = (props) => {
+    const { className, style, onClick } = props;
+    return (
+      <RightOutlined
+        className={className}
+        style={{ ...style, fontSize: "32px", color: "black", right: "10px" }} // Large and bold
+        onClick={onClick}
+      />
+    );
+  };
   return (
     <Layout title={"All products-Best Offers"}>
-      <Carousel autoplay>
+       <Carousel
+        autoplay
+        arrows
+        prevArrow={<PrevArrow />}
+        nextArrow={<NextArrow />}
+      >
         <div>
           <img
             src="/images/c1.png"
@@ -213,6 +240,7 @@ const HomePage = () => {
           />
         </div>
       </Carousel>
+
 
       <div className="filter-section">
         <div className="filter-category">
