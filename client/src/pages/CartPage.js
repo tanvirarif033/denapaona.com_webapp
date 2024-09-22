@@ -88,7 +88,7 @@ const CartPage = () => {
     e.preventDefault();
     try {
       setLoading(true);
-      const { nonce } = await instance.requestPaymentMethod(); // Get the payment nonce
+      const { nonce } = await instance.requestPaymentMethod();
       const { data } = await axios.post(
         "https://denapaona-com-webapp-server.vercel.app/api/v1/product/braintree/payment",
         {
@@ -98,8 +98,8 @@ const CartPage = () => {
       );
 
       // Clear the cart after successful payment
-      localStorage.removeItem(`cart-${auth.user.email}`); // Clear user-specific cart from localStorage
-      setCart([]); // Update cart state to empty
+      localStorage.removeItem(`cart-${auth.user.email}`);
+      setCart([]);
 
       // Navigate to the user's order page after payment
       navigate("/dashboard/user/orders");
