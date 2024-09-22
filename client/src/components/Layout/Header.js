@@ -6,6 +6,7 @@ import SearchInput from "../Form/SearchInput";
 import useCategory from "../../hooks/useCategory";
 import { useCart } from "../../context/cart";
 import { Badge } from "antd";
+import { ShoppingCartOutlined } from '@ant-design/icons';
 
 const Header = () => {
   const [auth, setAuth] = useAuth();
@@ -136,12 +137,14 @@ const Header = () => {
 
             {/* Cart with Badge */}
             <li className="nav-item">
-              <Badge count={cart?.length} showZero offset={[10, -5]}>
-                <NavLink to="/cart" className="nav-link">
-                  Cart
-                </NavLink>
-              </Badge>
-            </li>
+  <Badge count={cart?.length} showZero offset={[10, -5]}>
+    <NavLink to="/cart" className="nav-link">
+      <ShoppingCartOutlined style={{ fontSize: '22px', marginRight: '5px' }} />
+      Cart
+    </NavLink>
+  </Badge>
+</li>
+
           </ul>
         </div>
       </div>

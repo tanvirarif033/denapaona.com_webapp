@@ -67,11 +67,13 @@ const CategoryProduct = () => {
                     alt={p.name}
                   />
                   <div className="card-body">
-                    <h5 className="card-title">{p.name}</h5>
+                     <h5 className="card-title bold">{p.name}</h5>
                     <p className="card-text">
                       {p.description.substring(0, 20)}...
                     </p>
-                    <p className="card-text">$ {p.price}</p>
+                    <p className="card-text1">
+              <span style={{ color: "green" }}>$</span> {p.price}   
+                </p>
                     <button
                       className="btn btn-link text-decoration-none"
                       onClick={() => navigate(`/product/${p.slug}`)} // Navigate to product details
@@ -82,7 +84,7 @@ const CategoryProduct = () => {
                       className="btn btn-link text-decoration-none"
                       onClick={() => handleAddToCart(p)} // Add to cart functionality
                     >
-                      ADD TO CART
+                      Add To Cart
                     </button>
                   </div>
                 </div>
