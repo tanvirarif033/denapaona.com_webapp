@@ -14,16 +14,14 @@ const CreateCategory = () => {
   const [updatedName, setUpdatedName] = useState("");
   const [loading, setLoading] = useState(false);
 
-  //handle Form
+  // Handle Form Submission
   const handleSubmit = async (e) => {
     setLoading(true);
     e.preventDefault();
     try {
       const { data } = await axios.post(
         "https://denapaona-com-webapp-server.vercel.app/api/v1/category/create-category",
-        {
-          name,
-        }
+        { name }
       );
       if (data?.success) {
         toast.success(`${name} is created`);
@@ -39,7 +37,7 @@ const CreateCategory = () => {
     }
   };
 
-  //get all categories
+  // Get all categories
   const getAllCategory = async () => {
     setLoading(true);
     try {
@@ -66,7 +64,7 @@ const CreateCategory = () => {
     getAllCategory();
   }, []);
 
-  //update category
+  // Update category
   const handleUpdate = async (e) => {
     e.preventDefault();
     try {
@@ -88,7 +86,7 @@ const CreateCategory = () => {
     }
   };
 
-  //delete category
+  // Delete category
   const handleDelete = async (pId) => {
     setLoading(true);
     try {
@@ -108,6 +106,43 @@ const CreateCategory = () => {
     }
   };
 
+  // Styles for proper margin, padding, and alignment
+  const styles = {
+    container: {
+      padding: "20px",
+    },
+    heading: {
+      marginBottom: "20px",
+    },
+    formContainer: {
+      backgroundColor: "#fff",
+      padding: "20px",
+      borderRadius: "8px",
+      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+      marginBottom: "20px",
+      width: "100%",
+      maxWidth: "600px",
+    },
+    tableContainer: {
+      backgroundColor: "#fff",
+      padding: "20px",
+      borderRadius: "8px",
+      boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+    },
+    actionButtons: {
+      display: "flex",
+      gap: "10px",
+      alignItems: "center", // Aligns buttons vertically
+    },
+    button: {
+      padding: "8px 16px",
+      fontSize: "14px",
+      height: "40px", // Ensure consistent height
+      display: "inline-flex",
+      alignItems: "center",
+    },
+  };
+
   return (
     <Layout title={"Dashboard - Create Category"}>
       <div className="container-fluid m-3 p-3">
@@ -115,17 +150,17 @@ const CreateCategory = () => {
           <div className="col-md-3">
             <AdminMenu />
           </div>
-          <div className="col-md-9">
-            <h1>Manage Category</h1>
+          <div className="col-md-9" style={styles.container}>
+            <h1 style={styles.heading}>Manage Category</h1>
             <Spin spinning={loading}>
-              <div className="p-3 w-50">
+              <div style={styles.formContainer}>
                 <CategoryForm
                   handleSubmit={handleSubmit}
                   value={name}
                   setValue={setName}
                 />
               </div>
-              <div className="w-76">
+              <div style={styles.tableContainer}>
                 <table className="table">
                   <thead>
                     <tr>
@@ -137,9 +172,10 @@ const CreateCategory = () => {
                     {categories?.map((c) => (
                       <tr key={c._id}>
                         <td>{c.name}</td>
-                        <td>
+                        <td style={styles.actionButtons}>
                           <button
-                            className="btn btn-primary ms-2"
+                            className="btn btn-primary"
+                            style={styles.button}
                             onClick={() => {
                               setVisible(true);
                               setUpdatedName(c.name);
@@ -149,7 +185,8 @@ const CreateCategory = () => {
                             Edit
                           </button>
                           <button
-                            className="btn btn-danger ms-2"
+                            className="btn btn-danger"
+                            style={styles.button}
                             onClick={() => handleDelete(c._id)}
                           >
                             Delete

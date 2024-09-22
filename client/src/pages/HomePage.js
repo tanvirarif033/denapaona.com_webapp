@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { Prices } from "../components/Prices";
 import { useNavigate } from "react-router-dom";
 import { AiOutlineReload } from "react-icons/ai";
+import { LeftOutlined, RightOutlined } from "@ant-design/icons";
 import "../styles/Homepage.css";
 
 const HomePage = () => {
@@ -181,9 +182,35 @@ const HomePage = () => {
       toast.success("Item Added to Cart");
     }
   };
+  const PrevArrow = (props) => {
+    const { className, style, onClick } = props;
+    return (
+      <LeftOutlined
+        className={className}
+        style={{ ...style, fontSize: "32px", color: "black", left: "10px" }} // Large and bold
+        onClick={onClick}
+      />
+    );
+  };
+
+  const NextArrow = (props) => {
+    const { className, style, onClick } = props;
+    return (
+      <RightOutlined
+        className={className}
+        style={{ ...style, fontSize: "32px", color: "black", right: "10px" }} // Large and bold
+        onClick={onClick}
+      />
+    );
+  };
   return (
     <Layout title={"All products-Best Offers"}>
-      <Carousel autoplay>
+       <Carousel
+        autoplay
+        arrows
+        prevArrow={<PrevArrow />}
+        nextArrow={<NextArrow />}
+      >
         <div>
           <img
             src="/images/c1.png"
@@ -213,6 +240,7 @@ const HomePage = () => {
           />
         </div>
       </Carousel>
+
 
       <div className="filter-section">
         <div className="filter-category">
@@ -259,73 +287,72 @@ const HomePage = () => {
       </div>
 
       <div className="row mt-3">
-        <div className="col-md-12">
-          <h1 className="text-left">All Products</h1>
-          {loading ? (
-            <Spin
-              size="large"
-              className="d-flex justify-content-center align-items-center"
-              style={{ minHeight: "50vh" }}
+  <div className="col-md-12">
+    <h1 className="text-left">All Products</h1>
+    {loading ? (
+      <Spin
+        size="large"
+        className="d-flex justify-content-center align-items-center"
+        style={{ minHeight: "50vh" }}
+      />
+    ) : (
+      <div className="d-flex justify-content-center flex-wrap">
+        {products?.map((p) => (
+          <div className="card" style={{ width: "18rem" }} key={p._id}>
+            <img
+              src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${p._id}`}
+              className="card-img-top"
+              alt={p.name}
             />
-          ) : (
-            <div className="d-flex flex-wrap">
-              {products?.map((p) => (
-                <div
-                  className="card m-2"
-                  style={{ width: "18rem" }}
-                  key={p._id}
+            <div className="card-body">
+            <h5 className="card-title bold">{p.name}</h5>
+
+              <p className="card-text">{p.description.substring(0, 20)}...</p>
+              <p className="card-text1">
+              <span style={{ color: "green" }}>$</span> {p.price}   
+                </p>
+
+              <div className="d-flex justify-content-between">
+                <button
+                  className="btn btn-link text-decoration-none"
+                  onClick={() => navigate(`/product/${p.slug}`)}
                 >
-                  <img
-                    src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${p._id}`}
-                    className="card-img-top"
-                    alt={p.name}
-                  />
-                  <div className="card-body">
-                    <h5 className="card-title">{p.name}</h5>
-                    <p className="card-text">
-                      {p.description.substring(0, 20)}...
-                    </p>
-                    <p className="card-text">$ {p.price}</p>
-                    <div className="d-flex justify-content-between">
-                      <button
-                        className="btn btn-link text-decoration-none"
-                        onClick={() => navigate(`/product/${p.slug}`)}
-                      >
-                        More Details
-                      </button>
-                      <button
-                        className="btn btn-link text-decoration-none"
-                        onClick={() => handleAddToCart(p)} // Use the new handler here
-                      >
-                        Add To Cart
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
+                  More Details
+                </button>
+                <button
+                  className="btn btn-link text-decoration-none"
+                  onClick={() => handleAddToCart(p)}
+                >
+                  Add To Cart
+                </button>
+              </div>
             </div>
-          )}
-          <div className="m-2 p-3">
-            {products && products.length < total && (
-              <button
-                className="btn btn-warning"
-                onClick={(e) => {
-                  e.preventDefault();
-                  setPage(page + 1);
-                }}
-              >
-                {loading ? (
-                  "Loading ..."
-                ) : (
-                  <>
-                    Loadmore <AiOutlineReload />
-                  </>
-                )}
-              </button>
-            )}
           </div>
-        </div>
+        ))}
       </div>
+    )}
+    <div className="m-2 p-3">
+      {products && products.length < total && (
+        <button
+          className="btn btn-warning"
+          onClick={(e) => {
+            e.preventDefault();
+            setPage(page + 1);
+          }}
+        >
+          {loading ? (
+            "Loading ..."
+          ) : (
+            <>
+              Loadmore <AiOutlineReload />
+            </>
+          )}
+        </button>
+      )}
+    </div>
+  </div>
+</div>
+
     </Layout>
   );
 };
