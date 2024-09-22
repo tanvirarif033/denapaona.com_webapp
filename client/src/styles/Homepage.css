@@ -324,3 +324,18 @@ h4, h1, p {
   }
   
 
+/* Custom styles for the carousel arrows */
+.ant-carousel .slick-prev,
+.ant-carousel .slick-next {
+  font-size: 32px; /* Large arrow size */
+  font-weight: bold;
+  z-index: 10;
+  color: black; /* Bold and visible color */
+  opacity: 0.8; /* Slight transparency */
+  transition: color 0.3s ease;
+}
+
+.ant-carousel .slick-prev:hover,
+.ant-carousel .slick-next:hover {
+  color: #ff4500; /* Change color on hover for visibility */
+}
