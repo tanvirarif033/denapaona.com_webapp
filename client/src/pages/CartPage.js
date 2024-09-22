@@ -16,24 +16,28 @@ const CartPage = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Load user-specific cart when user logs in
+  // Load user-specific cart from localStorage when user logs in
   useEffect(() => {
-    if (auth?.user) {
-      const savedCart = localStorage.getItem(`cart-${auth.user.email}`); // Associate cart with the user's email
-      if (savedCart) {
-        setCart(JSON.parse(savedCart)); // Restore the cart from localStorage
+    const loadCartFromStorage = () => {
+      if (auth?.user) {
+        const savedCart = localStorage.getItem(`cart-${auth.user.email}`);
+        if (savedCart) {
+          setCart(JSON.parse(savedCart));
+        }
       }
-    }
-  }, [auth?.user]);
+    };
 
-  // Save the cart to localStorage whenever it changes
+    loadCartFromStorage(); // Load cart from localStorage when the component mounts
+  }, [auth?.user, setCart]);
+
+  // Save the cart to localStorage whenever the cart state changes
   useEffect(() => {
-    if (auth?.user) {
-      localStorage.setItem(`cart-${auth.user.email}`, JSON.stringify(cart)); // Save cart specific to user
+    if (auth?.user && cart?.length > 0) {
+      localStorage.setItem(`cart-${auth.user.email}`, JSON.stringify(cart));
     }
   }, [cart, auth?.user]);
 
-  //total price
+  // Total price calculation
   const totalPrice = () => {
     try {
       let total = cart?.reduce((acc, item) => acc + item.price, 0);
@@ -53,8 +57,11 @@ const CartPage = () => {
       let index = myCart.findIndex((item) => item._id === pid);
       myCart.splice(index, 1);
       setCart(myCart);
+
       // Update user-specific cart in localStorage
-      localStorage.setItem(`cart-${auth.user.email}`, JSON.stringify(myCart));
+      if (auth?.user) {
+        localStorage.setItem(`cart-${auth.user.email}`, JSON.stringify(myCart));
+      }
     } catch (error) {
       console.log(error);
     }
@@ -77,7 +84,8 @@ const CartPage = () => {
   }, [auth?.token]);
 
   // Handle payment
-  const handlePayment = async () => {
+  const handlePayment = async (e) => {
+    e.preventDefault();
     try {
       setLoading(true);
       const { nonce } = await instance.requestPaymentMethod(); // Get the payment nonce
