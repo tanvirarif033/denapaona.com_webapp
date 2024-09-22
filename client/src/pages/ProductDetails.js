@@ -164,7 +164,7 @@ const ProductDetails = () => {
             className="btn btn-link text-decoration-none"
             onClick={() => handleAddToCart(product)}
           >
-            ADD TO CART
+            Add To Cart
           </button>
         </div>
       </div>
