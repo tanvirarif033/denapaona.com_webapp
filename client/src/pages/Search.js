@@ -5,7 +5,11 @@ import { useCart } from "../context/cart";
 import { useAuth } from "../context/auth";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
+import { Card, Button, Rate, Space } from "antd";
+import { ShoppingCartOutlined, EyeOutlined } from "@ant-design/icons";
 import "../styles/Search.css";
+
+const { Meta } = Card;
 
 const Search = () => {
   const [values] = useSearch();
@@ -13,69 +17,85 @@ const Search = () => {
   const [auth] = useAuth();
   const navigate = useNavigate();
 
-  // Add to cart functionality
   const handleAddToCart = (product) => {
     if (!auth?.user) {
       toast.error("Please log in to add items to the cart");
-      navigate("/login"); // Redirect to login page if not authenticated
+      navigate("/login");
     } else {
       const updatedCart = [...cart, product];
       setCart(updatedCart);
       localStorage.setItem(
         `cart-${auth.user.email}`,
         JSON.stringify(updatedCart)
-      ); // Save cart associated with user's email
+      );
       toast.success("Item Added to Cart");
     }
   };
 
-  // More details functionality
   const handleMoreDetails = (slug) => {
     navigate(`/product/${slug}`);
   };
 
   return (
     <Layout title={"Search results"}>
-      <div className="container">
-        <div className="text-center">
+      <div className="search-results-container">
+        <div className="search-header">
           <h1>Search Results</h1>
-          <h6>
+          <p className="results-count">
             {values?.results.length < 1
-              ? "No Products Found"
-              : `Found ${values?.results.length}`}
-          </h6>
-          <div className="d-flex flex-wrap mt-4">
-            {values?.results.map((p) => (
-              <div className="card m-2" style={{ width: "18rem" }} key={p._id}>
+              ? "No products found"
+              : `Found ${values?.results.length} product${values?.results.length !== 1 ? 's' : ''}`}
+          </p>
+        </div>
+        
+        <div className="products-grid">
+          {values?.results.map((p) => (
+            <Card
+              key={p._id}
+              className="product-card"
+              cover={
                 <img
-                  src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${p._id}`}
-                  className="card-img-top"
                   alt={p.name}
+                  src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${p._id}`}
+                  className="product-image"
+                  onClick={() => handleMoreDetails(p.slug)}
                 />
-                <div className="card-body">
-                  <h5 className="card-title">{p.name}</h5>
-                  <p className="card-text">
-                    {p.description.substring(0, 30)}...
-                  </p>
-                  <p className="card-text"> $ {p.price}</p>
-                  <div className="d-flex justify-content-between">
-                    <button
-                      className="btn btn-link text-decoration-none"
-                      onClick={() => handleMoreDetails(p.slug)} // Navigate to product details
-                    >
-                      More Details
-                    </button>
-                    <button
-                      className="btn btn-link text-decoration-none"
-                      onClick={() => handleAddToCart(p)} // Add to cart
-                    >
-                      Add To Cart
-                    </button>
+              }
+              actions={[
+                <Button 
+                  type="link" 
+                  icon={<EyeOutlined />}
+                  onClick={() => handleMoreDetails(p.slug)}
+                  className="action-btn"
+                >
+                  Details
+                </Button>,
+                <Button 
+                  type="primary" 
+                  icon={<ShoppingCartOutlined />}
+                  onClick={() => handleAddToCart(p)}
+                  className="action-btn cart-btn"
+                >
+                  Add to Cart
+                </Button>
+              ]}
+            >
+              <Meta
+                title={p.name}
+                description={
+                  <div className="product-info">
+                    <p className="product-desc">
+                      {p.description.substring(0, 60)}...
+                    </p>
+                    <div className="product-meta">
+                      <Rate disabled defaultValue={4} className="product-rating" />
+                      <span className="price">${p.price}</span>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
+                }
+              />
+            </Card>
+          ))}
         </div>
       </div>
     </Layout>

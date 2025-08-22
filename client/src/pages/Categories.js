@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import useCategory from "../hooks/useCategory";
 import Layout from "../components/Layout/Layout";
+import { Spin } from "antd";
 import "../styles/Categories.css";
 
 const Categories = () => {
@@ -9,18 +10,25 @@ const Categories = () => {
 
   return (
     <Layout title={"All Categories"}>
-      <div className="container">
-        <div className="row">
+      <div className="categories-container">
+        <div className="categories-header">
+          <h1>Product Categories</h1>
+          <p>Browse products by category</p>
+        </div>
+        
+        <div className="categories-grid">
           {categories.map((c) => (
-            <div className="col-md-4 mt-5 mb-3" key={c._id}>
-              <Link to={`/category/${c.slug}`} className="category-link">
-                <div className="card category-card no-photo-card">
-                  <div className="card-body">
-                    <h5 className="card-title">{c.name}</h5>
-                  </div>
+            <Link to={`/category/${c.slug}`} className="category-card-link" key={c._id}>
+              <div className="category-card">
+                <div className="category-icon">
+                  <span className="category-emoji">📁</span>
                 </div>
-              </Link>
-            </div>
+                <div className="category-info">
+                  <h3 className="category-name">{c.name}</h3>
+                  <p className="category-desc">Explore {c.name} products</p>
+                </div>
+              </div>
+            </Link>
           ))}
         </div>
       </div>

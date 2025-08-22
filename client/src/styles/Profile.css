@@ -1,0 +1,268 @@
+/* Amazon-style Profile Page */
+:root {
+  --amazon-orange: #ff9900;
+  --amazon-dark: #131921;
+  --amazon-blue: #146eb4;
+  --amazon-light-bg: #fafafa;
+  --amazon-border: #ddd;
+  --amazon-text: #0f1111;
+  --amazon-text-light: #565959;
+  --amazon-success: #007600;
+  --amazon-error: #c40000;
+}
+
+.amazon-profile-container {
+  background-color: var(--amazon-light-bg);
+  min-height: 100vh;
+  padding: 20px 0;
+}
+
+.amazon-profile-content {
+  display: flex;
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 0 20px;
+  gap: 20px;
+}
+
+.amazon-profile-sidebar {
+  flex: 0 0 220px;
+}
+
+.amazon-profile-main {
+  flex: 1;
+}
+
+.amazon-profile-card {
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 1px 4px rgba(15, 17, 17, 0.15);
+  border: 1px solid var(--amazon-border);
+  padding: 20px;
+}
+
+.amazon-card-header {
+  margin-bottom: 20px;
+}
+
+.amazon-card-header h2 {
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--amazon-text);
+  margin: 0 0 5px 0;
+}
+
+.amazon-card-header p {
+  color: var(--amazon-text-light);
+  margin: 0;
+  font-size: 14px;
+}
+
+.amazon-profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.amazon-form-section {
+  padding-bottom: 15px;
+}
+
+.amazon-form-section:last-of-type {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.amazon-form-section h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--amazon-text);
+  margin: 0 0 15px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #eee;
+}
+
+.amazon-form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.amazon-form-group {
+  margin-bottom: 15px;
+}
+
+.medium-width {
+  flex: 1;
+  min-width: 0;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.amazon-form-group label {
+  display: block;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--amazon-text);
+  margin-bottom: 5px;
+}
+
+.amazon-form-input {
+  width: 100%;
+  height: 34px;
+  padding: 0 10px;
+  border: 1px solid #a6a6a6;
+  border-radius: 3px;
+  font-size: 13px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), 0 1px 0 rgba(0, 0, 0, 0.07) inset;
+  transition: all 0.1s ease;
+}
+
+.amazon-form-input:focus {
+  border-color: var(--amazon-orange);
+  box-shadow: 0 0 0 2px rgba(255, 153, 0, 0.3);
+  outline: none;
+}
+
+.amazon-form-input:disabled {
+  background-color: #f0f2f2;
+  color: var(--amazon-text-light);
+  cursor: not-allowed;
+}
+
+.amazon-form-textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #a6a6a6;
+  border-radius: 3px;
+  font-size: 13px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 60px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5), 0 1px 0 rgba(0, 0, 0, 0.07) inset;
+  transition: all 0.1s ease;
+}
+
+.amazon-form-textarea:focus {
+  border-color: var(--amazon-orange);
+  box-shadow: 0 0 0 2px rgba(255, 153, 0, 0.3);
+  outline: none;
+}
+
+.amazon-input-note {
+  font-size: 12px;
+  color: var(--amazon-text-light);
+  margin-top: 4px;
+}
+
+.amazon-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid #eee;
+}
+
+.amazon-save-button {
+  background: linear-gradient(to bottom, #f7dfa5, #f0c14b);
+  border: 1px solid;
+  border-color: #a88734 #9c7e31 #846a29;
+  border-radius: 3px;
+  color: #111;
+  padding: 7px 16px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  min-width: 110px;
+  transition: all 0.1s ease;
+}
+
+.amazon-save-button:hover:not(:disabled) {
+  background: linear-gradient(to bottom, #f5d78e, #eeb933);
+}
+
+.amazon-save-button:active:not(:disabled) {
+  background: #f0c14b;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) inset;
+}
+
+.amazon-save-button:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Toast notifications styling */
+.toast-success {
+  background: var(--amazon-success) !important;
+  color: white !important;
+  font-weight: 500;
+}
+
+.toast-error {
+  background: var(--amazon-error) !important;
+  color: white !important;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 900px) {
+  .amazon-profile-content {
+    flex-direction: column;
+  }
+  
+  .amazon-profile-sidebar {
+    flex: 1;
+  }
+  
+  .amazon-form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+}
+
+@media (max-width: 600px) {
+  .amazon-profile-content {
+    padding: 0 15px;
+  }
+  
+  .amazon-profile-card {
+    padding: 15px;
+  }
+  
+  .amazon-card-header h2 {
+    font-size: 20px;
+  }
+  
+  .amazon-form-section h3 {
+    font-size: 15px;
+  }
+  
+  .amazon-form-actions {
+    justify-content: center;
+  }
+  
+  .amazon-save-button {
+    width: 100%;
+  }
+}
+
+/* Animation for button click */
+@keyframes amazonButtonClick {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.98); }
+  100% { transform: scale(1); }
+}
+
+.amazon-save-button:active:not(:disabled) {
+  animation: amazonButtonClick 0.1s ease;
+}
+
+/* Focus states for accessibility */
+.amazon-form-input:focus-visible,
+.amazon-form-textarea:focus-visible,
+.amazon-save-button:focus-visible {
+  outline: 2px solid var(--amazon-orange);
+  outline-offset: 1px;
+}

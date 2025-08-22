@@ -38,52 +38,60 @@ const ForgotPasssword = () => {
 
   return (
     <Layout title={"Forgot Password - Ecommerce APP"}>
-      <div className="page-container">
-        <div className="image-container">
-          <img src="/images/forget.png" alt="Forgot Password Illustration" />
-        </div>
-        <div className="form-container2">
-          <form onSubmit={handleSubmit}>
-            <h4 className="title">RESET PASSWORD</h4>
-
-            <div className="mb-3">
+      <div className="amazon-auth-container">
+        <div className="amazon-auth-card">
+          <div className="amazon-auth-logo">
+            <span className="amazon-logo-text">Denapoana</span>
+          </div>
+          <h1 className="amazon-auth-title">Password Assistance</h1>
+          <p className="amazon-auth-subtitle">Enter the email address associated with your Denapoana account.</p>
+          
+          <form onSubmit={handleSubmit} className="amazon-auth-form">
+            <div className="amazon-form-group">
+              <label htmlFor="email" className="amazon-form-label">Email</label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="form-control"
-                id="exampleInputEmail1"
-                placeholder="Enter Your Email "
+                className="amazon-form-input"
+                id="email"
                 required
               />
             </div>
-            <div className="mb-3">
+            <div className="amazon-form-group">
+              <label htmlFor="answer" className="amazon-form-label">What is your favorite book?</label>
               <input
                 type="text"
                 value={answer}
                 onChange={(e) => setAnswer(e.target.value)}
-                className="form-control"
-                id="exampleInputEmail1"
-                placeholder="Enter Your favorite Book Name "
+                className="amazon-form-input"
+                id="answer"
+                placeholder="Enter the name of your favorite book"
                 required
               />
             </div>
-            <div className="mb-3">
+            <div className="amazon-form-group">
+              <label htmlFor="newPassword" className="amazon-form-label">New Password</label>
               <input
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="form-control"
-                id="exampleInputPassword1"
-                placeholder="Enter Your Password"
+                className="amazon-form-input"
+                id="newPassword"
                 required
               />
             </div>
-
-            <button type="submit" className="btn btn-primary">
-              RESET
+            <button type="submit" className="amazon-auth-button">
+              Continue
             </button>
           </form>
+          
+          <div className="amazon-auth-divider"></div>
+          
+          <div className="amazon-auth-secondary-actions">
+            <h3>Has your email address changed?</h3>
+            <p>If you no longer use the email address associated with your Denapoana account, you may contact <a href="/help">Customer Service</a> for help restoring access to your account.</p>
+          </div>
         </div>
       </div>
     </Layout>

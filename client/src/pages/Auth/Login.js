@@ -3,8 +3,8 @@ import Layout from "./../../components/Layout/Layout";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
-import "../../styles/AuthStyles.css";
 import { useAuth } from "../../context/auth";
+import "../../styles/AuthStyles.css";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -36,9 +36,8 @@ const Login = () => {
           refreshToken: res.data.refreshToken,
         });
         localStorage.setItem("auth", JSON.stringify(res.data));
-         // Log the previous tokens before refreshing
-      console.log("Previous Access Token: ", auth.token);
-      console.log("Previous Refresh Token: ", auth.refreshToken);
+        console.log("Previous Access Token: ", auth.token);
+        console.log("Previous Refresh Token: ", auth.refreshToken);
         console.log("New Access Token: ", res.data.accessToken);
         console.log("New Refresh Token: ", res.data);
         navigate(location.state || "/");
@@ -61,55 +60,56 @@ const Login = () => {
 
   return (
     <Layout title="Login - Ecommer App">
-      <div className="page-container">
-        <div className="image-container">
-          <img src="/images/loginA.png" alt="Descriptive Alt Text" />
-        </div>
-        <div className="form-container1">
-          <form onSubmit={handleSubmit}>
-            <h4 className="title">LOGIN FORM</h4>
-            <div className="mb-3">
+      <div className="amazon-auth-container">
+        <div className="amazon-auth-card">
+          <div className="amazon-auth-logo">
+            <span className="amazon-logo-text">Denapoana</span>
+          </div>
+          <h1 className="amazon-auth-title">Sign-In</h1>
+          <form onSubmit={handleSubmit} className="amazon-auth-form">
+            <div className="amazon-form-group">
+              <label htmlFor="email" className="amazon-form-label">Email or mobile phone number</label>
               <input
                 type="email"
                 autoFocus
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="form-control"
-                id="exampleInputEmail1"
-                placeholder="Enter Your Email "
+                className="amazon-form-input"
+                id="email"
                 required
               />
             </div>
-            <div className="mb-3">
+            <div className="amazon-form-group">
+              <label htmlFor="password" className="amazon-form-label">Password</label>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="form-control"
-                id="exampleInputPassword1"
-                placeholder="Enter Your Password"
+                className="amazon-form-input"
+                id="password"
                 required
               />
             </div>
-            <div className="mb-3">
-              <button
-                type="button"
-                className="btn forgot-btn"
-                onClick={() => {
-                  navigate("/forgot-password");
-                }}
-              >
-                Forgot Password
-              </button>
-            </div>
             <button
               type="submit"
-              className="btn btn-primary"
+              className="amazon-auth-button"
               disabled={loading}
             >
-              {loading ? "Logging in..." : "LOGIN"}
+              {loading ? "Signing In..." : "Sign In"}
             </button>
           </form>
+          <div className="amazon-auth-divider">
+            <span>New to Denapoana?</span>
+          </div>
+          <button 
+            className="amazon-auth-create-button"
+            onClick={() => navigate("/register")}
+          >
+            Create your account
+          </button>
+          <div className="amazon-auth-links">
+            <a href="/forgot-password">Forgot your password?</a>
+          </div>
         </div>
       </div>
     </Layout>

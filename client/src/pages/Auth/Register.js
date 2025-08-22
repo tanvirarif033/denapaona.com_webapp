@@ -3,7 +3,7 @@ import Layout from "./../../components/Layout/Layout";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import "../../styles/AuthStyles.css";
+import "../../styles/Register.css";
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -43,79 +43,118 @@ const Register = () => {
 
   return (
     <Layout title="Register - Ecommer App">
-      <div className="page-container">
-        <div className="image-container">
-          <img src="/images/register1.png" alt="Register Illustration" />
-        </div>
-
-        <div className="form-container">
-          <form onSubmit={handleSubmit}>
-            <h4 className="title">REGISTER FORM</h4>
-            <div className="mb-3">
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                className="form-control"
-                placeholder="Enter Your Name"
-                required
-                autoFocus
-              />
+      <div className="register-container">
+        <div className="register-card">
+          <div className="register-logo">
+            <span className="register-logo-text">Denapoana</span>
+          </div>
+          <h1 className="register-title">Create Account</h1>
+          
+          <form onSubmit={handleSubmit} className="register-form">
+            <div className="form-row">
+              <div className="form-group half-width">
+                <label htmlFor="name" className="form-label">Your name</label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="form-input"
+                  id="name"
+                  placeholder="First and last name"
+                  required
+                  autoFocus
+                />
+              </div>
+              
+              <div className="form-group half-width">
+                <label htmlFor="email" className="form-label">Email</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="form-input"
+                  id="email"
+                  placeholder="example@email.com"
+                  required
+                />
+              </div>
             </div>
-            <div className="mb-3">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="form-control"
-                placeholder="Enter Your Email "
-                required
-              />
+            
+            <div className="form-row">
+              <div className="form-group half-width">
+                <label htmlFor="password" className="form-label">Password</label>
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="form-input"
+                  id="password"
+                  placeholder="At least 6 characters"
+                  required
+                />
+                <div className="form-note">Passwords must be at least 6 characters.</div>
+              </div>
+              
+              <div className="form-group half-width">
+                <label htmlFor="phone" className="form-label">Mobile number</label>
+                <input
+                  type="number"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="form-input"
+                  id="phone"
+                  placeholder="1234567890"
+                  required
+                />
+              </div>
             </div>
-            <div className="mb-3">
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="form-control"
-                placeholder="Enter Your Password"
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <input
-                type="number"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                className="form-control"
-                placeholder="Enter Your Phone"
-                required
-              />
-            </div>
-            <div className="mb-3">
-              <input
-                type="text"
+            
+            <div className="form-group full-width">
+              <label htmlFor="address" className="form-label">Address</label>
+              <textarea
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
-                className="form-control"
-                placeholder="Enter Your Address"
+                className="form-textarea"
+                id="address"
+                placeholder="Enter your complete address"
+                rows="2"
                 required
               />
             </div>
-            <div className="mb-3">
+            
+            <div className="form-group full-width">
+              <label htmlFor="answer" className="form-label">Security Question</label>
               <input
                 type="text"
                 value={answer}
                 onChange={(e) => setAnswer(e.target.value)}
-                className="form-control"
-                placeholder="What is Your Favorite Book?"
+                className="form-input"
+                id="answer"
+                placeholder="What is your favorite book?"
                 required
               />
+              <div className="form-note">This helps verify your identity if you forget your password.</div>
             </div>
-            <button type="submit" className="btn btn-primary">
-              REGISTER
+            
+            <button type="submit" className="register-button">
+              Create your Denapoana account
             </button>
           </form>
+          
+          <div className="register-terms">
+            <p>By creating an account, you agree to Denapoana's <a href="/conditions">Conditions of Use</a> and <a href="/privacy">Privacy Notice</a>.</p>
+          </div>
+          
+          <div className="register-divider">
+            <span>Already have an account?</span>
+          </div>
+          
+          <button 
+            className="login-redirect-button"
+            onClick={() => navigate("/login")}
+          >
+            Sign in to your account
+          </button>
         </div>
       </div>
     </Layout>
