@@ -1,0 +1,244 @@
+/* Category Management Styles - Amazon Inspired */
+
+.dashboard-container {
+  background-color: #f3f3f3;
+  min-height: calc(100vh - 64px);
+  padding: 20px 0;
+}
+
+.admin-sidebar {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(15, 17, 17, 0.15);
+  padding: 0;
+  height: fit-content;
+}
+
+.admin-main-content {
+  padding-left: 25px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.page-header h1 {
+  color: #0f1111;
+  font-size: 24px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.search-input {
+  width: 250px;
+  border-radius: 8px;
+  border: 1px solid #d5d9d9;
+}
+
+.search-input:focus {
+  border-color: #ffa41c;
+  box-shadow: 0 0 0 2px rgba(255, 164, 28, 0.2);
+}
+
+.refresh-btn {
+  background-color: white;
+  border: 1px solid #d5d9d9;
+  border-radius: 8px;
+  color: #0f1111;
+  box-shadow: 0 2px 5px rgba(15, 17, 17, 0.15);
+}
+
+.refresh-btn:hover {
+  background-color: #f7fafa;
+  border-color: #d5d9d9;
+  color: #0f1111;
+}
+
+.form-card,
+.table-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(15, 17, 17, 0.15);
+  margin-bottom: 20px;
+  border: 1px solid #d5d9d9;
+  overflow: hidden;
+}
+
+.form-card .ant-card-head,
+.table-card .ant-card-head {
+  background-color: #fafafa;
+  border-bottom: 1px solid #e8e8e8;
+  padding: 0 16px;
+}
+
+.form-card .ant-card-head-title,
+.table-card .ant-card-head-title {
+  color: #0f1111;
+  font-weight: 500;
+  padding: 16px 0;
+}
+
+.form-card .ant-card-body,
+.table-card .ant-card-body {
+  padding: 20px;
+}
+
+.category-name {
+  font-weight: 500;
+  color: #0f1111;
+}
+
+.status-tag {
+  border-radius: 14px;
+  font-size: 12px;
+  padding: 2px 8px;
+}
+
+.edit-btn {
+  background-color: #f7fafa;
+  border-color: #d5d9d9;
+  color: #0f1111;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(15, 17, 17, 0.15);
+  font-size: 13px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+}
+
+.edit-btn:hover {
+  background-color: #f0f2f2;
+  border-color: #d5d9d9;
+  color: #0f1111;
+}
+
+.delete-btn {
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(15, 17, 17, 0.15);
+  font-size: 13px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+}
+
+.ant-table-thead > tr > th {
+  background-color: #fafafa !important;
+  color: #0f1111;
+  font-weight: 500;
+  border-bottom: 1px solid #e8e8e8;
+  padding: 12px 16px;
+}
+
+.ant-table-tbody > tr > td {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 12px 16px;
+}
+
+.ant-table-tbody > tr:hover > td {
+  background-color: #f7fafa !important;
+}
+
+.ant-pagination-item {
+  border-radius: 8px;
+  border: 1px solid #d5d9d9;
+  font-weight: 500;
+}
+
+.ant-pagination-item-active {
+  border-color: #ffa41c;
+  background-color: #ffa41c;
+}
+
+.ant-pagination-item-active a {
+  color: white;
+}
+
+.ant-pagination-item-active:hover {
+  border-color: #f08804;
+  background-color: #f08804;
+}
+
+.ant-pagination-item-active:hover a {
+  color: white;
+}
+
+.ant-pagination-prev .ant-pagination-item-link,
+.ant-pagination-next .ant-pagination-item-link {
+  border-radius: 8px;
+  border: 1px solid #d5d9d9;
+}
+
+.edit-modal .ant-modal-header {
+  background-color: #fafafa;
+  border-bottom: 1px solid #e8e8e8;
+  border-radius: 8px 8px 0 0;
+  padding: 16px;
+}
+
+.edit-modal .ant-modal-title {
+  color: #0f1111;
+  font-weight: 500;
+}
+
+.edit-modal .ant-modal-close {
+  color: #0f1111;
+}
+
+.edit-modal .ant-modal-body {
+  padding: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .admin-main-content {
+    padding-left: 15px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 15px;
+  }
+  
+  .admin-main-content {
+    padding-left: 0;
+    margin-top: 20px;
+  }
+  
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .search-input {
+    width: 65%;
+  }
+  
+  .ant-table {
+    font-size: 13px;
+  }
+  
+  .edit-btn, .delete-btn {
+    font-size: 12px;
+    padding: 0 8px;
+  }
+  
+  .edit-btn span, .delete-btn span {
+    margin-right: 4px;
+  }
+}

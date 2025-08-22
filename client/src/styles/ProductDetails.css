@@ -1,231 +1,315 @@
-/* General page layout */
-.product-details {
-  margin-top: 20px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
+/* Base styles */
+.product-details-container {
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #fff;
 }
 
-/* Product details section */
-.product-details-info {
-  flex: 1;
-  padding: 10px;
+.back-button {
+  color: #0066c0;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.back-button:hover {
+  text-decoration: underline;
+  color: #c45500;
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 300px;
+}
+
+/* Product main section */
+.product-main-section {
+  margin-top: 20px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.product-image-container {
+  background: #fff;
+  padding: 20px;
+  text-align: center;
   border: 1px solid #ddd;
   border-radius: 4px;
-  background-color: #fff;
-  max-width: 400px;
 }
 
-.product-details-info h1 {
-  font-size: 20px;
-  color: #333;
+.product-image-large {
+  max-width: 100%;
+  height: auto;
+  max-height: 500px;
+  object-fit: contain;
 }
 
-.product-details-info h6 {
-  font-size: 16px;
-  color: #555;
-  margin: 5px 0;
+.product-info-section {
+  padding: 0 20px;
 }
 
-/* Product name bold styling */
-.product-name {
-  font-weight: bold;
+.product-title {
+  font-size: 24px;
+  font-weight: 400;
+  color: #0F1111;
+  margin-bottom: 10px;
+}
+
+.product-rating {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.rating-count {
+  color: #0066c0;
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+.rating-count:hover {
+  text-decoration: underline;
+  color: #c45500;
+  cursor: pointer;
+}
+
+.price-section {
+  margin: 20px 0;
+  display: flex;
+  align-items: baseline;
+}
+
+.price-label {
+  font-size: 14px;
+  color: #565959;
+  margin-right: 5px;
+}
+
+.price-amount {
+  font-size: 28px;
+  color: #0F1111;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+}
+
+.price-symbol {
   font-size: 18px;
-  color: #333;
+  color: #565959;
+  margin-right: 2px;
+  position: relative;
+  top: -1px;
 }
 
-/* Product price colorful styling */
-.product-price {
-  font-size: 16px;
-  font-weight: bold;
-  color: #6ab18e; /* Amazon orange color */
+.product-description {
+  margin: 20px 0;
+}
+
+.product-description h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.product-description p {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #0F1111;
+}
+
+.add-to-cart-details-btn {
+  background: #FFD814;
+  border-color: #FCD200;
+  color: #0F1111;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+  width: 100%;
+  max-width: 200px;
+}
+
+.add-to-cart-details-btn:hover {
+  background: #F7CA00;
+  border-color: #F2C200;
+}
+
+/* Customer reviews section */
+.customer-reviews-section {
+  margin: 40px 0;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.customer-reviews-section h2 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #0F1111;
+}
+
+.no-reviews {
+  color: #565959;
+  font-style: italic;
+}
+
+.review-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.review-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.reviewer-name {
+  font-weight: 700;
+  margin-right: 15px;
+}
+
+.review-comment {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #0F1111;
+}
+
+.admin-reply {
+  background: #F7FAFA;
+  border-left: 3px solid #E7E7E7;
+  padding: 10px;
   margin-top: 10px;
 }
 
-/* Product image larger display */
-.product-image-large {
-  width: 100%; /* Full width */
-  max-width: 450px; /* Larger max width */
-  height: auto;
-  border-radius: 4px;
+.reply-label {
+  font-weight: 700;
+  color: #565959;
+}
+
+.delete-review-btn {
+  padding: 0;
+  margin-top: 10px;
+}
+
+.add-review-section {
+  background: #fff;
   border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 20px;
+  margin-top: 30px;
+}
+
+.add-review-section h3 {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 15px;
+  color: #0F1111;
+}
+
+.review-textarea {
+  width: 100%;
+  margin: 15px 0;
+  resize: vertical;
+}
+
+.submit-review-btn {
+  background: #FFD814;
+  border-color: #FCD200;
+  color: #0F1111;
+  height: 40px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 8px;
+}
+
+.submit-review-btn:hover {
+  background: #F7CA00;
+  border-color: #F2C200;
 }
 
 /* Similar products section */
-.similar-products {
-  margin-top: 40px;
+.similar-products-section {
+  margin: 40px 0;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-.similar-products h4 {
+.similar-products-section h2 {
   font-size: 20px;
-  color: #333;
+  font-weight: 700;
   margin-bottom: 20px;
+  color: #0F1111;
+}
+
+.no-similar-products {
+  color: #565959;
+  font-style: italic;
+  text-align: center;
+}
+
+.similar-product-card {
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  height: 100%;
+}
+
+.similar-product-card:hover {
+  box-shadow: 0 2px 5px rgba(15,17,17,.15);
+}
+
+.similar-product-image {
+  height: 200px;
+  object-fit: contain;
+  padding: 20px;
+}
+
+.similar-product-price {
+  font-size: 18px;
+  color: #0F1111;
+  margin: 5px 0;
   display: flex;
-  font-weight: bold;
-  justify-content: center;
-  flex-wrap: wrap;
+  align-items: center;
 }
 
-.similar-products .card {
-  flex: 1;
-  max-width: 180px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: #fff;
-  margin-bottom: 20px;
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .product-image-large {
+    max-height: 300px;
+  }
+
+  .product-title {
+    font-size: 20px;
+  }
+
+  .price-amount {
+    font-size: 24px;
+  }
+
+  .add-to-cart-details-btn {
+    max-width: 100%;
+  }
 }
 
-.similar-products .card img {
-  width: 100%;
-  height: auto;
-  border-bottom: 1px solid #ddd;
+@media (max-width: 480px) {
+  .product-image-large {
+    max-height: 250px;
+  }
+
+  .product-title {
+    font-size: 18px;
+  }
+
+  .price-amount {
+    font-size: 20px;
+  }
 }
-
-.similar-products .card-body {
-  padding: 10px;
-}
-
-.similar-products .card-title {
-  font-size: 14px;
-  color: #333;
-  font-weight: bold;
-}
-
-.similar-products .card-text {
-  font-size: 12px;
-  color: #555;
-}
-
-/* Button styling */
-.btn-secondary {
-  background-color: #ff9900;
-  color: #fff;
-  border: none;
-  padding: 10px 20px;
-  font-size: 16px;
-  cursor: pointer;
-  margin-top: 10px;
-}
-
-.btn-secondary:hover {
-  background-color: #e68a00;
-}
-
-
-  /* General container styling */
-.container.reviews {
-  background-color: #f9f9f9; /* Light background for review section */
-  border: 1px solid #e7e7e7; /* Subtle border */
-  padding: 20px; /* Padding around the content */
-  border-radius: 5px; /* Rounded corners */
-  
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Soft shadow effect */
-  max-width: 1000px;
-  margin: 20px auto;
-}
-
-/* Section headings */
-.container.reviews h4 {
-  font-size: 22px;
-  color: #111; /* Darker text for headings */
-  font-weight: 600;
-  margin-bottom: 15px; /* Space under the heading */
-}
-
-/* Individual review styling */
-.review {
-  border-bottom: 1px solid #ddd; /* Divider between reviews */
-  padding: 15px 0; /* Padding between reviews */
-  font-size: 16px;
-  color: #333; /* Dark text for readability */
-}
-
-.review p {
-  margin-bottom: 8px; /* Spacing between paragraphs */
-}
-
-.review strong {
-  color: #333; /* Strong text emphasis */
-  font-weight: 600; /* Bold for user name and admin reply */
-}
-
-/* Admin reply styling */
-.review p strong {
-  color: #FF9900; /* Amazon orange color for admin reply label */
-}
-
-/* Delete button styling */
-.review .btn-danger {
-  background-color: #B12704; /* Amazon's red for delete */
-  border: none; /* Remove border */
-  padding: 5px 10px; /* Button padding */
-  color: white; /* White text */
-  border-radius: 3px; /* Rounded corners */
-  font-size: 14px; /* Slightly smaller text */
-  cursor: pointer; /* Pointer on hover */
-}
-
-.review .btn-danger:hover {
-  background-color: #A12404; /* Slightly darker red on hover */
-}
-
-/* Add a review section */
-.container.reviews h4 {
-  font-size: 20px;
-  color: #111; /* Dark heading color */
-  margin-top: 30px; /* Space before the add review section */
-}
-
-/* Error message */
-.text-danger {
-  color: #d9534f; /* Standard red for error messages */
-}
-
-/* Rating input styling */
-input[type="number"] {
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin-bottom: 10px;
-  box-sizing: border-box; /* Ensure proper sizing */
-}
-
-/* Comment textarea styling */
-textarea {
-  width: 100%;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  margin-bottom: 10px;
-  resize: vertical; /* Allow vertical resize */
-  min-height: 100px;
-  box-sizing: border-box;
-}
-
-/* Submit button styling */
-.btn-primary {
-  background-color: #FF9900; /* Amazon orange for primary button */
-  border: none; /* Remove default border */
-  color: white;
-  padding: 10px 20px;
-  border-radius: 4px;
-  font-size: 16px;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  background-color: #e68a00; /* Slightly darker orange on hover */
-}
-.dollar-sign {
-  color: green;
-}
-
-.price-value {
-  color: #ffa41c;
-}
-
-
-  

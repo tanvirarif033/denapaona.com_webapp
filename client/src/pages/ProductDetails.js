@@ -1,33 +1,34 @@
 import React, { useState, useEffect } from "react";
 import Layout from "./../components/Layout/Layout";
 import axios from "axios";
-import { useParams } from "react-router-dom";
-import "../styles/ProductDetails.css";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/auth";
-import { toast } from "react-hot-toast"; // Importing toast
-import { useNavigate } from "react-router-dom";
+import { toast } from "react-hot-toast";
 import { useCart } from "../context/cart";
-import ReactStars from "react-stars"; // Import react-stars for star ratings
+import { Button, Card, Row, Col, Divider, Rate, Spin, Input } from "antd";
+import { ShoppingCartOutlined, ArrowLeftOutlined } from "@ant-design/icons";
+import "../styles/ProductDetails.css";
+
+const { TextArea } = Input;
 
 const ProductDetails = () => {
   const params = useParams();
   const [product, setProduct] = useState({});
   const [relatedProducts, setRelatedProducts] = useState([]);
   const [reviews, setReviews] = useState([]);
-  const [newReview, setNewReview] = useState({ rating: 0, comment: "" }); // Initialize rating as 0
-  const [error, setError] = useState(""); // Define the error state
+  const [newReview, setNewReview] = useState({ rating: 0, comment: "" });
+  const [loading, setLoading] = useState(false);
   const [auth] = useAuth();
   const [cart, setCart] = useCart();
   const navigate = useNavigate();
 
-  // Fetch product details
   useEffect(() => {
     if (params?.slug) getProduct();
   }, [params?.slug]);
 
-  // Get product details
   const getProduct = async () => {
     try {
+      setLoading(true);
       const { data } = await axios.get(
         `https://denapaona-com-webapp-server.vercel.app/api/v1/product/get-product/${params.slug}`,
         {
@@ -38,13 +39,14 @@ const ProductDetails = () => {
       );
       setProduct(data?.product);
       getSimilarProduct(data?.product._id, data?.product.category._id);
-      getReviews(data?.product._id); // Fetch reviews
+      getReviews(data?.product._id);
     } catch (error) {
       console.log(error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Get similar products
   const getSimilarProduct = async (pid, cid) => {
     try {
       const { data } = await axios.get(
@@ -56,23 +58,6 @@ const ProductDetails = () => {
     }
   };
 
-  // Handle adding product to cart
-  const handleAddToCart = (product) => {
-    if (!auth?.user) {
-      toast.error("Please log in to add items to the cart");
-      navigate("/login"); // Redirect to login page if not authenticated
-    } else {
-      const updatedCart = [...cart, product];
-      setCart(updatedCart);
-      localStorage.setItem(
-        `cart-${auth.user.email}`,
-        JSON.stringify(updatedCart)
-      ); // Save cart associated with user's email
-      toast.success("Item Added to Cart");
-    }
-  };
-
-  // Get reviews for the product
   const getReviews = async (productId) => {
     try {
       const { data } = await axios.get(
@@ -84,15 +69,29 @@ const ProductDetails = () => {
     }
   };
 
-  // Add a new review
+  const handleAddToCartDetails = (product) => {
+    if (!auth?.user) {
+      toast.error("Please log in to add items to the cart");
+      navigate("/login");
+    } else {
+      const updatedCart = [...cart, product];
+      setCart(updatedCart);
+      localStorage.setItem(
+        `cart-${auth.user.email}`,
+        JSON.stringify(updatedCart)
+      );
+      toast.success("Item Added to Cart");
+    }
+  };
+
   const addReview = async () => {
     if (!product?._id) {
-      setError("Unable to add review. Product not found."); // Set error
+      toast.error("Product not found");
       return;
     }
 
     if (!newReview.rating || !newReview.comment) {
-      setError("Please provide both a rating and a comment."); // Set error if inputs are incomplete
+      toast.error("Please provide both rating and comment");
       return;
     }
 
@@ -105,154 +104,210 @@ const ProductDetails = () => {
           comment: newReview.comment,
         }
       );
-
-      // Update state with new review
       setReviews([...reviews, data.review]);
-      toast.success("Review added successfully!"); // Success toast
-      setError(""); // Clear error on success
-      // Reset form
+      toast.success("Review added successfully!");
       setNewReview({ rating: 0, comment: "" });
     } catch (error) {
       console.log(error);
-      setError("Error adding review. Please try again."); // Set error on failure
+      toast.error("Failed to add review");
     }
   };
 
-  useEffect(() => {
-    if (auth?.token) getProduct();
-  }, [auth?.token]);
-
-  // Delete a review
   const deleteReview = async (reviewId) => {
     try {
       await axios.delete(
         `https://denapaona-com-webapp-server.vercel.app/api/v1/review/delete-review/${reviewId}`
       );
-
-      // Remove the deleted review from state
       setReviews(reviews.filter((review) => review._id !== reviewId));
-      toast.success("Review deleted successfully!"); // Success toast
+      toast.success("Review deleted successfully!");
     } catch (error) {
       console.log(error);
-      toast.error("Error deleting review. Please try again."); // Error toast
+      toast.error("Failed to delete review");
     }
   };
 
   return (
     <Layout>
-      <div className="row container product-details">
-        <div className="col-md-6">
-          <img
-            src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${product._id}`}
-            className="product-image-large"
-            alt={product.name}
-            height="400"
-            width="450"
-          />
-        </div>
-        <div className="col-md-6 product-details-info">
-          <h1 className="text-center">Product Details</h1>
-          <hr />
-          <h6 className="product-name">Name: {product.name}</h6>
-          <h6>Description: {product.description}</h6>
-          <h6 className="product-price">
-            Price: <span style={{ color: "green" }}>$</span>
-            <span style={{ color: "#ffa41c" }}>{product.price}</span>
-          </h6>
-          <h6>Category: {product?.category?.name}</h6>
-          <button
-            className="btn btn-link text-decoration-none"
-            onClick={() => handleAddToCart(product)}
-          >
-            Add To Cart
-          </button>
-        </div>
-      </div>
+      <div className="product-details-container">
+        <Button 
+          type="text" 
+          icon={<ArrowLeftOutlined />} 
+          onClick={() => navigate(-1)}
+          className="back-button"
+        >
+          Back to results
+        </Button>
 
-      <hr />
+        {loading ? (
+          <Spin size="large" className="loading-spinner" />
+        ) : (
+          <>
+            <Row gutter={[32, 32]} className="product-main-section">
+              <Col xs={24} md={12} lg={10}>
+                <div className="product-image-container">
+                  <img
+                    src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${product._id}`}
+                    alt={product.name}
+                    className="product-image-large"
+                  />
+                </div>
+              </Col>
+              <Col xs={24} md={12} lg={14}>
+                <div className="product-info-section">
+                  <h1 className="product-title">{product.name}</h1>
+                  
+                  <div className="product-rating">
+                    <Rate 
+                      disabled 
+                      value={product.rating || 0} 
+                      style={{ color: "#ffa41c" }} 
+                    />
+                    <span className="rating-count">
+                      {reviews.length} customer reviews
+                    </span>
+                  </div>
 
-      <div className="container reviews">
-        <h4>User Reviews</h4>
-        {reviews.length < 1 && <p>No reviews yet.</p>}
-        {reviews.map((review) => (
-          <div key={review._id} className="review">
-            <p>
-              <strong>{review.user.name}:</strong> {review.comment}
-            </p>
-            <ReactStars
-              count={5}
-              value={review.rating}
-              size={24}
-              color2={"#ffd700"}
-              edit={false} // Disable editing for displayed reviews
-            />
-            {review.reply && (
-              <p>
-                <strong>Admin Reply:</strong> {review.reply}
-              </p>
-            )}
-            {auth?.user?._id === review.user._id && (
-              <button
-                className="btn btn-danger"
-                onClick={() => deleteReview(review._id)}
-              >
-                Delete
-              </button>
-            )}
-          </div>
-        ))}
+                  <Divider />
 
-        <h4>Add a Review</h4>
-        {error && <p className="text-danger">{error}</p>} {/* Display error */}
-        <ReactStars
-          count={5}
-          value={newReview.rating}
-          size={24}
-          color2={"#ffd700"}
-          onChange={(newRating) =>
-            setNewReview({ ...newReview, rating: newRating })
-          } // Update rating in newReview state
-        />
-        <textarea
-          placeholder="Comment"
-          value={newReview.comment}
-          onChange={(e) =>
-            setNewReview({ ...newReview, comment: e.target.value })
-          }
-          className="form-control mb-2"
-        />
-        <button className="btn btn-primary" onClick={addReview}>
-          Submit Review
-        </button>
-      </div>
+                  <div className="price-section">
+                    <span className="price-label">Price: </span>
+                    <span className="price-amount">
+                      <span className="price-symbol">$</span>
+                      {product.price}
+                    </span>
+                  </div>
 
-      <div className="row container similar-products">
-        <h4>Similar Products</h4>
-        {relatedProducts.length < 1 && (
-          <p className="text-center">No Similar Products found</p>
-        )}
-        {relatedProducts.map((p) => (
-          <div className="card m-2" style={{ width: "18rem" }} key={p._id}>
-            <img
-              src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${p._id}`}
-              className="card-img-top"
-              alt={p.name}
-            />
-            <div className="card-body">
-              <h5 className="card-title">{p.name}</h5>
-              <p className="card-text">{p.description.substring(0, 20)}...</p>
-              <p className="card-text1">
-                <span style={{ color: "green" }}>$</span> {p.price}
-              </p>
-              <button
-                className="btn btn-link text-decoration-none"
-                onClick={() => navigate(`/product/${p.slug}`)}
-              >
-                More Details
-              </button>
+                  <div className="product-description">
+                    <h3>About this item</h3>
+                    <p>{product.description}</p>
+                  </div>
+
+                  <Button
+                    type="primary"
+                    icon={<ShoppingCartOutlined />}
+                    onClick={() => handleAddToCartDetails(product)}
+                    className="add-to-cart-details-btn"
+                  >
+                    Add to Your Cart
+                  </Button>
+                </div>
+              </Col>
+            </Row>
+
+            <Divider />
+
+            <div className="customer-reviews-section">
+              <h2>Customer reviews</h2>
+              
+              {reviews.length === 0 && (
+                <p className="no-reviews">No customer reviews yet.</p>
+              )}
+
+              {reviews.map((review) => (
+                <div key={review._id} className="review-card">
+                  <div className="review-header">
+                    <span className="reviewer-name">{review.user.name}</span>
+                    <Rate 
+                      disabled 
+                      value={review.rating} 
+                      style={{ color: "#ffa41c", fontSize: 14 }} 
+                    />
+                  </div>
+                  <p className="review-comment">{review.comment}</p>
+                  {review.reply && (
+                    <div className="admin-reply">
+                      <span className="reply-label">Admin reply:</span>
+                      <p>{review.reply}</p>
+                    </div>
+                  )}
+                  {auth?.user?._id === review.user._id && (
+                    <Button
+                      type="link"
+                      danger
+                      onClick={() => deleteReview(review._id)}
+                      className="delete-review-btn"
+                    >
+                      Delete review
+                    </Button>
+                  )}
+                </div>
+              ))}
+
+              <div className="add-review-section">
+                <h3>Write a customer review</h3>
+                <Rate
+                  value={newReview.rating}
+                  onChange={(rating) => setNewReview({...newReview, rating})}
+                  style={{ color: "#ffa41c" }}
+                />
+                <TextArea
+                  placeholder="Share your thoughts about this product"
+                  value={newReview.comment}
+                  onChange={(e) =>
+                    setNewReview({ ...newReview, comment: e.target.value })
+                  }
+                  className="review-textarea"
+                  rows={4}
+                />
+                <Button
+                  type="primary"
+                  onClick={addReview}
+                  className="submit-review-btn"
+                >
+                  Submit review
+                </Button>
+              </div>
             </div>
-          </div>
-        ))}
+
+            <Divider />
+
+            <div className="similar-products-section">
+              <h2>Customers who viewed this item also viewed</h2>
+              <Row gutter={[16, 16]}>
+                {relatedProducts.length === 0 && (
+                  <Col span={24}>
+                    <p className="no-similar-products">
+                      No similar products found
+                    </p>
+                  </Col>
+                )}
+                {relatedProducts.map((p) => (
+                  <Col xs={12} sm={8} md={6} lg={6} key={p._id}>
+                    <Card
+                      hoverable
+                      className="similar-product-card"
+                      cover={
+                        <img
+                          src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${p._id}`}
+                          alt={p.name}
+                          className="similar-product-image"
+                        />
+                      }
+                      onClick={() => navigate(`/product/${p.slug}`)}
+                    >
+                      <Card.Meta
+                        title={p.name}
+                        description={
+                          <>
+                            <div className="similar-product-price">
+                              <span className="price-symbol">$</span>
+                              <span className="price-amount">{p.price}</span>
+                            </div>
+                            <Rate 
+                              disabled 
+                              value={p.rating || 0} 
+                              style={{ color: "#ffa41c", fontSize: 14 }} 
+                            />
+                          </>
+                        }
+                      />
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+            </div>
+          </>
+        )}
       </div>
     </Layout>
   );

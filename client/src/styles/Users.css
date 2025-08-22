@@ -1,0 +1,278 @@
+.admin-reviews-container {
+  background-color: #f3f3f3;
+  min-height: calc(100vh - 64px);
+  padding: 20px 0;
+}
+
+.admin-sidebar {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(15, 17, 17, 0.15);
+  padding: 0;
+  height: fit-content;
+}
+
+.admin-main-content {
+  padding-left: 25px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.page-header h1 {
+  color: #0f1111;
+  font-size: 24px;
+  font-weight: 500;
+  margin: 0;
+}
+
+.refresh-btn {
+  background-color: white;
+  border: 1px solid #d5d9d9;
+  border-radius: 8px;
+  color: #0f1111;
+  box-shadow: 0 2px 5px rgba(15, 17, 17, 0.15);
+}
+
+.refresh-btn:hover {
+  background-color: #f7fafa;
+  border-color: #d5d9d9;
+  color: #0f1111;
+}
+
+.reviews-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.review-card {
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(15, 17, 17, 0.15);
+  border: 1px solid #d5d9d9;
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px;
+  border-bottom: 1px solid #e8e8e8;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  background-color: #ffa41c;
+  color: white;
+  font-weight: 600;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+}
+
+.user-name {
+  color: #0f1111;
+  font-weight: 600;
+  margin: 0;
+  font-size: 14px;
+}
+
+.review-date {
+  color: #565959;
+  font-size: 12px;
+}
+
+.review-tag {
+  border-radius: 14px;
+  font-size: 11px;
+  padding: 4px 8px;
+  font-weight: 500;
+}
+
+.review-content {
+  padding: 16px;
+}
+
+.review-comment {
+  color: #0f1111;
+  margin-bottom: 16px;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.admin-reply {
+  background-color: #fafafa;
+  border-radius: 8px;
+  padding: 12px;
+  border-left: 3px solid #ffa41c;
+  margin-top: 12px;
+}
+
+.reply-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.admin-avatar {
+  background-color: #232f3e;
+  color: white;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.admin-label {
+  font-weight: 600;
+  color: #0f1111;
+  font-size: 14px;
+}
+
+.reply-content {
+  color: #0f1111;
+  margin: 0;
+  line-height: 1.4;
+  font-size: 14px;
+}
+
+.review-actions {
+  padding: 16px;
+  border-top: 1px solid #e8e8e8;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.reply-section {
+  flex: 1;
+  margin-right: 16px;
+}
+
+.reply-input {
+  border-radius: 8px;
+  border: 1px solid #d5d9d9;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.reply-input:focus {
+  border-color: #ffa41c;
+  box-shadow: 0 0 0 2px rgba(255, 164, 28, 0.2);
+}
+
+.reply-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.send-btn {
+  background-color: #ffa41c;
+  border-color: #ffa41c;
+  border-radius: 8px;
+  font-weight: 500;
+  height: 36px;
+  font-size: 14px;
+}
+
+.send-btn:hover {
+  background-color: #f08804;
+  border-color: #f08804;
+}
+
+.cancel-btn {
+  border-radius: 8px;
+  height: 36px;
+  font-size: 14px;
+}
+
+.reply-btn {
+  border-radius: 8px;
+  height: 36px;
+  font-size: 14px;
+  padding: 0 16px;
+}
+
+.delete-btn {
+  border-radius: 8px;
+  height: 36px;
+  font-size: 14px;
+  padding: 0 16px;
+  white-space: nowrap;
+  min-width: auto;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px;
+  border-radius: 8px;
+}
+
+.empty-content h3 {
+  color: #0f1111;
+  margin-bottom: 8px;
+}
+
+.empty-content p {
+  color: #565959;
+}
+
+@media (max-width: 768px) {
+  .admin-main-content {
+    padding-left: 15px;
+  }
+  
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .review-header {
+    flex-direction: column;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  
+  .review-actions {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+  
+  .reply-section {
+    margin-right: 0;
+    margin-bottom: 12px;
+  }
+  
+  .reply-buttons {
+    justify-content: center;
+  }
+  
+  .delete-btn {
+    align-self: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .reply-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .send-btn, .cancel-btn {
+    width: 100%;
+  }
+}

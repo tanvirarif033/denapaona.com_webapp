@@ -3,9 +3,13 @@ import Layout from "./../../components/Layout/Layout";
 import AdminMenu from "./../../components/Layout/AdminMenu";
 import toast from "react-hot-toast";
 import axios from "axios";
-import { Select } from "antd";
+import { Select, Card, Input, Button, Upload, Image, Spin } from "antd";
 import { useNavigate, useParams } from "react-router-dom";
+import { UploadOutlined, SaveOutlined, DeleteOutlined } from "@ant-design/icons";
+import "../../styles/UpdateProduct.css";
+
 const { Option } = Select;
+const { TextArea } = Input;
 
 const UpdateProduct = () => {
   const navigate = useNavigate();
@@ -17,11 +21,13 @@ const UpdateProduct = () => {
   const [category, setCategory] = useState("");
   const [quantity, setQuantity] = useState("");
   const [shipping, setShipping] = useState("");
-  const [photo, setPhoto] = useState("");
+  const [photo, setPhoto] = useState(null);
   const [id, setId] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [updating, setUpdating] = useState(false);
 
-  //get single product
   const getSingleProduct = async () => {
+    setLoading(true);
     try {
       const { data } = await axios.get(
         `https://denapaona-com-webapp-server.vercel.app/api/v1/product/get-product/${params.slug}`,
@@ -35,19 +41,21 @@ const UpdateProduct = () => {
       setId(data.product._id);
       setDescription(data.product.description);
       setPrice(data.product.price);
-      setPrice(data.product.price);
       setQuantity(data.product.quantity);
-      setShipping(data.product.shipping);
+      setShipping(data.product.shipping ? "1" : "0");
       setCategory(data.product.category._id);
     } catch (error) {
       console.log(error);
+      toast.error("Failed to load product");
+    } finally {
+      setLoading(false);
     }
   };
+
   useEffect(() => {
     getSingleProduct();
-    //eslint-disable-next-line
-  }, []);
-  //get all category
+  }, [params.slug]);
+
   const getAllCategory = async () => {
     try {
       const { data } = await axios.get(
@@ -63,7 +71,7 @@ const UpdateProduct = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error("Something wwent wrong in getting catgeory");
+      toast.error("Something went wrong in getting category");
     }
   };
 
@@ -71,184 +79,198 @@ const UpdateProduct = () => {
     getAllCategory();
   }, []);
 
-  //create product function
   const handleUpdate = async (e) => {
     e.preventDefault();
+    setUpdating(true);
     try {
       const productData = new FormData();
       productData.append("name", name);
       productData.append("description", description);
       productData.append("price", price);
       productData.append("quantity", quantity);
-      photo && productData.append("photo", photo);
+      if (photo) productData.append("photo", photo);
       productData.append("category", category);
-      const { data } = axios.put(
+      productData.append("shipping", shipping);
+      
+      const { data } = await axios.put(
         `https://denapaona-com-webapp-server.vercel.app/api/v1/product/update-product/${id}`,
         productData
       );
+      
       if (data?.success) {
-        toast.error(data?.message);
-      } else {
         toast.success("Product Updated Successfully");
         navigate("/dashboard/admin/products");
+      } else {
+        toast.error(data?.message);
       }
     } catch (error) {
       console.log(error);
-      toast.error("something went wrong");
+      toast.error("Something went wrong");
+    } finally {
+      setUpdating(false);
     }
   };
 
-  //delete a product
   const handleDelete = async () => {
     try {
       let answer = window.prompt("Are you sure you want to delete this product? Type 'yes' to confirm.");
       if (answer?.toLowerCase() !== 'yes') return;
-  
-      // Log the ID to ensure it's correct
-      console.log("Product ID:", id);
-  
+
       const response = await axios.delete(
         `https://denapaona-com-webapp-server.vercel.app/api/v1/product/delete-product/${id}`
       );
-  
+
       if (response.status === 200 && response.data?.success) {
         toast.success("Product Deleted Successfully");
         navigate("/dashboard/admin/products");
       } else {
         toast.error(response.data?.message || "Failed to delete the product.");
       }
-  
     } catch (error) {
       console.error("Error details:", error);
       toast.error("Something went wrong");
     }
   };
-  
+
+  const uploadProps = {
+    beforeUpload: (file) => {
+      setPhoto(file);
+      return false;
+    },
+    maxCount: 1,
+  };
 
   return (
-    <Layout title={"Dashboard - Create Product"}>
-      <div className="container-fluid m-3 p-3">
+    <Layout title={"Dashboard - Update Product"}>
+      <div className="update-product-container">
         <div className="row">
-          <div className="col-md-3">
+          <div className="col-md-3 admin-sidebar">
             <AdminMenu />
           </div>
-          <div className="col-md-9">
-            <h1>Update Product</h1>
-            <div className="m-1 w-75">
-              <Select
-                bordered={false}
-                placeholder="Select a category"
-                size="large"
-                showSearch
-                className="form-select mb-3"
-                onChange={(value) => {
-                  setCategory(value);
-                }}
-                value={category}
-              >
-                {categories?.map((c) => (
-                  <Option key={c._id} value={c._id}>
-                    {c.name}
-                  </Option>
-                ))}
-              </Select>
-              <div className="mb-3">
-                <label className="btn btn-outline-secondary col-md-12">
-                  {photo ? photo.name : "Upload Photo"}
-                  <input
-                    type="file"
-                    name="photo"
-                    accept="image/*"
-                    onChange={(e) => setPhoto(e.target.files[0])}
-                    hidden
-                  />
-                </label>
-              </div>
-              <div className="mb-3">
-                {photo ? (
-                  <div className="text-center">
-                    <img
-                      src={URL.createObjectURL(photo)}
-                      alt="product_photo"
-                      height={"200px"}
-                      className="img img-responsive"
-                    />
-                  </div>
-                ) : (
-                  <div className="text-center">
-                    <img
-                      src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${id}`}
-                      alt="product_photo"
-                      height={"200px"}
-                      className="img img-responsive"
-                    />
-                  </div>
-                )}
-              </div>
-              <div className="mb-3">
-                <input
-                  type="text"
-                  value={name}
-                  placeholder="write a name"
-                  className="form-control"
-                  onChange={(e) => setName(e.target.value)}
-                />
-              </div>
-              <div className="mb-3">
-                <textarea
-                  type="text"
-                  value={description}
-                  placeholder="write a description"
-                  className="form-control"
-                  onChange={(e) => setDescription(e.target.value)}
-                />
-              </div>
-
-              <div className="mb-3">
-                <input
-                  type="number"
-                  value={price}
-                  placeholder="write a Price"
-                  className="form-control"
-                  onChange={(e) => setPrice(e.target.value)}
-                />
-              </div>
-              <div className="mb-3">
-                <input
-                  type="number"
-                  value={quantity}
-                  placeholder="write a quantity"
-                  className="form-control"
-                  onChange={(e) => setQuantity(e.target.value)}
-                />
-              </div>
-              <div className="mb-3">
-                <Select
-                  bordered={false}
-                  placeholder="Select Shipping "
-                  size="large"
-                  showSearch
-                  className="form-select mb-3"
-                  onChange={(value) => {
-                    setShipping(value);
-                  }}
-                  value={shipping ? "Yes" : "No"}
-                >
-                  <Option value="0">No</Option>
-                  <Option value="1">Yes</Option>
-                </Select>
-              </div>
-              <div className="mb-3">
-                <button className="btn btn-primary" onClick={handleUpdate}>
-                  UPDATE PRODUCT
-                </button>
-              </div>
-              <div className="mb-3">
-                <button className="btn btn-danger" onClick={handleDelete}>
-                  DELETE PRODUCT
-                </button>
-              </div>
+          <div className="col-md-9 admin-main-content">
+            <div className="page-header">
+              <h1>Update Product</h1>
             </div>
+            
+            <Spin spinning={loading}>
+              <Card className="product-form-card">
+                <div className="form-grid">
+                  <div className="form-group">
+                    <label>Category</label>
+                    <Select
+                      placeholder="Select a category"
+                      size="large"
+                      className="form-select"
+                      onChange={setCategory}
+                      value={category}
+                    >
+                      {categories?.map((c) => (
+                        <Option key={c._id} value={c._id}>
+                          {c.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Product Image</label>
+                    <Upload {...uploadProps} className="image-upload">
+                      <Button icon={<UploadOutlined />}>
+                        {photo ? photo.name : "Change Image"}
+                      </Button>
+                    </Upload>
+                    <div className="image-preview">
+                      <Image
+                        src={photo ? URL.createObjectURL(photo) : 
+                          `https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${id}`}
+                        alt="product preview"
+                        className="preview-image"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="form-group">
+                    <label>Product Name</label>
+                    <Input
+                      placeholder="Enter product name"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      size="large"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Description</label>
+                    <TextArea
+                      placeholder="Enter product description"
+                      value={description}
+                      onChange={(e) => setDescription(e.target.value)}
+                      rows={4}
+                      size="large"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Price ($)</label>
+                    <Input
+                      type="number"
+                      placeholder="Enter price"
+                      value={price}
+                      onChange={(e) => setPrice(e.target.value)}
+                      size="large"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Quantity</label>
+                    <Input
+                      type="number"
+                      placeholder="Enter quantity"
+                      value={quantity}
+                      onChange={(e) => setQuantity(e.target.value)}
+                      size="large"
+                    />
+                  </div>
+
+                  <div className="form-group">
+                    <label>Shipping</label>
+                    <Select
+                      placeholder="Select shipping option"
+                      size="large"
+                      className="form-select"
+                      onChange={setShipping}
+                      value={shipping}
+                    >
+                      <Option value="0">No</Option>
+                      <Option value="1">Yes</Option>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="form-actions">
+                  <Button 
+                    type="primary" 
+                    size="large" 
+                    onClick={handleUpdate}
+                    icon={<SaveOutlined />}
+                    className="update-btn"
+                    loading={updating}
+                  >
+                    Update Product
+                  </Button>
+                  <Button 
+                    type="primary" 
+                    danger
+                    size="large" 
+                    onClick={handleDelete}
+                    icon={<DeleteOutlined />}
+                    className="delete-btn"
+                  >
+                    Delete Product
+                  </Button>
+                </div>
+              </Card>
+            </Spin>
           </div>
         </div>
       </div>
