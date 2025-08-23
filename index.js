@@ -7,6 +7,7 @@ import authRoutes from "./routes/authRoute.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
+import offerRoutes from "./routes/offerRoute.js";
 import cors from "cors";
 import logger from "./middlewares/logger.js";
 import errorHandler from "./middlewares/errorHandler.js"; // Import the errorHandler
@@ -51,6 +52,7 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/product", productRoutes);
 app.use("/api/v1/review", reviewRoutes);
+app.use("/api/v1/offers", offerRoutes);
 
 // Default route
 app.get("/", (req, res) => {

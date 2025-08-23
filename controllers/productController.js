@@ -8,7 +8,6 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-
 //payment gateway
 var gateway = new braintree.BraintreeGateway({
   environment: braintree.Environment.Sandbox,
@@ -17,22 +16,12 @@ var gateway = new braintree.BraintreeGateway({
   privateKey: process.env.BRAINTREE_PRIVATE_KEY,
 });
 
-
-
-// var gateway = new braintree.BraintreeGateway({
-//   environment: braintree.Environment.Sandbox,
-//   merchantId: process.env.BRAINTREE_MERCHANT_ID,
-//   publicKey: process.env.BRAINTREE_PUBLIC_KEY,
-//   privateKey: process.env.BRAINTREE_PRIVATE_KEY,
-// });
-
-
 export const createProductController = async (req, res) => {
   try {
     const { name, description, price, category, quantity, shipping } =
       req.fields;
     const { photo } = req.files;
-    //alidation
+    //validation
     switch (true) {
       case !name:
         return res.status(500).send({ error: "Name is Required" });
@@ -50,7 +39,12 @@ export const createProductController = async (req, res) => {
           .send({ error: "photo is Required and should be less then 1mb" });
     }
 
-    const products = new productModel({ ...req.fields, slug: slugify(name) });
+    const products = new productModel({
+      ...req.fields,
+      slug: slugify(name),
+      originalPrice: price, // Set originalPrice same as price initially
+    });
+
     if (photo) {
       products.photo.data = fs.readFileSync(photo.path);
       products.photo.contentType = photo.type;
@@ -66,7 +60,7 @@ export const createProductController = async (req, res) => {
     res.status(500).send({
       success: false,
       error,
-      message: "Error in crearing product",
+      message: "Error in creating product",
     });
   }
 };
@@ -77,41 +71,66 @@ export const getProductController = async (req, res) => {
     const products = await productModel
       .find({})
       .populate("category")
+      .populate("discount.offer")
       .select("-photo")
       .limit(12)
       .sort({ createdAt: -1 });
+
+    // Add discountedPrice to each product
+    const productsWithDiscount = products.map((product) => {
+      const productObj = product.toObject();
+      productObj.discountedPrice = product.discountedPrice;
+      productObj.hasActiveDiscount = product.hasActiveDiscount;
+      return productObj;
+    });
+
     res.status(200).send({
       success: true,
       counTotal: products.length,
-      message: "ALlProducts ",
-      products,
+      message: "All Products ",
+      products: productsWithDiscount,
     });
   } catch (error) {
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Erorr in getting products",
+      message: "Error in getting products",
       error: error.message,
     });
   }
 };
+
 // get single product
 export const getSingleProductController = async (req, res) => {
   try {
     const product = await productModel
       .findOne({ slug: req.params.slug })
       .select("-photo")
-      .populate("category");
+      .populate("category")
+      .populate("discount.offer");
+
+    if (!product) {
+      return res.status(404).send({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    // Add discounted price information
+    const productObj = product.toObject();
+    productObj.discountedPrice = product.discountedPrice;
+    productObj.hasActiveDiscount = product.hasActiveDiscount;
+
     res.status(200).send({
       success: true,
       message: "Single Product Fetched",
-      product,
+      product: productObj,
     });
   } catch (error) {
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Eror while getitng single product",
+      message: "Error while getting single product",
       error,
     });
   }
@@ -129,7 +148,7 @@ export const productPhotoController = async (req, res) => {
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Erorr while getting photo",
+      message: "Error while getting photo",
       error,
     });
   }
@@ -153,13 +172,13 @@ export const deleteProductController = async (req, res) => {
   }
 };
 
-//upate producta
+//update product
 export const updateProductController = async (req, res) => {
   try {
     const { name, description, price, category, quantity, shipping } =
       req.fields;
     const { photo } = req.files;
-    //alidation
+    //validation
     switch (true) {
       case !name:
         return res.status(500).send({ error: "Name is Required" });
@@ -177,15 +196,25 @@ export const updateProductController = async (req, res) => {
           .send({ error: "photo is Required and should be less then 1mb" });
     }
 
+    // Get current product to preserve originalPrice if it exists
+    const currentProduct = await productModel.findById(req.params.pid);
+    const updateData = {
+      ...req.fields,
+      slug: slugify(name),
+      originalPrice: currentProduct.originalPrice || price,
+    };
+
     const products = await productModel.findByIdAndUpdate(
       req.params.pid,
-      { ...req.fields, slug: slugify(name) },
+      updateData,
       { new: true }
     );
+
     if (photo) {
       products.photo.data = fs.readFileSync(photo.path);
       products.photo.contentType = photo.type;
     }
+
     await products.save();
     res.status(201).send({
       success: true,
@@ -197,7 +226,7 @@ export const updateProductController = async (req, res) => {
     res.status(500).send({
       success: false,
       error,
-      message: "Error in Updte product",
+      message: "Error in Update product",
     });
   }
 };
@@ -205,20 +234,34 @@ export const updateProductController = async (req, res) => {
 // filters
 export const productFiltersController = async (req, res) => {
   try {
-    const { checked, radio } = req.body;
+    const { checked, radio, onSale } = req.body;
     let args = {};
     if (checked.length > 0) args.category = checked;
     if (radio.length) args.price = { $gte: radio[0], $lte: radio[1] };
-    const products = await productModel.find(args);
+    if (onSale) args.onSale = true;
+
+    const products = await productModel
+      .find(args)
+      .populate("category")
+      .populate("discount.offer");
+
+    // Add discountedPrice to each product
+    const productsWithDiscount = products.map((product) => {
+      const productObj = product.toObject();
+      productObj.discountedPrice = product.discountedPrice;
+      productObj.hasActiveDiscount = product.hasActiveDiscount;
+      return productObj;
+    });
+
     res.status(200).send({
       success: true,
-      products,
+      products: productsWithDiscount,
     });
   } catch (error) {
     console.log(error);
     res.status(400).send({
       success: false,
-      message: "Error WHile Filtering Products",
+      message: "Error While Filtering Products",
       error,
     });
   }
@@ -250,12 +293,23 @@ export const productListController = async (req, res) => {
     const products = await productModel
       .find({})
       .select("-photo")
+      .populate("category")
+      .populate("discount.offer")
       .skip((page - 1) * perPage)
       .limit(perPage)
       .sort({ createdAt: -1 });
+
+    // Add discountedPrice to each product
+    const productsWithDiscount = products.map((product) => {
+      const productObj = product.toObject();
+      productObj.discountedPrice = product.discountedPrice;
+      productObj.hasActiveDiscount = product.hasActiveDiscount;
+      return productObj;
+    });
+
     res.status(200).send({
       success: true,
-      products,
+      products: productsWithDiscount,
     });
   } catch (error) {
     console.log(error);
@@ -271,15 +325,26 @@ export const productListController = async (req, res) => {
 export const searchProductController = async (req, res) => {
   try {
     const { keyword } = req.params;
-    const resutls = await productModel
+    const results = await productModel
       .find({
         $or: [
           { name: { $regex: keyword, $options: "i" } },
           { description: { $regex: keyword, $options: "i" } },
         ],
       })
-      .select("-photo");
-    res.json(resutls);
+      .select("-photo")
+      .populate("category")
+      .populate("discount.offer");
+
+    // Add discountedPrice to each product
+    const productsWithDiscount = results.map((product) => {
+      const productObj = product.toObject();
+      productObj.discountedPrice = product.discountedPrice;
+      productObj.hasActiveDiscount = product.hasActiveDiscount;
+      return productObj;
+    });
+
+    res.json(productsWithDiscount);
   } catch (error) {
     console.log(error);
     res.status(400).send({
@@ -301,31 +366,52 @@ export const realtedProductController = async (req, res) => {
       })
       .select("-photo")
       .limit(4)
-      .populate("category");
+      .populate("category")
+      .populate("discount.offer");
+
+    // Add discountedPrice to each product
+    const productsWithDiscount = products.map((product) => {
+      const productObj = product.toObject();
+      productObj.discountedPrice = product.discountedPrice;
+      productObj.hasActiveDiscount = product.hasActiveDiscount;
+      return productObj;
+    });
+
     res.status(200).send({
       success: true,
-      products,
+      products: productsWithDiscount,
     });
   } catch (error) {
     console.log(error);
     res.status(400).send({
       success: false,
-      message: "error while geting related product",
+      message: "error while getting related product",
       error,
     });
   }
 };
 
-
-// get product by catgory
+// get product by category
 export const productCategoryController = async (req, res) => {
   try {
     const category = await categoryModel.findOne({ slug: req.params.slug });
-    const products = await productModel.find({ category }).populate("category");
+    const products = await productModel
+      .find({ category })
+      .populate("category")
+      .populate("discount.offer");
+
+    // Add discountedPrice to each product
+    const productsWithDiscount = products.map((product) => {
+      const productObj = product.toObject();
+      productObj.discountedPrice = product.discountedPrice;
+      productObj.hasActiveDiscount = product.hasActiveDiscount;
+      return productObj;
+    });
+
     res.status(200).send({
       success: true,
       category,
-      products,
+      products: productsWithDiscount,
     });
   } catch (error) {
     console.log(error);
@@ -337,10 +423,108 @@ export const productCategoryController = async (req, res) => {
   }
 };
 
-// //payment gateway api
-// //token
+// Get products with active discounts
+export const getDiscountedProductsController = async (req, res) => {
+  try {
+    const products = await productModel
+      .find({ onSale: true })
+      .populate("category")
+      .populate("discount.offer")
+      .select("-photo")
+      .limit(12)
+      .sort({ createdAt: -1 });
 
-// export const braintreeTokenController =()=>{}
+    // Filter products with active discounts
+    const activeDiscountedProducts = products.filter(
+      (product) => product.hasActiveDiscount
+    );
+
+    // Add discountedPrice to each product
+    const productsWithDiscount = activeDiscountedProducts.map((product) => {
+      const productObj = product.toObject();
+      productObj.discountedPrice = product.discountedPrice;
+      productObj.hasActiveDiscount = product.hasActiveDiscount;
+      return productObj;
+    });
+
+    res.status(200).send({
+      success: true,
+      countTotal: productsWithDiscount.length,
+      message: "Discounted Products",
+      products: productsWithDiscount,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error in getting discounted products",
+      error: error.message,
+    });
+  }
+};
+
+// Apply discount to product
+export const applyProductDiscountController = async (req, res) => {
+  try {
+    const { discountType, discountValue, offerId, endDate } = req.body;
+
+    const product = await productModel.findById(req.params.pid);
+    if (!product) {
+      return res.status(404).send({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    product.applyDiscount(discountType, discountValue, offerId, endDate);
+    await product.save();
+
+    res.status(200).send({
+      success: true,
+      message: "Discount applied successfully",
+      product,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error while applying discount",
+      error,
+    });
+  }
+};
+
+// Remove discount from product
+export const removeProductDiscountController = async (req, res) => {
+  try {
+    const product = await productModel.findById(req.params.pid);
+    if (!product) {
+      return res.status(404).send({
+        success: false,
+        message: "Product not found",
+      });
+    }
+
+    product.removeDiscount();
+    await product.save();
+
+    res.status(200).send({
+      success: true,
+      message: "Discount removed successfully",
+      product,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({
+      success: false,
+      message: "Error while removing discount",
+      error,
+    });
+  }
+};
+
+//payment gateway api
+//token
 export const braintreeTokenController = async (req, res) => {
   try {
     gateway.clientToken.generate({}, function (err, response) {
@@ -349,23 +533,28 @@ export const braintreeTokenController = async (req, res) => {
       } else {
         res.send(response);
       }
-    }); 
+    });
   } catch (error) {
     console.log(error);
   }
 };
 
-
-
-// //payment
-// export const brainTreePaymentController =()=>{}
+//payment
 export const brainTreePaymentController = async (req, res) => {
   try {
     const { nonce, cart } = req.body;
     let total = 0;
-    cart.map((i) => {
-      total += i.price;
-    });
+
+    // Calculate total using discounted prices if available
+    for (const item of cart) {
+      const product = await productModel.findById(item._id);
+      if (product && product.hasActiveDiscount) {
+        total += product.discountedPrice * item.quantity;
+      } else {
+        total += item.price * item.quantity;
+      }
+    }
+
     let newTransaction = gateway.transaction.sale(
       {
         amount: total,
@@ -391,3 +580,4 @@ export const brainTreePaymentController = async (req, res) => {
     console.log(error);
   }
 };
+ 
