@@ -306,3 +306,6 @@
 20240921	16:29:18	1e1ca3ce-2396-4615-b10e-ad98012f34ff	GET	/api/v1/review//all-reviews	undefined
 20240921	16:29:22	e28a0a67-46e1-4b05-b23b-86e1fbc1afe0	GET	/api/v1/review//all-reviews	undefined
 20240921	16:29:36	d1d5d8ae-2407-4b2a-bfb2-bea799b670ea	GET	/api/v1/review//all-reviews	undefined
+20250824	02:27:00	53e6ece5-b07a-49bb-914f-fce3b0219550	GET	/api/v1/offers/test	undefined
+20250824	02:27:00	00f35239-a6a5-4a27-82b8-c2c7d5724cf8	GET	/favicon.ico	undefined
+20250824	02:27:22	89816a80-dabb-40fc-b392-a52b8bb8a63d	GET	/api/v1/offers/test	undefined
