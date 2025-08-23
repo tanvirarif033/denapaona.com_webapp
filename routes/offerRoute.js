@@ -64,4 +64,23 @@ router.get("/offer-products/:oid", getProductsByOfferController);
 // Check offer validity - PUBLIC
 router.get("/check-validity/:oid", checkOfferValidityController);
 
+router.get("/test", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Offer routes are working! 🎉",
+    timestamp: new Date().toISOString(),
+  });
+});
+
+router.get("/simple-get", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Simple GET offer endpoint is working!",
+    data: {
+      offerCount: 0,
+      status: "active",
+    },
+  });
+});
+
 export default router;

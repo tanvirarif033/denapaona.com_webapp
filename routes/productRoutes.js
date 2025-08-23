@@ -1,11 +1,9 @@
 import express from "express";
 import {
-  applyProductDiscountController,
   brainTreePaymentController,
   braintreeTokenController,
   createProductController,
   deleteProductController,
-  getDiscountedProductsController,
   getProductController,
   getSingleProductController,
   productCategoryController,
@@ -14,14 +12,13 @@ import {
   productListController,
   productPhotoController,
   realtedProductController,
-  removeProductDiscountController,
   searchProductController,
   updateProductController,
   getDiscountedProductsController,
   applyProductDiscountController,
   removeProductDiscountController,
-  getProductsByOfferController,
 } from "../controllers/productController.js";
+import { getProductsByOfferController } from "../controllers/offerController.js";
 import {
   isAdmin,
   requireSignIn,
