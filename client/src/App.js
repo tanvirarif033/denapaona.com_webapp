@@ -24,7 +24,9 @@ import CategoryProduct from "./pages/CategoryProduct";
 import ProductDetails from "./pages/ProductDetails";
 import CartPage from "./pages/CartPage";
 import AdminOrders from "./pages/Admin/AdminOrders";
-
+import OfferManagement from "./pages/Admin/OfferManagement";
+import CreateOffer from "./pages/Admin/CreateOffer";
+import UpdateOffer from "./pages/Admin/UpdateOffer";
 
 function App() {
   return (
@@ -32,9 +34,9 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
 
-        <Route path="/categories" element={<Categories/>}/>
-        <Route path="/category/:slug" element={<CategoryProduct/>}/>
-        <Route path="/cart" element={<CartPage/>}/>
+        <Route path="/categories" element={<Categories />} />
+        <Route path="/category/:slug" element={<CategoryProduct />} />
+        <Route path="/cart" element={<CartPage />} />
         <Route path="/product/:slug" element={<ProductDetails />} />
 
         <Route path="/search" element={<Search />} />
@@ -51,6 +53,9 @@ function App() {
           <Route path="admin/products" element={<Products />} />
           <Route path="admin/users" element={<Users />} />
           <Route path="admin/orders" element={<AdminOrders />} />
+          <Route path="admin/offers" element={<OfferManagement />} />
+          <Route path="admin/create-offer" element={<CreateOffer />} />
+          <Route path="admin/update-offer/:offerId" element={<UpdateOffer />} />
         </Route>
         <Route path="/forgot-password" element={<ForgotPassword />} />
 

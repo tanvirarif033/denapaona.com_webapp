@@ -52,7 +52,6 @@ app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/product", productRoutes);
 app.use("/api/v1/review", reviewRoutes);
-console.log(">>> Mounting /api/v1/offers routes");
 app.use("/api/v1/offers", offerRoutes);
 
 // Default route

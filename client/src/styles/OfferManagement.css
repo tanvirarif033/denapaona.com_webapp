@@ -1,0 +1,59 @@
+.offer-card {
+  margin-bottom: 16px;
+  transition: box-shadow 0.3s;
+}
+
+.offer-card:hover {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.offer-content {
+  min-height: 200px;
+}
+
+.offer-details {
+  margin: 16px 0;
+}
+
+.offer-dates div {
+  margin: 4px 0;
+  color: #666;
+}
+
+.offer-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.apply-offer-modal .product-info {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.apply-offer-modal .product-name {
+  font-weight: 500;
+}
+
+.apply-offer-modal .product-price {
+  color: #1890ff;
+}
+
+.selected-count {
+  font-weight: 500;
+  color: #1890ff;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .offer-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .offer-actions button {
+    width: 100%;
+  }
+}
