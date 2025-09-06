@@ -16,6 +16,7 @@ import chatRoutes from "./routes/chatRoutes.js";
 import ChatRoom from "./models/ChatRoom.js";
 import ChatMessage from "./models/ChatMessage.js";
 
+import analyticsRoutes from "./routes/analyticsRoutes.js";
 dotenv.config();
 connectDB();
 
@@ -45,6 +46,7 @@ app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/product", productRoutes);
 app.use("/api/v1/review", reviewRoutes);
 app.use("/api/v1/chat", chatRoutes);
+app.use("/api/v1/analytics", analyticsRoutes);
 
 const server = http.createServer(app);
 

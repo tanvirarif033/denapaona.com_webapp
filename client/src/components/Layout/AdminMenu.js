@@ -43,6 +43,12 @@ const AdminMenu = () => {
           >
             Chat
           </NavLink>
+          <NavLink
+  to="/dashboard/admin/analytics"
+  className="list-group-item list-group-item-action"
+>
+  Sales Analytics
+        </NavLink>
         </div>
       </div>
     </>

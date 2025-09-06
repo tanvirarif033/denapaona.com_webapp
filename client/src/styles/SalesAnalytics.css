@@ -1,0 +1,23 @@
+.admin-dashboard-container { padding: 16px; }
+.admin-header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.welcome-text { color: #64748b; }
+
+/* KPI cards with subtle tints */
+.kpi-card { border-radius: 14px; }
+.kpi-revenue { background: linear-gradient(180deg, rgba(99,102,241,0.06), transparent); }
+.kpi-items { background: linear-gradient(180deg, rgba(16,185,129,0.06), transparent); }
+.kpi-orders { background: linear-gradient(180deg, rgba(245,158,11,0.08), transparent); }
+
+.chart-card { border-radius: 14px; }
+
+.badge-metric {
+  display: inline-block;
+  font-size: 12px;
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: #111827;
+  color: #fff;
+}

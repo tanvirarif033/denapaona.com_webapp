@@ -25,12 +25,14 @@ import ProductDetails from "./pages/ProductDetails";
 import CartPage from "./pages/CartPage";
 import AdminOrders from "./pages/Admin/AdminOrders";
 
-// 👇 add ChatAdmin + useAuth
+// ➕ NEW: Chat admin & Sales analytics
 import ChatAdmin from "./pages/Admin/ChatAdmin";
+import SalesAnalytics from "./pages/Admin/SalesAnalytics";
+
+// ➕ NEW: provide auth to ChatAdmin for Authorization header
 import { useAuth } from "./context/auth";
 
 function App() {
-  // provide auth to ChatAdmin so it can send the Authorization header
   const [auth] = useAuth();
 
   return (
@@ -61,13 +63,14 @@ function App() {
           <Route path="admin/products" element={<Products />} />
           <Route path="admin/users" element={<Users />} />
           <Route path="admin/orders" element={<AdminOrders />} />
-          {/* 👇 new admin chat route */}
+          {/* ➕ NEW routes */}
           <Route path="admin/chat" element={<ChatAdmin auth={auth} />} />
+          <Route path="admin/analytics" element={<SalesAnalytics />} />
         </Route>
 
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
-        {/* (kept as in your file; note this duplicates /dashboard root) */}
+        {/* (kept from your previous file even though it duplicates /dashboard root) */}
         <Route path="/dashboard" element={<Dashboard />} />
 
         <Route path="/register" element={<Register />} />
