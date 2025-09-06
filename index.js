@@ -1,72 +1,153 @@
+// index.js
 import express from "express";
-import colors from "colors";
+import http from "http";
+import { Server } from "socket.io";
+import path from "path";
+import cors from "cors";
 import dotenv from "dotenv";
-import morgan from "morgan";
+import JWT from "jsonwebtoken";
+
 import connectDB from "./confiq/db.js";
 import authRoutes from "./routes/authRoute.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
-import cors from "cors";
-import logger from "./middlewares/logger.js";
-import errorHandler from "./middlewares/errorHandler.js"; // Import the errorHandler
+import chatRoutes from "./routes/chatRoutes.js";
+import ChatRoom from "./models/ChatRoom.js";
+import ChatMessage from "./models/ChatMessage.js";
 
-// Configure environment variables
 dotenv.config();
-
-// Database connection
 connectDB();
 
-// Initialize express app
 const app = express();
 
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://denapaona-com-webapp-server.vercel.app",
-  "https://denapaona-com-webapp.vercel.app",
-];
+// ✅ Dev only: localhost origins
+const allowedOrigins = ["http://localhost:3000"];
 
-const corsOptions = {
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  methods: "GET,POST,PUT,DELETE",
-  allowedHeaders: "Content-Type,Authorization,x-api-key",
-};
+app.use(
+  cors({
+    origin(origin, cb) {
+      if (!origin || allowedOrigins.includes(origin)) return cb(null, true);
+      cb(new Error("Not allowed by CORS"));
+    },
+    credentials: true,
+    methods: "GET,POST,PUT,DELETE,OPTIONS",
+    allowedHeaders: "Content-Type,Authorization,x-api-key",
+  })
+);
+app.options("*", cors());
 
-// Apply CORS middleware
-app.use(cors(corsOptions));
-
-app.options("*", cors()); // Enable preflight requests for all routes
 app.use(express.json());
-app.use(morgan("dev"));
-app.use(logger);
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
-// Route handlers
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/product", productRoutes);
 app.use("/api/v1/review", reviewRoutes);
+app.use("/api/v1/chat", chatRoutes);
 
-// Default route
-app.get("/", (req, res) => {
-  res.send("<h1>Welcome to ecommerce app</h1>");
+const server = http.createServer(app);
+
+// ✅ Socket.IO (RAW token; polling works everywhere incl. dev)
+const io = new Server(server, {
+  cors: { origin: allowedOrigins, credentials: true },
+  path: "/socket.io",
 });
 
-// Error handling middleware (should be added after all other middleware and routes)
-app.use(errorHandler);
+io.use((socket, next) => {
+  try {
+    // we expect the raw token here as well
+    const token = socket.handshake.auth?.token;
+    if (!token) return next(new Error("UNAUTHORIZED"));
+    const decoded = JWT.verify(token, process.env.JWT_SECRET);
+    socket.user = { _id: decoded._id, role: decoded.role, name: decoded.name };
+    next();
+  } catch {
+    next(new Error("UNAUTHORIZED"));
+  }
+});
 
-// Define the port to run the server on
+io.on("connection", (socket) => {
+  socket.on("join", async ({ roomId }) => {
+    if (!roomId) return;
+    const room = await ChatRoom.findById(roomId).lean();
+    if (!room) return;
+
+    const isAdmin = socket.user?.role === 1;
+    const isOwner = room.user?.toString() === socket.user?._id;
+    if (!isAdmin && !isOwner) return;
+
+    socket.join(roomId);
+  });
+
+  socket.on("message:send", async ({ roomId, text = "", imageUrl = "" }) => {
+    if (!roomId || (!text && !imageUrl)) return;
+
+    const room = await ChatRoom.findById(roomId);
+    if (!room) return;
+
+    const isAdmin = socket.user?.role === 1;
+    const isOwner = room.user?.toString() === socket.user?._id;
+    if (!isAdmin && !isOwner) return;
+
+    const fromRole = isAdmin ? "admin" : "user";
+
+    const msg = await ChatMessage.create({
+      room: roomId,
+      sender: socket.user?._id || null,
+      fromRole,
+      text: text.trim(),
+      imageUrl,
+    });
+
+    room.lastMessageAt = new Date();
+    if (fromRole === "user") room.unreadForAdmin += 1;
+    else room.unreadForUser += 1;
+    await room.save();
+
+    io.to(roomId).emit("message:new", {
+      _id: msg._id,
+      room: roomId,
+      fromRole,
+      text: msg.text,
+      imageUrl: msg.imageUrl,
+      createdAt: msg.createdAt,
+    });
+
+    // auto-reply on first user message
+    if (fromRole === "user") {
+      const count = await ChatMessage.countDocuments({ room: roomId });
+      if (count === 1) {
+        const auto = await ChatMessage.create({
+          room: roomId,
+          sender: null,
+          fromRole: "system",
+          text: "Thank you, we will reach you soon",
+        });
+        room.lastMessageAt = new Date();
+        room.unreadForUser += 1;
+        await room.save();
+
+        io.to(roomId).emit("message:new", {
+          _id: auto._id,
+          room: roomId,
+          fromRole: "system",
+          text: auto.text,
+          imageUrl: "",
+          createdAt: auto.createdAt,
+        });
+      }
+    }
+  });
+
+  socket.on("message:seen", async ({ roomId }) => {
+    const room = await ChatRoom.findById(roomId);
+    if (!room) return;
+    if (socket.user?.role === 1) room.unreadForAdmin = 0;
+    else if (room.user?.toString() === socket.user?._id) room.unreadForUser = 0;
+    await room.save();
+  });
+});
+
 const PORT = process.env.PORT || 8080;
-
-// Start the server
-app.listen(PORT, () => {
-  console.log(
-    `Server Running in ${process.env.DEV_MODE} mode on port ${PORT}`.bgCyan
-      .white
-  );
-});
+server.listen(PORT, () => console.log(`Server running on ${PORT}`));

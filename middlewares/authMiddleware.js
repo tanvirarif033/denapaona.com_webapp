@@ -1,17 +1,32 @@
+// middlewares/authMiddleware.js
 import JWT from "jsonwebtoken";
 import userModel from "../models/userModel.js";
 
-// Protected Routes token based
+// ✅ RAW token only (no Bearer)
 export const requireSignIn = async (req, res, next) => {
   try {
-    const token = req.headers.authorization;
+    const token = req.headers.authorization; // raw token expected
     if (!token) {
       return res
         .status(401)
         .send({ success: false, message: "Authorization required" });
     }
-    const decode = JWT.verify(token, process.env.JWT_SECRET);
-    req.user = decode;
+
+    const decoded = JWT.verify(token, process.env.JWT_SECRET);
+
+    const user = await userModel
+      .findById(decoded._id)
+      .select("_id name role")
+      .lean();
+
+    if (!user) {
+      return res
+        .status(401)
+        .send({ success: false, message: "User not found" });
+    }
+
+    // attach minimal user
+    req.user = { _id: user._id.toString(), name: user.name, role: user.role };
     next();
   } catch (error) {
     console.log(error);
@@ -21,8 +36,6 @@ export const requireSignIn = async (req, res, next) => {
     });
   }
 };
-
-// Admin access
 
 export const isAdmin = async (req, res, next) => {
   try {
@@ -44,7 +57,6 @@ export const isAdmin = async (req, res, next) => {
   }
 };
 
-//API key Validation
 export const validateApiKey = (req, res, next) => {
   const apiKey = req.headers["x-api-key"];
   if (apiKey && apiKey === process.env.API_KEY) {

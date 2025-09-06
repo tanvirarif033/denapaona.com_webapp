@@ -25,24 +25,34 @@ import ProductDetails from "./pages/ProductDetails";
 import CartPage from "./pages/CartPage";
 import AdminOrders from "./pages/Admin/AdminOrders";
 
+// 👇 add ChatAdmin + useAuth
+import ChatAdmin from "./pages/Admin/ChatAdmin";
+import { useAuth } from "./context/auth";
 
 function App() {
+  // provide auth to ChatAdmin so it can send the Authorization header
+  const [auth] = useAuth();
+
   return (
     <>
       <Routes>
         <Route path="/" element={<HomePage />} />
 
-        <Route path="/categories" element={<Categories/>}/>
-        <Route path="/category/:slug" element={<CategoryProduct/>}/>
-        <Route path="/cart" element={<CartPage/>}/>
+        <Route path="/categories" element={<Categories />} />
+        <Route path="/category/:slug" element={<CategoryProduct />} />
+        <Route path="/cart" element={<CartPage />} />
         <Route path="/product/:slug" element={<ProductDetails />} />
 
         <Route path="/search" element={<Search />} />
+
+        {/* User dashboard (protected) */}
         <Route path="/dashboard" element={<PrivateRoute />}>
-          <Route path="user" element={<Dashboard />}></Route>
-          <Route path="user/orders" element={<Orders />}></Route>
-          <Route path="user/profile" element={<Profile />}></Route>
+          <Route path="user" element={<Dashboard />} />
+          <Route path="user/orders" element={<Orders />} />
+          <Route path="user/profile" element={<Profile />} />
         </Route>
+
+        {/* Admin dashboard (protected) */}
         <Route path="/dashboard" element={<AdminRoute />}>
           <Route path="admin" element={<AdminDashboard />} />
           <Route path="admin/create-category" element={<CreateCategory />} />
@@ -51,10 +61,15 @@ function App() {
           <Route path="admin/products" element={<Products />} />
           <Route path="admin/users" element={<Users />} />
           <Route path="admin/orders" element={<AdminOrders />} />
+          {/* 👇 new admin chat route */}
+          <Route path="admin/chat" element={<ChatAdmin auth={auth} />} />
         </Route>
+
         <Route path="/forgot-password" element={<ForgotPassword />} />
 
+        {/* (kept as in your file; note this duplicates /dashboard root) */}
         <Route path="/dashboard" element={<Dashboard />} />
+
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route path="/about" element={<About />} />
