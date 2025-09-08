@@ -7,15 +7,26 @@ import { useAuth } from "../context/auth";
 import toast from "react-hot-toast";
 import { Prices } from "../components/Prices";
 import { useNavigate } from "react-router-dom";
-import { AiOutlineReload, AiOutlineFilter } from "react-icons/ai";
-import { LeftOutlined, RightOutlined, ShoppingCartOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  AiOutlineReload,
+  AiOutlineFilter,
+} from "react-icons/ai";
+import {
+  LeftOutlined,
+  RightOutlined,
+  ShoppingCartOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import "../styles/Homepage.css";
+
+// 👇 Add the chat widget import
+import ChatWidget from "../components/chat/ChatWidget";
 
 const HomePage = () => {
   const navigate = useNavigate();
   const [cart, setCart] = useCart();
   const [products, setProducts] = useState([]);
-  const [auth] = useAuth();
+  const [auth] = useAuth(); // 👈 we will pass this into ChatWidget
   const [categories, setCategories] = useState([]);
   const [checked, setChecked] = useState([]);
   const [radio, setRadio] = useState([]);
@@ -191,10 +202,24 @@ const HomePage = () => {
     return (
       <div
         className={className}
-        style={{ ...style, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1 }}
+        style={{
+          ...style,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 1,
+        }}
         onClick={onClick}
       >
-        <LeftOutlined style={{ fontSize: "20px", color: "white", background: "rgba(0,0,0,0.5)", padding: "10px", borderRadius: "50%" }} />
+        <LeftOutlined
+          style={{
+            fontSize: "20px",
+            color: "white",
+            background: "rgba(0,0,0,0.5)",
+            padding: "10px",
+            borderRadius: "50%",
+          }}
+        />
       </div>
     );
   };
@@ -204,23 +229,36 @@ const HomePage = () => {
     return (
       <div
         className={className}
-        style={{ ...style, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1 }}
+        style={{
+          ...style,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          zIndex: 1,
+        }}
         onClick={onClick}
       >
-        <RightOutlined style={{ fontSize: "20px", color: "white", background: "rgba(0,0,0,0.5)", padding: "10px", borderRadius: "50%" }} />
+        <RightOutlined
+          style={{
+            fontSize: "20px",
+            color: "white",
+            background: "rgba(0,0,0,0.5)",
+            padding: "10px",
+            borderRadius: "50%",
+          }}
+        />
       </div>
     );
   };
 
-  const filteredProducts = products.filter(product => 
-    product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    product.description.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredProducts = products.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <Layout title={"Shop - Best Deals"}>
-
-
       {/* Hero Carousel */}
       <div className="hero-carousel">
         <Carousel
@@ -247,9 +285,9 @@ const HomePage = () => {
         {/* Filters Button */}
         <div className="filters-header">
           <Badge count={checked.length + (radio.length ? 1 : 0)}>
-            <Button 
-              type="default" 
-              icon={<AiOutlineFilter />} 
+            <Button
+              type="default"
+              icon={<AiOutlineFilter />}
               onClick={() => setShowFilters(true)}
               className="filters-button"
             >
@@ -288,7 +326,7 @@ const HomePage = () => {
                     <span className="rating-count">(0)</span>
                   </div>
                   <p className="product-price">
-                      <span className="price-amount">
+                    <span className="price-amount">
                       <span className="price-symbol">$</span>
                       {p.price}
                     </span>
@@ -296,7 +334,7 @@ const HomePage = () => {
                   <p className="product-description">
                     {p.description.substring(0, 60)}...
                   </p>
-                  <button 
+                  <button
                     className="add-to-cart-btn"
                     onClick={() => handleAddToCart(p)}
                   >
@@ -376,16 +414,16 @@ const HomePage = () => {
         </div>
 
         <div className="filter-actions">
-          <Button 
-            type="primary" 
-            danger 
+          <Button
+            type="primary"
+            danger
             onClick={resetFilters}
             className="reset-filters-btn"
           >
             Reset All
           </Button>
-          <Button 
-            type="primary" 
+          <Button
+            type="primary"
             onClick={() => setShowFilters(false)}
             className="apply-filters-btn"
           >
@@ -393,6 +431,9 @@ const HomePage = () => {
           </Button>
         </div>
       </Drawer>
+
+      {/* 👇 Add the floating, real-time Chat widget */}
+      <ChatWidget auth={auth} />
     </Layout>
   );
 };

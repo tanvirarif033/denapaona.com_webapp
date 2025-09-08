@@ -21,7 +21,7 @@ const Login = () => {
     setLoading(true);
     try {
       const res = await axios.post(
-        "https://denapaona-com-webapp-server.vercel.app/api/v1/auth/login",
+        "http://localhost:8080/api/v1/auth/login",
         {
           email,
           password,
