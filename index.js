@@ -1,28 +1,34 @@
-// index.js
+// index.js (server)
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
 import path from "path";
 import cors from "cors";
 import dotenv from "dotenv";
+import morgan from "morgan";
 import JWT from "jsonwebtoken";
 
 import connectDB from "./confiq/db.js";
+
+// REST routes
 import authRoutes from "./routes/authRoute.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
+import analyticsRoutes from "./routes/analyticsRoutes.js";
+import notificationRoutes from "./routes/notificationRoutes.js"; // ← NEW
+
+// Chat models for socket handlers
 import ChatRoom from "./models/ChatRoom.js";
 import ChatMessage from "./models/ChatMessage.js";
 
-import analyticsRoutes from "./routes/analyticsRoutes.js";
 dotenv.config();
 connectDB();
 
 const app = express();
 
-// ✅ Dev only: localhost origins
+// Dev-only allowed origins
 const allowedOrigins = ["http://localhost:3000"];
 
 app.use(
@@ -39,26 +45,32 @@ app.use(
 app.options("*", cors());
 
 app.use(express.json());
+app.use(morgan("dev"));
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
+// REST endpoints
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/product", productRoutes);
 app.use("/api/v1/review", reviewRoutes);
 app.use("/api/v1/chat", chatRoutes);
 app.use("/api/v1/analytics", analyticsRoutes);
+app.use("/api/v1/notification", notificationRoutes); // ← NEW
 
 const server = http.createServer(app);
 
-// ✅ Socket.IO (RAW token; polling works everywhere incl. dev)
+// Socket.IO
 const io = new Server(server, {
   cors: { origin: allowedOrigins, credentials: true },
   path: "/socket.io",
 });
 
+// Expose io so controllers can emit notifications
+app.set("io", io); // ← IMPORTANT
+
+// Authenticate socket by JWT (expects raw token)
 io.use((socket, next) => {
   try {
-    // we expect the raw token here as well
     const token = socket.handshake.auth?.token;
     if (!token) return next(new Error("UNAUTHORIZED"));
     const decoded = JWT.verify(token, process.env.JWT_SECRET);
@@ -70,6 +82,13 @@ io.use((socket, next) => {
 });
 
 io.on("connection", (socket) => {
+  // Join personal room + admins broadcast room
+  const userId = socket.user?._id;
+  const userRole = socket.user?.role;
+  if (userId) socket.join(`user:${userId}`);
+  if (userRole === 1) socket.join("admins");
+
+  // ---- existing chat handlers ----
   socket.on("join", async ({ roomId }) => {
     if (!roomId) return;
     const room = await ChatRoom.findById(roomId).lean();
@@ -116,7 +135,7 @@ io.on("connection", (socket) => {
       createdAt: msg.createdAt,
     });
 
-    // auto-reply on first user message
+    // Auto-reply on first user message
     if (fromRole === "user") {
       const count = await ChatMessage.countDocuments({ room: roomId });
       if (count === 1) {

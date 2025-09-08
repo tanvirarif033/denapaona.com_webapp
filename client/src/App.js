@@ -29,6 +29,9 @@ import AdminOrders from "./pages/Admin/AdminOrders";
 import ChatAdmin from "./pages/Admin/ChatAdmin";
 import SalesAnalytics from "./pages/Admin/SalesAnalytics";
 
+// ➕ NEW: All Notifications page
+import NotificationsPage from "./pages/Notifications";
+
 // ➕ NEW: provide auth to ChatAdmin for Authorization header
 import { useAuth } from "./context/auth";
 
@@ -67,6 +70,9 @@ function App() {
           <Route path="admin/chat" element={<ChatAdmin auth={auth} />} />
           <Route path="admin/analytics" element={<SalesAnalytics />} />
         </Route>
+
+        {/* ➕ NEW: All notifications page (accessible to logged-in users) */}
+        <Route path="/notifications" element={<NotificationsPage />} />
 
         <Route path="/forgot-password" element={<ForgotPassword />} />
 

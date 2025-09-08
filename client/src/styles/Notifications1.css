@@ -1,0 +1,23 @@
+/* src/styles/Notifications.css */
+
+/* dropdown */
+.notif-wrapper .ant-dropdown-menu {
+  width: 320px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+.notif-item { padding: 8px 10px; }
+.notif-item:hover { background: #f5f5f5; }
+.notif-unread { background: #e6f4ff; }
+.notif-title { font-weight: 600; font-size: 14px; }
+.notif-text { font-size: 13px; color: #444; }
+.notif-time { font-size: 12px; color: #888; margin-top: 2px; }
+.notif-view-all { text-align: center; padding: 6px 0; font-weight: 600; }
+
+/* page */
+.notif-page { max-width: 780px; margin: 24px auto; padding: 0 12px; }
+.notif-page-header { display:flex; align-items:center; justify-content:space-between; margin-bottom: 12px; }
+.notif-row { cursor: pointer; border-radius: 8px; }
+.notif-row-unread { background: #fff7e6; }
+.notif-row-title { font-weight: 600; }
+.notif-row-time { font-size: 12px; color: #888; margin-top: 4px; }

@@ -2,6 +2,8 @@ import userModel from "../models/userModel.js";
 import orderModel from "../models/orderModel.js";
 import { comparePassword, hashPassword } from "./../helpers/authHelper.js";
 import JWT from "jsonwebtoken";
+import Notification from "../models/Notification.js"; 
+import productModel from "../models/productModel.js";
 
 // Register Controller
 export const registerController = async (req, res) => {
@@ -294,17 +296,70 @@ export const getAllOrdersController = async (req, res) => {
   }
 };
 
-// Update Order Status Controller
+
+
+// controllers/authController.js
+
+
 export const orderStatusController = async (req, res) => {
   try {
     const { orderId } = req.params;
     const { status } = req.body;
 
-    const order = await orderModel.findByIdAndUpdate(
-      orderId,
-      { status },
-      { new: true }
-    );
+    // buyer populate করলেই হবে; products এখন IDs
+    const order = await orderModel
+      .findByIdAndUpdate(orderId, { status }, { new: true })
+      .populate("buyer", "name _id");
+
+    // ----- product name resolve -----
+    let firstName = "your product";
+    let more = 0;
+
+    if (Array.isArray(order?.products) && order.products.length) {
+      more = Math.max(order.products.length - 1, 0);
+
+      // products[0] যদি ObjectId হয় → DB থেকে name আনুন
+      const firstId = order.products[0];
+      if (firstId && typeof firstId === "object") {
+        const prod = await productModel.findById(firstId).select("name").lean();
+        if (prod?.name) firstName = prod.name;
+      }
+    }
+
+    const label = more > 0 ? `${firstName} (+${more} more)` : firstName;
+
+    // ----- Pretty status -----
+    const statusMap = {
+      "Not Process": "Not Process",
+      Processing: "Processing",
+      Shipped: "Shipped",
+      deliverd: "Delivered", // enum typo → pretty
+      cancel: "Cancelled",
+    };
+    const prettyStatus = statusMap[status] || status;
+
+    const title = `Order ${prettyStatus}`;
+    const text  = `Your ${label} is ${prettyStatus}`;
+    const link  = "/dashboard/user/orders";
+
+    // ----- Persist + Realtime -----
+    if (order?.buyer?._id) {
+      const n = await Notification.create({
+        toUser: order.buyer._id,
+        title,
+        text,
+        link,
+      });
+
+      const io = req.app.get("io");
+      io.to(`user:${order.buyer._id}`).emit("notification:new", {
+        _id: n._id,
+        title,
+        text,
+        link,
+        createdAt: n.createdAt,
+      });
+    }
 
     res.status(200).json({
       success: true,

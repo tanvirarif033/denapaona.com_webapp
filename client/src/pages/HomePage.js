@@ -55,7 +55,7 @@ const HomePage = () => {
     try {
       setLoading(true);
       const { data } = await axios.get(
-        "https://denapaona-com-webapp-server.vercel.app/api/v1/category/get-category",
+        "http://localhost:8080/api/v1/category/get-category",
         {
           headers: {
             "x-api-key": process.env.REACT_APP_API_KEY,
@@ -83,7 +83,7 @@ const HomePage = () => {
     try {
       setLoading(true);
       const { data } = await axios.get(
-        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-list/${page}`,
+        `http://localhost:8080/api/v1/product/product-list/${page}`,
         {
           headers: {
             "x-api-key": process.env.REACT_APP_API_KEY,
@@ -101,7 +101,7 @@ const HomePage = () => {
   const getTotal = async () => {
     try {
       const { data } = await axios.get(
-        "https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-count",
+        "http://localhost:8080/api/v1/product/product-count",
         {
           headers: {
             "x-api-key": process.env.REACT_APP_API_KEY,
@@ -123,7 +123,7 @@ const HomePage = () => {
     try {
       setLoading(true);
       const { data } = await axios.get(
-        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-list/${page}`,
+        `http://localhost:8080/api/v1/product/product-list/${page}`,
         {
           headers: {
             "x-api-key": process.env.REACT_APP_API_KEY,
@@ -160,7 +160,7 @@ const HomePage = () => {
     try {
       setFilterLoading(true);
       const { data } = await axios.post(
-        "https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-filters",
+        "http://localhost:8080/api/v1/product/product-filters",
         {
           checked,
           radio,
@@ -313,7 +313,7 @@ const HomePage = () => {
               <div className="product-card" key={p._id}>
                 <div className="product-image-container">
                   <img
-                    src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${p._id}`}
+                    src={`http://localhost:8080/api/v1/product/product-photo/${p._id}`}
                     alt={p.name}
                     className="product-image"
                     onClick={() => navigate(`/product/${p.slug}`)}

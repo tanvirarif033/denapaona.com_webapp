@@ -25,7 +25,7 @@ const CategoryProduct = () => {
     setLoading(true);
     try {
       const { data } = await axios.get(
-        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-category/${params.slug}`,
+        `http://localhost:8080/api/v1/product/product-category/${params.slug}`,
         {
           headers: {
             "x-api-key": process.env.REACT_APP_API_KEY,
@@ -69,7 +69,7 @@ const CategoryProduct = () => {
               <div className="product-card" key={p._id}>
                 <div className="product-image-container">
                   <img
-                    src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${p._id}`}
+                    src={`http://localhost:8080/api/v1/product/product-photo/${p._id}`}
                     alt={p.name}
                     className="product-image"
                     onClick={() => navigate(`/product/${p.slug}`)}
