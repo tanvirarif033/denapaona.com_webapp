@@ -28,7 +28,7 @@ const CreateProduct = () => {
     setLoading(true);
     try {
       const { data } = await axios.get(
-        "https://denapaona-com-webapp-server.vercel.app/api/v1/category/get-category",
+        "http://localhost:8080/api/v1/category/get-category",
         {
           headers: {
             "x-api-key": process.env.REACT_APP_API_KEY,
@@ -67,7 +67,7 @@ const CreateProduct = () => {
       productData.append("shipping", shipping);
       
       const { data } = await axios.post(
-        "https://denapaona-com-webapp-server.vercel.app/api/v1/product/create-product",
+        "http://localhost:8080/api/v1/product/create-product",
         productData
       );
       

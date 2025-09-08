@@ -27,7 +27,7 @@ const Users = () => {
     setLoading(true);
     try {
       const { data } = await axios.get(
-        "https://denapaona-com-webapp-server.vercel.app/api/v1/review/all-reviews"
+        "http://localhost:8080/api/v1/review/all-reviews"
       );
       setReviews(data.reviews);
     } catch (error) {
@@ -42,7 +42,7 @@ const Users = () => {
     setReplying(true);
     try {
       await axios.put(
-        `https://denapaona-com-webapp-server.vercel.app/api/v1/review/reply-review/${reviewId}`,
+        `http://localhost:8080/api/v1/review/reply-review/${reviewId}`,
         { reply }
       );
       toast.success("Reply added successfully!");
@@ -66,7 +66,7 @@ const Users = () => {
     setDeleting(true);
     try {
       const response = await axios.delete(
-        `https://denapaona-com-webapp-server.vercel.app/api/v1/review/delete-review/${reviewId}`
+        `http://localhost:8080/api/v1/review/delete-review/${reviewId}`
       );
       if (response.data.success) {
         toast.success("Review deleted successfully!");

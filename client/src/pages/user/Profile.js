@@ -32,7 +32,7 @@ const Profile = () => {
     setIsLoading(true);
     try {
       const { data } = await axios.put(
-        "https://denapaona-com-webapp-server.vercel.app/api/v1/auth/profile",
+        "http://localhost:8080/api/v1/auth/profile",
         {
           name,
           email,

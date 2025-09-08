@@ -16,7 +16,7 @@ const Products = () => {
     try {
       setLoading(true);
       const { data } = await axios.get(
-        "https://denapaona-com-webapp-server.vercel.app/api/v1/product/get-product",
+        "http://localhost:8080/api/v1/product/get-product",
         {
           headers: {
             "x-api-key": process.env.REACT_APP_API_KEY,
@@ -73,7 +73,7 @@ const Products = () => {
                         cover={
                           <img
                             alt={product.name}
-                            src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${product._id}`}
+                            src={`http://localhost:8080/api/v1/product/product-photo/${product._id}`}
                             className="product-image"
                           />
                         }

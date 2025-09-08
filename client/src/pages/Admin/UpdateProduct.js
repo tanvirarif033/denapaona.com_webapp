@@ -30,7 +30,7 @@ const UpdateProduct = () => {
     setLoading(true);
     try {
       const { data } = await axios.get(
-        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/get-product/${params.slug}`,
+        `http://localhost:8080/api/v1/product/get-product/${params.slug}`,
         {
           headers: {
             "x-api-key": process.env.REACT_APP_API_KEY,
@@ -59,7 +59,7 @@ const UpdateProduct = () => {
   const getAllCategory = async () => {
     try {
       const { data } = await axios.get(
-        "https://denapaona-com-webapp-server.vercel.app/api/v1/category/get-category",
+        "http://localhost:8080/api/v1/category/get-category",
         {
           headers: {
             "x-api-key": process.env.REACT_APP_API_KEY,
@@ -93,7 +93,7 @@ const UpdateProduct = () => {
       productData.append("shipping", shipping);
       
       const { data } = await axios.put(
-        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/update-product/${id}`,
+        `http://localhost:8080/api/v1/product/update-product/${id}`,
         productData
       );
       
@@ -117,7 +117,7 @@ const UpdateProduct = () => {
       if (answer?.toLowerCase() !== 'yes') return;
 
       const response = await axios.delete(
-        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/delete-product/${id}`
+        `http://localhost:8080/api/v1/product/delete-product/${id}`
       );
 
       if (response.status === 200 && response.data?.success) {
@@ -182,7 +182,7 @@ const UpdateProduct = () => {
                     <div className="image-preview">
                       <Image
                         src={photo ? URL.createObjectURL(photo) : 
-                          `https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${id}`}
+                          `http://localhost:8080/api/v1/product/product-photo/${id}`}
                         alt="product preview"
                         className="preview-image"
                       />

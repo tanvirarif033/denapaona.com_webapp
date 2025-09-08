@@ -30,7 +30,7 @@ const ProductDetails = () => {
     try {
       setLoading(true);
       const { data } = await axios.get(
-        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/get-product/${params.slug}`,
+        `http://localhost:8080/api/v1/product/get-product/${params.slug}`,
         {
           headers: {
             "x-api-key": process.env.REACT_APP_API_KEY,
@@ -50,7 +50,7 @@ const ProductDetails = () => {
   const getSimilarProduct = async (pid, cid) => {
     try {
       const { data } = await axios.get(
-        `https://denapaona-com-webapp-server.vercel.app/api/v1/product/related-product/${pid}/${cid}`
+        `http://localhost:8080/api/v1/product/related-product/${pid}/${cid}`
       );
       setRelatedProducts(data?.products);
     } catch (error) {
@@ -61,7 +61,7 @@ const ProductDetails = () => {
   const getReviews = async (productId) => {
     try {
       const { data } = await axios.get(
-        `https://denapaona-com-webapp-server.vercel.app/api/v1/review/product-reviews/${productId}`
+        `http://localhost:8080/api/v1/review/product-reviews/${productId}`
       );
       setReviews(data.reviews);
     } catch (error) {
@@ -97,7 +97,7 @@ const ProductDetails = () => {
 
     try {
       const { data } = await axios.post(
-        "https://denapaona-com-webapp-server.vercel.app/api/v1/review/add-review",
+        "http://localhost:8080/api/v1/review/add-review",
         {
           productId: product._id,
           rating: newReview.rating,
@@ -116,7 +116,7 @@ const ProductDetails = () => {
   const deleteReview = async (reviewId) => {
     try {
       await axios.delete(
-        `https://denapaona-com-webapp-server.vercel.app/api/v1/review/delete-review/${reviewId}`
+        `http://localhost:8080/api/v1/review/delete-review/${reviewId}`
       );
       setReviews(reviews.filter((review) => review._id !== reviewId));
       toast.success("Review deleted successfully!");
@@ -146,7 +146,7 @@ const ProductDetails = () => {
               <Col xs={24} md={12} lg={10}>
                 <div className="product-image-container">
                   <img
-                    src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${product._id}`}
+                    src={`http://localhost:8080/api/v1/product/product-photo/${product._id}`}
                     alt={product.name}
                     className="product-image-large"
                   />
@@ -278,7 +278,7 @@ const ProductDetails = () => {
                       className="similar-product-card"
                       cover={
                         <img
-                          src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${p._id}`}
+                          src={`http://localhost:8080/api/v1/product/product-photo/${p._id}`}
                           alt={p.name}
                           className="similar-product-image"
                         />

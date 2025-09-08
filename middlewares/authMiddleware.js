@@ -2,66 +2,54 @@
 import JWT from "jsonwebtoken";
 import userModel from "../models/userModel.js";
 
-// ✅ RAW token only (no Bearer)
+/**
+ * Accepts Authorization header as:
+ *  - "Bearer <token>"  OR
+ *  - "<token>" (raw)
+ * Verifies JWT, loads user, sets req.user = { _id, name, role }.
+ */
 export const requireSignIn = async (req, res, next) => {
   try {
-    const token = req.headers.authorization; // raw token expected
+    const authHeader = req.headers.authorization || "";
+    let token = authHeader;
+
+    if (authHeader?.startsWith("Bearer ")) {
+      token = authHeader.split(" ")[1];
+    }
     if (!token) {
-      return res
-        .status(401)
-        .send({ success: false, message: "Authorization required" });
+      return res.status(401).json({ success: false, message: "Authorization required" });
     }
 
     const decoded = JWT.verify(token, process.env.JWT_SECRET);
-
-    const user = await userModel
-      .findById(decoded._id)
-      .select("_id name role")
-      .lean();
-
+    const user = await userModel.findById(decoded._id).select("_id name role").lean();
     if (!user) {
-      return res
-        .status(401)
-        .send({ success: false, message: "User not found" });
+      return res.status(401).json({ success: false, message: "User not found" });
     }
 
-    // attach minimal user
     req.user = { _id: user._id.toString(), name: user.name, role: user.role };
     next();
   } catch (error) {
-    console.log(error);
-    return res.status(401).send({
-      success: false,
-      message: "Unauthorized access",
-    });
+    console.log("requireSignIn error:", error?.message || error);
+    return res.status(401).json({ success: false, message: "Unauthorized access" });
   }
 };
 
 export const isAdmin = async (req, res, next) => {
   try {
-    const user = await userModel.findById(req.user._id);
-    if (user.role !== 1) {
-      return res.status(403).send({
-        success: false,
-        message: "Forbidden: Admin access required",
-      });
+    if (req?.user?.role === 1) return next();
+    const user = await userModel.findById(req.user?._id).select("role").lean();
+    if (user?.role !== 1) {
+      return res.status(403).json({ success: false, message: "Forbidden: Admin access required" });
     }
     next();
   } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      success: false,
-      message: "Error in admin middleware",
-      error: error.message,
-    });
+    console.log("isAdmin error:", error?.message || error);
+    return res.status(500).json({ success: false, message: "Error in admin middleware" });
   }
 };
 
 export const validateApiKey = (req, res, next) => {
   const apiKey = req.headers["x-api-key"];
-  if (apiKey && apiKey === process.env.API_KEY) {
-    next();
-  } else {
-    res.status(403).json({ error: "Forbidden: Invalid API Key" });
-  }
+  if (apiKey && apiKey === process.env.API_KEY) return next();
+  return res.status(403).json({ error: "Forbidden: Invalid API Key" });
 };

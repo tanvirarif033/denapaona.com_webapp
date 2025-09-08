@@ -28,7 +28,7 @@ const AdminOrders = () => {
     setLoading(true);
     try {
       const { data } = await axios.get(
-        "https://denapaona-com-webapp-server.vercel.app/api/v1/auth/all-orders"
+        "http://localhost:8080/api/v1/auth/all-orders"
       );
       if (Array.isArray(data.orders)) {
         setOrders(data.orders);
@@ -52,7 +52,7 @@ const AdminOrders = () => {
   const handleChange = async (orderId, value) => {
     try {
       const { data } = await axios.put(
-        `https://denapaona-com-webapp-server.vercel.app/api/v1/auth/order-status/${orderId}`,
+        `http://localhost:8080/api/v1/auth/order-status/${orderId}`,
         { status: value }
       );
       toast.success(data.message);
@@ -159,7 +159,7 @@ const AdminOrders = () => {
                         {order.products.map((product) => (
                           <div key={product._id} className="product-item">
                             <Image
-                              src={`https://denapaona-com-webapp-server.vercel.app/api/v1/product/product-photo/${product._id}`}
+                              src={`http://localhost:8080/api/v1/product/product-photo/${product._id}`}
                               alt={product.name}
                               width={120}
                               height={120}

@@ -1,3 +1,4 @@
+// src/index.js
 import React from "react";
 import ReactDOM from "react-dom/client";
 import "./index.css";
@@ -6,16 +7,21 @@ import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./context/auth";
 import { SearchProvider } from "./context/search";
-import "antd/dist/reset.css";
 import { CartProvider } from "./context/cart";
+import { NotificationsProvider } from "./context/notifications"; // ← NEW
+import "antd/dist/reset.css";
+
 const root = ReactDOM.createRoot(document.getElementById("root"));
+
 root.render(
   <AuthProvider>
     <SearchProvider>
       <CartProvider>
-        <BrowserRouter>
-          <App />
-        </BrowserRouter>
+        <NotificationsProvider>
+          <BrowserRouter>
+            <App />
+          </BrowserRouter>
+        </NotificationsProvider>
       </CartProvider>
     </SearchProvider>
   </AuthProvider>

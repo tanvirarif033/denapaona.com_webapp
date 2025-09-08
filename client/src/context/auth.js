@@ -1,38 +1,45 @@
+// src/context/auth.js
 import { useState, useEffect, useContext, createContext } from "react";
 import axios from "axios";
 
+axios.defaults.baseURL = process.env.REACT_APP_API || "http://localhost:8080";
+
 const AuthContext = createContext();
+
 const AuthProvider = ({ children }) => {
-  const [auth, setAuth] = useState({
-    user: null,
-    token: "",
-  });
+  const [auth, setAuth] = useState({ user: null, token: "" });
 
-  // Set default axios headers
-  axios.defaults.headers.common["Authorization"] = auth?.token;
-
+  // Keep Authorization header synced
   useEffect(() => {
-    const data = localStorage.getItem("auth");
-    if (data) {
-      const parseData = JSON.parse(data);
-      setAuth({
-        ...auth,
-        user: parseData.user,
-        token: parseData.token,
-      });
+    if (auth?.token) {
+      axios.defaults.headers.common["Authorization"] = `Bearer ${auth.token}`;
+    } else {
+      delete axios.defaults.headers.common["Authorization"];
     }
-    //eslint-disable-next-line
+  }, [auth?.token]);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("auth");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      setAuth({ user: parsed.user || null, token: parsed.token || "" });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const logout = async() => {
-    setAuth({ user: null, token: "" });
-  localStorage.removeItem("auth");
-  await axios.post("https://denapaona-com-webapp-server.vercel.app/api/v1/auth/logout");
-
-    // Remove the cart associated with the logged-in user
-    if (auth?.user?.email) {
-      localStorage.removeItem(`cart-${auth.user.email}`);
-    }
+  const logout = async () => {
+    try {
+      const email = auth?.user?.email;
+      // clear client state immediately
+      setAuth({ user: null, token: "" });
+      localStorage.removeItem("auth");
+      if (email) localStorage.removeItem(`cart-${email}`);
+      // clear axios header
+      delete axios.defaults.headers.common["Authorization"];
+      // inform server (optional)
+      await axios.post("/api/v1/auth/logout");
+    } catch (_) {}
   };
 
   return (
@@ -42,7 +49,5 @@ const AuthProvider = ({ children }) => {
   );
 };
 
-// custom hook
 const useAuth = () => useContext(AuthContext);
-
 export { useAuth, AuthProvider };
