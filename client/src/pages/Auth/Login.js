@@ -1,10 +1,14 @@
+// src/pages/Auth/Login.js
 import React, { useState } from "react";
 import Layout from "./../../components/Layout/Layout";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useAuth } from "../../context/auth";
+import { GoogleLogin } from "@react-oauth/google"; // NEW
 import "../../styles/AuthStyles.css";
+
+const API = process.env.REACT_APP_API || "http://localhost:8080";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -15,46 +19,42 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // form function
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post(
-        "http://localhost:8080/api/v1/auth/login",
-        {
-          email,
-          password,
-        }
-      );
-      if (res && res.data.success) {
-        toast.success(res.data && res.data.message);
-        setAuth({
-          ...auth,
-          user: res.data.user,
-          token: res.data.token,
-          refreshToken: res.data.refreshToken,
-        });
+      const res = await axios.post(`${API}/api/v1/auth/login`, { email, password });
+      if (res?.data?.success) {
+        toast.success(res.data.message);
+        setAuth({ ...auth, user: res.data.user, token: res.data.token, refreshToken: res.data.refreshToken });
         localStorage.setItem("auth", JSON.stringify(res.data));
-        console.log("Previous Access Token: ", auth.token);
-        console.log("Previous Refresh Token: ", auth.refreshToken);
-        console.log("New Access Token: ", res.data.accessToken);
-        console.log("New Refresh Token: ", res.data);
         navigate(location.state || "/");
       } else {
-        toast.error(res.data.message);
+        toast.error(res?.data?.message || "Login failed");
       }
     } catch (error) {
-      console.log(error);
-      if (error.response && error.response.status === 429) {
-        toast.error(
-          "Too many login attempts. Please try again after 60 seconds."
-        );
-      } else {
-        toast.error("Something went wrong");
-      }
+      if (error?.response?.status === 429) toast.error("Too many login attempts. Please try again after 60 seconds.");
+      else toast.error("Something went wrong");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      const res = await axios.post(`${API}/api/v1/auth/google`, {
+        credential: credentialResponse?.credential,
+      });
+      if (res?.data?.success) {
+        toast.success(res.data.message || "Signed in with Google");
+        setAuth({ ...auth, user: res.data.user, token: res.data.token, refreshToken: res.data.refreshToken });
+        localStorage.setItem("auth", JSON.stringify(res.data));
+        navigate(location.state || "/");
+      } else {
+        toast.error(res?.data?.message || "Google sign-in failed");
+      }
+    } catch (err) {
+      toast.error("Google sign-in failed");
     }
   };
 
@@ -66,45 +66,39 @@ const Login = () => {
             <span className="amazon-logo-text">Denapoana</span>
           </div>
           <h1 className="amazon-auth-title">Sign-In</h1>
+
           <form onSubmit={handleSubmit} className="amazon-auth-form">
             <div className="amazon-form-group">
               <label htmlFor="email" className="amazon-form-label">Email or mobile phone number</label>
-              <input
-                type="email"
-                autoFocus
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="amazon-form-input"
-                id="email"
-                required
-              />
+              <input type="email" autoFocus value={email} onChange={(e) => setEmail(e.target.value)}
+                     className="amazon-form-input" id="email" required />
             </div>
             <div className="amazon-form-group">
               <label htmlFor="password" className="amazon-form-label">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="amazon-form-input"
-                id="password"
-                required
-              />
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)}
+                     className="amazon-form-input" id="password" required />
             </div>
-            <button
-              type="submit"
-              className="amazon-auth-button"
-              disabled={loading}
-            >
+            <button type="submit" className="amazon-auth-button" disabled={loading}>
               {loading ? "Signing In..." : "Sign In"}
             </button>
           </form>
-          <div className="amazon-auth-divider">
-            <span>New to Denapoana?</span>
+
+          <div className="amazon-auth-divider"><span>OR</span></div>
+
+          {/* Google Sign in (English) */}
+          <div style={{ display: "flex", justifyContent: "center", marginTop: 8 }}>
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => toast.error("Google sign-in cancelled")}
+              // force English label:
+              text="signin_with"
+              // optional shape/size
+              // shape="pill" size="large"
+            />
           </div>
-          <button 
-            className="amazon-auth-create-button"
-            onClick={() => navigate("/register")}
-          >
+
+          <div className="amazon-auth-divider"><span>New to Denapoana?</span></div>
+          <button className="amazon-auth-create-button" onClick={() => navigate("/register")}>
             Create your account
           </button>
           <div className="amazon-auth-links">
