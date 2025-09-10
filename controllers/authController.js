@@ -1,21 +1,21 @@
+// controllers/authController.js
 import userModel from "../models/userModel.js";
 import orderModel from "../models/orderModel.js";
 import { comparePassword, hashPassword } from "./../helpers/authHelper.js";
 import JWT from "jsonwebtoken";
-import Notification from "../models/Notification.js"; 
+import Notification from "../models/Notification.js";
 import productModel from "../models/productModel.js";
+import { OAuth2Client } from "google-auth-library"; // NEW
 
-// Register Controller
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+
+// -------------------- REGISTER --------------------
 export const registerController = async (req, res) => {
   try {
     const { name, email, password, phone, address, answer } = req.body;
-
-    // Validations
     if (!name || !email || !password || !phone || !address || !answer) {
       return res.status(400).send({ message: "All fields are required" });
     }
-
-    // Check existing user
     const existingUser = await userModel.findOne({ email });
     if (existingUser) {
       return res.status(400).send({
@@ -23,302 +23,150 @@ export const registerController = async (req, res) => {
         message: "Already Registered. Please login.",
       });
     }
-
-    // Register user
     const hashedPassword = await hashPassword(password);
     const user = await new userModel({
-      name,
-      email,
-      phone,
-      address,
-      password: hashedPassword,
-      answer,
+      name, email, phone, address, password: hashedPassword, answer,
     }).save();
 
-    res.status(201).send({
-      success: true,
-      message: "User Registered Successfully",
-      user,
-    });
+    res.status(201).send({ success: true, message: "User Registered Successfully", user });
   } catch (error) {
     console.log(error);
-    res.status(500).send({
-      success: false,
-      message: "Error in Registration",
-      error,
-    });
+    res.status(500).send({ success: false, message: "Error in Registration", error });
   }
 };
 
-// Create Refresh Token
-const createRefreshToken = (user) => {
-  return JWT.sign({ _id: user._id }, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: "7d",
-  });
-};
+// -------------------- TOKENS --------------------
+const createRefreshToken = (user) =>
+  JWT.sign({ _id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
 
-// Login Controller
+// -------------------- LOGIN (email/password) --------------------
 export const loginController = async (req, res) => {
   try {
     const { email, password } = req.body;
+    if (!email || !password) return res.status(400).send({ success: false, message: "Invalid email or password" });
 
-    // Validation
-    if (!email || !password) {
-      return res.status(400).send({
-        success: false,
-        message: "Invalid email or password",
-      });
-    }
-
-    // Check user
     const user = await userModel.findOne({ email });
-    if (!user) {
-      return res.status(404).send({
-        success: false,
-        message: "Email is not registered",
-      });
-    }
+    if (!user) return res.status(404).send({ success: false, message: "Email is not registered" });
 
-    // Compare password
     const match = await comparePassword(password, user.password);
-    if (!match) {
-      return res.status(400).send({
-        success: false,
-        message: "Invalid Password",
-      });
-    }
+    if (!match) return res.status(400).send({ success: false, message: "Invalid Password" });
 
-    // Generate tokens
     const refreshToken = createRefreshToken(user);
-    const token = JWT.sign(
-      { _id: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "15m",
-      }
-    );
+    const token = JWT.sign({ _id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "15m" });
 
     res.status(200).send({
       success: true,
       message: "Login successful",
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        address: user.address,
-        role: user.role,
-      },
+      user: { _id: user._id, name: user.name, email: user.email, phone: user.phone, address: user.address, role: user.role },
       token,
       refreshToken,
     });
   } catch (error) {
     console.log(error);
-    res.status(500).send({
-      success: false,
-      message: "Error in login",
-      error,
-    });
+    res.status(500).send({ success: false, message: "Error in login", error });
   }
 };
 
-// Refresh Token Controller
+// -------------------- REFRESH TOKEN --------------------
 export const refreshTokenController = (req, res) => {
   const { refreshToken } = req.body;
-  if (!refreshToken) {
-    return res
-      .status(403)
-      .send({ success: false, message: "Refresh token is required" });
-  }
+  if (!refreshToken) return res.status(403).send({ success: false, message: "Refresh token is required" });
 
   try {
     const user = JWT.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
-    const newAccessToken = JWT.sign({ _id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "15s",
-    });
+    const newAccessToken = JWT.sign({ _id: user._id }, process.env.JWT_SECRET, { expiresIn: "15s" });
     const newRefreshToken = createRefreshToken(user);
-
-    res.status(200).json({
-      success: true,
-      accessToken: newAccessToken,
-      refreshToken: newRefreshToken, // Optionally return a new refresh token
-    });
+    return res.status(200).json({ success: true, accessToken: newAccessToken, refreshToken: newRefreshToken });
   } catch (error) {
     console.log(error);
-    res
-      .status(403)
-      .send({ success: false, message: "Invalid refresh token", error });
+    return res.status(403).send({ success: false, message: "Invalid refresh token", error });
   }
-  res.cookie("refreshToken", refreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production", // Ensure it's secure in production
-    sameSite: "Strict",
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-  });
 };
 
-// Test Controller
+// -------------------- TEST --------------------
 export const testController = (req, res) => {
-  try {
-    res.send("Protected Routes");
-  } catch (error) {
-    console.log(error);
-    res.send({ error });
-  }
+  try { res.send("Protected Routes"); } catch (error) { console.log(error); res.send({ error }); }
 };
 
-// Forgot Password Controller
+// -------------------- FORGOT PASSWORD --------------------
 export const forgotPasswordController = async (req, res) => {
   try {
     const { email, answer, newPassword } = req.body;
-
-    // Validation
-    if (!email || !answer || !newPassword) {
-      return res.status(400).send({ message: "All fields are required" });
-    }
-
-    // Check user
+    if (!email || !answer || !newPassword) return res.status(400).send({ message: "All fields are required" });
     const user = await userModel.findOne({ email, answer });
-    if (!user) {
-      return res.status(404).send({
-        success: false,
-        message: "Wrong Email Or Answer",
-      });
-    }
+    if (!user) return res.status(404).send({ success: false, message: "Wrong Email Or Answer" });
 
-    // Update password
     const hashed = await hashPassword(newPassword);
     await userModel.findByIdAndUpdate(user._id, { password: hashed });
-    res.status(200).send({
-      success: true,
-      message: "Password Reset Successfully",
-    });
+    res.status(200).send({ success: true, message: "Password Reset Successfully" });
   } catch (error) {
     console.log(error);
-    res.status(500).send({
-      success: false,
-      message: "Something went wrong",
-      error,
-    });
+    res.status(500).send({ success: false, message: "Something went wrong", error });
   }
 };
 
-// Update Profile Controller
+// -------------------- UPDATE PROFILE --------------------
 export const updateProfileController = async (req, res) => {
   try {
     const { name, email, password, address, phone } = req.body;
     const user = await userModel.findById(req.user._id);
-
-    // Validate password
-    if (password && password.length < 6) {
-      return res.status(400).json({
-        error: "Password is required and must be at least 6 characters long",
-      });
-    }
+    if (password && password.length < 6)
+      return res.status(400).json({ error: "Password is required and must be at least 6 characters long" });
 
     const hashedPassword = password ? await hashPassword(password) : undefined;
     const updatedUser = await userModel.findByIdAndUpdate(
       req.user._id,
-      {
-        name: name || user.name,
-        password: hashedPassword || user.password,
-        phone: phone || user.phone,
-        address: address || user.address,
-      },
+      { name: name || user.name, password: hashedPassword || user.password, phone: phone || user.phone, address: address || user.address },
       { new: true }
     );
-
-    res.status(200).send({
-      success: true,
-      message: "Profile Updated Successfully",
-      updatedUser,
-    });
+    res.status(200).send({ success: true, message: "Profile Updated Successfully", updatedUser });
   } catch (error) {
     console.log(error);
-    res.status(400).send({
-      success: false,
-      message: "Error While Updating Profile",
-      error,
-    });
+    res.status(400).send({ success: false, message: "Error While Updating Profile", error });
   }
 };
 
-// Get Orders Controller
+// -------------------- GET ORDERS (USER) --------------------
 export const getOrdersController = async (req, res) => {
   try {
-    const orders = await orderModel
-      .find({ buyer: req.user._id })
-      .populate("products", "-photo")
-      .populate("buyer", "name");
-
-    res.status(200).json({
-      success: true,
-      message: "Orders fetched successfully",
-      orders,
-    });
+    const orders = await orderModel.find({ buyer: req.user._id }).populate("products", "-photo").populate("buyer", "name");
+    res.status(200).json({ success: true, message: "Orders fetched successfully", orders });
   } catch (error) {
     console.log(error);
-    res.status(500).send({
-      success: false,
-      message: "Error While Fetching Orders",
-      error,
-    });
+    res.status(500).send({ success: false, message: "Error While Fetching Orders", error });
   }
 };
 
-// Get All Orders Controller
+// -------------------- GET ALL ORDERS (ADMIN) --------------------
 export const getAllOrdersController = async (req, res) => {
   try {
     const orders = await orderModel
       .find({})
-      .populate({
-        path: "products",
-        select: "-photo",
-      })
-      .populate({
-        path: "buyer",
-        select: "name",
-      })
-      .sort({ createdAt: -1 }); // Fixed sort usage
-
-    res.status(200).json({
-      success: true,
-      message: "Orders fetched successfully",
-      orders,
-    });
+      .populate({ path: "products", select: "-photo" })
+      .populate({ path: "buyer", select: "name" })
+      .sort({ createdAt: -1 });
+    res.status(200).json({ success: true, message: "Orders fetched successfully", orders });
   } catch (error) {
     console.error("Error while fetching orders:", error.message);
-    res.status(500).json({
-      success: false,
-      message: "Error while fetching orders",
-      error: error.message,
-    });
+    res.status(500).json({ success: false, message: "Error while fetching orders", error: error.message });
   }
 };
 
-
-
-// controllers/authController.js
-
-
+// -------------------- ORDER STATUS + NOTIFY --------------------
 export const orderStatusController = async (req, res) => {
   try {
     const { orderId } = req.params;
     const { status } = req.body;
 
-    // buyer populate করলেই হবে; products এখন IDs
     const order = await orderModel
       .findByIdAndUpdate(orderId, { status }, { new: true })
       .populate("buyer", "name _id");
 
-    // ----- product name resolve -----
     let firstName = "your product";
     let more = 0;
 
     if (Array.isArray(order?.products) && order.products.length) {
       more = Math.max(order.products.length - 1, 0);
-
-      // products[0] যদি ObjectId হয় → DB থেকে name আনুন
       const firstId = order.products[0];
       if (firstId && typeof firstId === "object") {
         const prod = await productModel.findById(firstId).select("name").lean();
@@ -327,51 +175,68 @@ export const orderStatusController = async (req, res) => {
     }
 
     const label = more > 0 ? `${firstName} (+${more} more)` : firstName;
-
-    // ----- Pretty status -----
-    const statusMap = {
-      "Not Process": "Not Process",
-      Processing: "Processing",
-      Shipped: "Shipped",
-      deliverd: "Delivered", // enum typo → pretty
-      cancel: "Cancelled",
-    };
+    const statusMap = { "Not Process": "Not Process", Processing: "Processing", Shipped: "Shipped", deliverd: "Delivered", cancel: "Cancelled" };
     const prettyStatus = statusMap[status] || status;
 
     const title = `Order ${prettyStatus}`;
-    const text  = `Your ${label} is ${prettyStatus}`;
-    const link  = "/dashboard/user/orders";
+    const text = `Your ${label} is ${prettyStatus}`;
+    const link = "/dashboard/user/orders";
 
-    // ----- Persist + Realtime -----
     if (order?.buyer?._id) {
-      const n = await Notification.create({
-        toUser: order.buyer._id,
-        title,
-        text,
-        link,
-      });
-
+      const n = await Notification.create({ toUser: order.buyer._id, title, text, link });
       const io = req.app.get("io");
       io.to(`user:${order.buyer._id}`).emit("notification:new", {
-        _id: n._id,
-        title,
-        text,
-        link,
-        createdAt: n.createdAt,
+        _id: n._id, title, text, link, createdAt: n.createdAt,
       });
     }
 
-    res.status(200).json({
-      success: true,
-      message: "Order status updated successfully",
-      order,
-    });
+    res.status(200).json({ success: true, message: "Order status updated successfully", order });
   } catch (error) {
     console.log(error);
-    res.status(500).send({
-      success: false,
-      message: "Error While Updating Order",
-      error,
+    res.status(500).send({ success: false, message: "Error While Updating Order", error });
+  }
+};
+
+// -------------------- GOOGLE SIGN-IN --------------------
+export const googleLoginController = async (req, res) => {
+  try {
+    const { credential } = req.body; // id_token from client
+    if (!credential) return res.status(400).json({ success: false, message: "Missing Google credential" });
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
     });
+    const payload = ticket.getPayload();
+    const { email, name, sub, email_verified } = payload || {};
+    if (!email || email_verified === false)
+      return res.status(403).json({ success: false, message: "Unverified Google account" });
+
+    let user = await userModel.findOne({ email });
+    if (!user) {
+      const hashed = await hashPassword(`${sub}${process.env.JWT_SECRET}`);
+      user = await new userModel({
+        name: name || email.split("@")[0],
+        email,
+        password: hashed,
+        phone: "N/A",
+        address: "Google Sign-in",
+        answer: "google-oauth",
+      }).save();
+    }
+
+    const refreshToken = JWT.sign({ _id: user._id }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: "7d" });
+    const token = JWT.sign({ _id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "15m" });
+
+    return res.status(200).json({
+      success: true,
+      message: "Google login successful",
+      user: { _id: user._id, name: user.name, email: user.email, phone: user.phone, address: user.address, role: user.role },
+      token,
+      refreshToken,
+    });
+  } catch (err) {
+    console.error("googleLoginController error:", err?.message || err);
+    return res.status(500).json({ success: false, message: "Google login failed", error: err?.message });
   }
 };
