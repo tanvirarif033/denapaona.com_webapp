@@ -49,6 +49,12 @@ const AdminMenu = () => {
 >
   Sales Analytics
         </NavLink>
+                            <NavLink
+            to="/dashboard/admin/return-requests"
+            className="list-group-item list-group-item-action"
+          >
+            Return Request
+          </NavLink>
         </div>
       </div>
     </>
