@@ -19,6 +19,7 @@ import chatRoutes from "./routes/chatRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
 import returnRoutes from "./routes/returnRoutes.js"; // ← NEW
+import offerRoutes from "./routes/offerRoutes.js";
 
 // Chat models for socket handlers
 import ChatRoom from "./models/ChatRoom.js";
@@ -58,6 +59,7 @@ app.use("/api/v1/chat", chatRoutes);
 app.use("/api/v1/analytics", analyticsRoutes);
 app.use("/api/v1/notification", notificationRoutes);
 app.use("/api/v1/returns", returnRoutes); // ← NEW
+app.use("/api/v1/offer", offerRoutes);
 
 const server = http.createServer(app);
 

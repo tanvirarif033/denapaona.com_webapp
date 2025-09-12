@@ -76,10 +76,26 @@
   cursor: pointer;
 }
 
-.price-section {
-  margin: 20px 0;
-  display: flex;
-  align-items: baseline;
+.discounted-price {
+  color: #ff4d4f;
+  font-size: 1.5em;
+  font-weight: bold;
+  margin-left: 10px;
+}
+
+.original-price {
+  text-decoration: line-through;
+  color: #8c8c8c;
+  font-size: 1.2em;
+}
+
+.discount-badge {
+  background: #ff4d4f;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.8em;
+  margin-left: 10px;
 }
 
 .price-label {

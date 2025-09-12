@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout/Layout";
 import axios from "axios";
 import { useCart } from "../context/cart";
-import { Checkbox, Radio, Spin, Carousel, Button, Drawer, Badge } from "antd";
+import { Checkbox, Radio, Spin, Carousel, Button, Drawer, Badge, Card } from "antd";
 import { useAuth } from "../context/auth";
 import toast from "react-hot-toast";
 import { Prices } from "../components/Prices";
@@ -36,6 +36,7 @@ const HomePage = () => {
   const [filterLoading, setFilterLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [offers, setOffers] = useState([]);
 
   // Load user-specific cart when user logs in
   useEffect(() => {
@@ -50,6 +51,25 @@ const HomePage = () => {
       setCart([]);
     }
   }, [auth?.user, setCart]);
+
+  // Get active offers
+  const getActiveOffers = async () => {
+    try {
+      const { data } = await axios.get(
+        "http://localhost:8080/api/v1/offer/get-active-offers",
+        {
+          headers: {
+            "x-api-key": process.env.REACT_APP_API_KEY,
+          },
+        }
+      );
+      if (data?.success) {
+        setOffers(data?.offers);
+      }
+    } catch (error) {
+      console.error("Error fetching offers:", error);
+    }
+  };
 
   const getAllCategory = async () => {
     try {
@@ -77,6 +97,7 @@ const HomePage = () => {
     getAllCategory();
     getAllProducts();
     getTotal();
+    getActiveOffers(); // Fetch offers on component mount
   }, []);
 
   const getAllProducts = async () => {
@@ -259,26 +280,50 @@ const HomePage = () => {
 
   return (
     <Layout title={"Shop - Best Deals"}>
-      {/* Hero Carousel */}
-      <div className="hero-carousel">
-        <Carousel
-          autoplay
-          arrows
-          prevArrow={<PrevArrow />}
-          nextArrow={<NextArrow />}
-          dots={{ className: "carousel-dots" }}
-        >
-          {[1, 2, 3, 4].map((item) => (
-            <div key={item}>
-              <img
-                src={`/images/c${item}.png`}
-                alt={`Slide ${item}`}
-                className="carousel-image"
-              />
-            </div>
-          ))}
-        </Carousel>
-      </div>
+      {/* Offers Carousel */}
+      {offers.length > 0 && (
+        <div className="offers-carousel mb-4">
+          <h2>Special Offers</h2>
+          <Carousel
+            autoplay
+            arrows
+            prevArrow={<PrevArrow />}
+            nextArrow={<NextArrow />}
+            dots={{ className: "carousel-dots" }}
+          >
+            {offers.map((offer) => (
+              <div key={offer._id}>
+                <Card
+                  cover={
+                    <img
+                      alt={offer.title}
+                      src={`http://localhost:8080/api/v1/offer/offer-banner/${offer._id}`}
+                      style={{ height: "300px", objectFit: "cover" }}
+                      onError={(e) => {
+                        e.target.src = "/fallback-image.jpg"; // Add a fallback image
+                      }}
+                    />
+                  }
+                >
+                  <Card.Meta
+                    title={offer.title}
+                    description={
+                      <div>
+                        <p>{offer.description}</p>
+                        <p>
+                          <strong>Discount:</strong> {offer.discountValue}{" "}
+                          {offer.discountType === "percentage" ? "%" : "$"}
+                        </p>
+                        <Button type="primary">Shop Now</Button>
+                      </div>
+                    }
+                  />
+                </Card>
+              </div>
+            ))}
+          </Carousel>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="main-container">
@@ -370,7 +415,7 @@ const HomePage = () => {
         title="Filters"
         placement="left"
         onClose={() => setShowFilters(false)}
-        visible={showFilters}
+        open={showFilters}
         width={300}
         className="filters-drawer"
       >

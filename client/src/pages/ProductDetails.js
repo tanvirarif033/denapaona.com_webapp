@@ -125,13 +125,28 @@ const ProductDetails = () => {
       toast.error("Failed to delete review");
     }
   };
+  // Calculate discounted price
+  const calculateDiscountedPrice = (product) => {
+    if (product.offers && product.offers.length > 0) {
+      // For simplicity, we'll use the first offer
+      const offer = product.offers[0];
+      if (offer.discountType === "percentage") {
+        return product.price * (1 - offer.discountValue / 100);
+      } else if (offer.discountType === "fixed") {
+        return Math.max(0, product.price - offer.discountValue);
+      }
+    }
+    return product.price;
+  };
+
+  const discountedPrice = calculateDiscountedPrice(product);
 
   return (
     <Layout>
       <div className="product-details-container">
-        <Button 
-          type="text" 
-          icon={<ArrowLeftOutlined />} 
+        <Button
+          type="text"
+          icon={<ArrowLeftOutlined />}
           onClick={() => navigate(-1)}
           className="back-button"
         >
@@ -155,12 +170,12 @@ const ProductDetails = () => {
               <Col xs={24} md={12} lg={14}>
                 <div className="product-info-section">
                   <h1 className="product-title">{product.name}</h1>
-                  
+
                   <div className="product-rating">
-                    <Rate 
-                      disabled 
-                      value={product.rating || 0} 
-                      style={{ color: "#ffa41c" }} 
+                    <Rate
+                      disabled
+                      value={product.rating || 0}
+                      style={{ color: "#ffa41c" }}
                     />
                     <span className="rating-count">
                       {reviews.length} customer reviews
@@ -171,10 +186,32 @@ const ProductDetails = () => {
 
                   <div className="price-section">
                     <span className="price-label">Price: </span>
-                    <span className="price-amount">
-                      <span className="price-symbol">$</span>
-                      {product.price}
-                    </span>
+                    {discountedPrice < product.price ? (
+                      <>
+                        <span className="original-price">
+                          <span className="price-symbol">$</span>
+                          {product.price}
+                        </span>
+                        <span className="discounted-price">
+                          <span className="price-symbol">$</span>
+                          {discountedPrice.toFixed(2)}
+                        </span>
+                        <span className="discount-badge">
+                          Save{" "}
+                          {(
+                            ((product.price - discountedPrice) /
+                              product.price) *
+                            100
+                          ).toFixed(0)}
+                          %
+                        </span>
+                      </>
+                    ) : (
+                      <span className="price-amount">
+                        <span className="price-symbol">$</span>
+                        {product.price}
+                      </span>
+                    )}
                   </div>
 
                   <div className="product-description">
@@ -198,7 +235,7 @@ const ProductDetails = () => {
 
             <div className="customer-reviews-section">
               <h2>Customer reviews</h2>
-              
+
               {reviews.length === 0 && (
                 <p className="no-reviews">No customer reviews yet.</p>
               )}
@@ -207,10 +244,10 @@ const ProductDetails = () => {
                 <div key={review._id} className="review-card">
                   <div className="review-header">
                     <span className="reviewer-name">{review.user.name}</span>
-                    <Rate 
-                      disabled 
-                      value={review.rating} 
-                      style={{ color: "#ffa41c", fontSize: 14 }} 
+                    <Rate
+                      disabled
+                      value={review.rating}
+                      style={{ color: "#ffa41c", fontSize: 14 }}
                     />
                   </div>
                   <p className="review-comment">{review.comment}</p>
@@ -237,7 +274,7 @@ const ProductDetails = () => {
                 <h3>Write a customer review</h3>
                 <Rate
                   value={newReview.rating}
-                  onChange={(rating) => setNewReview({...newReview, rating})}
+                  onChange={(rating) => setNewReview({ ...newReview, rating })}
                   style={{ color: "#ffa41c" }}
                 />
                 <TextArea
@@ -293,10 +330,10 @@ const ProductDetails = () => {
                               <span className="price-symbol">$</span>
                               <span className="price-amount">{p.price}</span>
                             </div>
-                            <Rate 
-                              disabled 
-                              value={p.rating || 0} 
-                              style={{ color: "#ffa41c", fontSize: 14 }} 
+                            <Rate
+                              disabled
+                              value={p.rating || 0}
+                              style={{ color: "#ffa41c", fontSize: 14 }}
                             />
                           </>
                         }

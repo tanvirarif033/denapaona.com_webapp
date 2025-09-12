@@ -41,6 +41,8 @@ import NotificationsPage from "./pages/Notifications";
 // Pass auth to ChatAdmin if you need it
 import { useAuth } from "./context/auth";
 
+import OfferManagement from "./pages/Admin/OfferManagement"; 
+
 function App() {
   const [auth] = useAuth();
 
@@ -87,6 +89,7 @@ function App() {
           <Route path="analytics" element={<SalesAnalytics />} />
           {/* ➕ NEW: Admin sees all return requests */}
           <Route path="return-requests" element={<AdminReturnRequests />} />
+          <Route path="offers" element={<OfferManagement />} />
         </Route>
 
         {/* Fallback */}
