@@ -72,7 +72,7 @@ const fetchData = async () => {
     setLoading(true);
     try {
       const { data } = await axios.post(
-        "https://denapaona-com-webapp-server.vercel.app/api/v1/offers/create-offer",
+        "http://localhost:8080/api/v1/offers/create-offer",
         {
           ...values,
           startDate: values.startDate.format(),
