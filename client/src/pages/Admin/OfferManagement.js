@@ -1,4 +1,4 @@
-// pages/Admin/OfferManagement.js
+// pages/Admin/OfferManagement.js - FIXED VERSION
 import React, { useState, useEffect } from "react";
 import Layout from "../../components/Layout/Layout";
 import AdminMenu from "../../components/Layout/AdminMenu";
@@ -8,7 +8,6 @@ import { useAuth } from "../../context/auth";
 import {
   Select,
   DatePicker,
-  TimePicker,
   Switch,
   message,
   Modal,
@@ -17,7 +16,6 @@ import {
   InputNumber,
   Button,
   Card,
-  List,
   Upload,
 } from "antd";
 import {
@@ -43,7 +41,6 @@ const OfferManagement = () => {
   const [editingOffer, setEditingOffer] = useState(null);
   const [form] = Form.useForm();
 
- 
   // Get all categories
   const getAllCategories = async () => {
     setLoading(true);
@@ -69,10 +66,18 @@ const OfferManagement = () => {
     }
   };
 
-  // Get all offers
+  // Get all offers - FIXED
   const getAllOffers = async () => {
     try {
-      const { data } = await axios.get("/api/v1/offer/get-offers");
+      const { data } = await axios.get(
+        "http://localhost:8080/api/v1/offer/get-offers",
+        {
+          headers: {
+            "x-api-key": process.env.REACT_APP_API_KEY,
+            Authorization: auth?.token,
+          },
+        }
+      );
       if (data?.success) {
         setOffers(data?.offers);
       }
@@ -82,29 +87,26 @@ const OfferManagement = () => {
     }
   };
 
-  // Get products by category
-const getProductsByCategory = async (categoryId) => {
-  try {
-    const { data } = await axios.get(
-      `/api/v1/offer/products-by-category/${categoryId}`,
-      {
-        headers: {
-          Authorization: auth?.token,
-          "x-api-key": process.env.REACT_APP_API_KEY, // Add this if needed
-        },
-      }
-    );
+  // Get products by category - FIXED
+  const getProductsByCategory = async (categoryId) => {
+    try {
+      const { data } = await axios.get(
+        `http://localhost:8080/api/v1/offer/products-by-category/${categoryId}`,
+        {
+          headers: {
+            Authorization: auth?.token,
+            "x-api-key": process.env.REACT_APP_API_KEY,
+          },
+        }
+      );
 
-    if (data?.success) {
-      setProducts(data?.products);
+      if (data?.success) {
+        setProducts(data?.products);
+      }
+    } catch (error) {
+      console.log("Error fetching products:", error);
     }
-  } catch (error) {
-    console.log(
-      "Error fetching products:",
-      error.response?.data || error.message
-    );
-  }
-};
+  };
 
   useEffect(() => {
     getAllCategories();
@@ -130,6 +132,9 @@ const getProductsByCategory = async (categoryId) => {
         endDate: moment(offer.endDate),
         category: offer.category._id,
         products: offer.products.map((p) => p._id),
+        bannerImage: offer.bannerImage
+          ? [{ uid: "-1", name: "banner.jpg" }]
+          : undefined,
       });
       setSelectedCategory(offer.category._id);
       setSelectedProducts(offer.products.map((p) => p._id));
@@ -148,69 +153,109 @@ const getProductsByCategory = async (categoryId) => {
     setIsModalVisible(false);
   };
 
-  const handleSubmit = async (values) => {
-    try {
-      const formData = new FormData();
-      Object.keys(values).forEach((key) => {
-        if (key === "startDate" || key === "endDate") {
-          formData.append(key, values[key].format("YYYY-MM-DD"));
-        } else if (key === "products") {
-          values[key].forEach((product) =>
-            formData.append("products", product)
-          );
-        } else if (key === "bannerImage" && values[key] && values[key].file) {
-          formData.append("bannerImage", values[key].file.originFileObj);
-        } else {
-          formData.append(key, values[key]);
-        }
-      });
-
-      if (editingOffer) {
-        const { data } = await axios.put(
-          `/api/v1/offer/update-offer/${editingOffer._id}`,
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: auth?.token,
-            },
-          }
-        );
-        if (data?.success) {
-          message.success("Offer updated successfully");
-          getAllOffers();
-          setIsModalVisible(false);
-        }
-      } else {
-        const { data } = await axios.post(
-          "/api/v1/offer/create-offer",
-          formData,
-          {
-            headers: {
-              "Content-Type": "multipart/form-data",
-              Authorization: auth?.token,
-            },
-          }
-        );
-        if (data?.success) {
-          message.success("Offer created successfully");
-          getAllOffers();
-          setIsModalVisible(false);
-        }
-      }
-    } catch (error) {
-      console.log(error);
-      message.error("Something went wrong");
+  const normFile = (e) => {
+    if (Array.isArray(e)) {
+      return e;
     }
+    return e && e.fileList;
   };
 
+  const handleSubmit = async (values) => {
+    try {
+      console.log("Form values:", values);
+
+      const formData = new FormData();
+
+      // Append all required fields
+      formData.append("title", values.title);
+      formData.append("description", values.description);
+      formData.append("category", values.category);
+      formData.append("discountType", values.discountType);
+      formData.append("discountValue", values.discountValue);
+      formData.append("startDate", values.startDate.format("YYYY-MM-DD"));
+      formData.append("endDate", values.endDate.format("YYYY-MM-DD"));
+      formData.append("isActive", values.isActive);
+
+      // Append products array
+      if (values.products && Array.isArray(values.products)) {
+        values.products.forEach((product) => {
+          formData.append("products", product);
+        });
+      }
+
+      // FIXED: Handle banner image correctly
+      if (
+        values.bannerImage &&
+        Array.isArray(values.bannerImage) &&
+        values.bannerImage.length > 0
+      ) {
+        const bannerFile = values.bannerImage[0];
+        if (bannerFile.originFileObj) {
+          formData.append("bannerImage", bannerFile.originFileObj);
+          console.log("Appending banner image:", bannerFile.originFileObj);
+        }
+      }
+
+      const config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          "x-api-key": process.env.REACT_APP_API_KEY,
+          Authorization: auth?.token,
+        },
+      };
+
+      // Debug: Log FormData entries
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+
+      let response;
+      if (editingOffer) {
+        response = await axios.put(
+          `http://localhost:8080/api/v1/offer/update-offer/${editingOffer._id}`,
+          formData,
+          config
+        );
+      } else {
+        response = await axios.post(
+          "http://localhost:8080/api/v1/offer/create-offer",
+          formData,
+          config
+        );
+      }
+
+      if (response.data?.success) {
+        message.success(
+          editingOffer
+            ? "Offer updated successfully"
+            : "Offer created successfully"
+        );
+        getAllOffers();
+        setIsModalVisible(false);
+      } else {
+        message.error(response.data?.error || "Operation failed");
+      }
+    } catch (error) {
+      console.log("Full error:", error);
+      console.log("Error response:", error.response?.data);
+
+      const errorMessage =
+        error.response?.data?.error?.message ||
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        "Something went wrong";
+
+      message.error(errorMessage);
+    }
+  };
   const handleDelete = async (offerId) => {
     try {
       const { data } = await axios.delete(
-        `/api/v1/offer/delete-offer/${offerId}`,
+        `http://localhost:8080/api/v1/offer/delete-offer/${offerId}`,
         {
           headers: {
             Authorization: auth?.token,
+            "x-api-key": process.env.REACT_APP_API_KEY,
           },
         }
       );
@@ -222,13 +267,6 @@ const getProductsByCategory = async (categoryId) => {
       console.log(error);
       message.error("Something went wrong");
     }
-  };
-
-  const normFile = (e) => {
-    if (Array.isArray(e)) {
-      return e;
-    }
-    return e && e.fileList;
   };
 
   return (
@@ -414,9 +452,23 @@ const getProductsByCategory = async (categoryId) => {
             name="bannerImage"
             valuePropName="fileList"
             getValueFromEvent={normFile}
+            rules={[
+              {
+                required: !editingOffer,
+                message: "Please upload a banner image!",
+              },
+            ]}
           >
-            <Upload listType="picture" beforeUpload={() => false} maxCount={1}>
-              <Button icon={<PlusOutlined />}>Upload Banner</Button>
+            <Upload
+              listType="picture-card"
+              beforeUpload={() => false}
+              maxCount={1}
+              accept="image/*"
+            >
+              <div>
+                <PlusOutlined />
+                <div style={{ marginTop: 8 }}>Upload</div>
+              </div>
             </Upload>
           </Form.Item>
 

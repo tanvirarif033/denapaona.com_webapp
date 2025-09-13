@@ -2,15 +2,21 @@ import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout/Layout";
 import axios from "axios";
 import { useCart } from "../context/cart";
-import { Checkbox, Radio, Spin, Carousel, Button, Drawer, Badge, Card } from "antd";
+import {
+  Checkbox,
+  Radio,
+  Spin,
+  Carousel,
+  Button,
+  Drawer,
+  Badge,
+  Card,
+} from "antd";
 import { useAuth } from "../context/auth";
 import toast from "react-hot-toast";
 import { Prices } from "../components/Prices";
 import { useNavigate } from "react-router-dom";
-import {
-  AiOutlineReload,
-  AiOutlineFilter,
-} from "react-icons/ai";
+import { AiOutlineReload, AiOutlineFilter } from "react-icons/ai";
 import {
   LeftOutlined,
   RightOutlined,
@@ -64,10 +70,13 @@ const HomePage = () => {
         }
       );
       if (data?.success) {
+        console.log("Offers received:", data.offers); // Debug log
         setOffers(data?.offers);
       }
     } catch (error) {
       console.error("Error fetching offers:", error);
+      // Set empty array to prevent errors
+      setOffers([]);
     }
   };
 
@@ -277,6 +286,30 @@ const HomePage = () => {
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
+const handleShopNow = (offer) => {
+  console.log("Offer data:", offer); // Debug log
+
+  if (offer.category && offer.category.slug) {
+    // Navigate to category page
+    navigate(`/category/${offer.category.slug}`);
+  } else if (
+    offer.products &&
+    offer.products.length > 0 &&
+    offer.products[0].slug
+  ) {
+    // Navigate to the first product
+    navigate(`/product/${offer.products[0].slug}`);
+  } else {
+    // Fallback to products page
+    navigate("/products");
+    toast.info("No specific category or products associated with this offer");
+  }
+};
+useEffect(() => {
+  if (offers.length > 0) {
+    console.log("Current offers state:", offers);
+  }
+}, [offers]);
 
   return (
     <Layout title={"Shop - Best Deals"}>
@@ -300,7 +333,7 @@ const HomePage = () => {
                       src={`http://localhost:8080/api/v1/offer/offer-banner/${offer._id}`}
                       style={{ height: "300px", objectFit: "cover" }}
                       onError={(e) => {
-                        e.target.src = "/fallback-image.jpg"; // Add a fallback image
+                        e.target.src = "/fallback-image.jpg";
                       }}
                     />
                   }
@@ -311,10 +344,15 @@ const HomePage = () => {
                       <div>
                         <p>{offer.description}</p>
                         <p>
-                          <strong>Discount:</strong> {offer.discountValue}{" "}
+                          <strong>Discount:</strong> {offer.discountValue}
                           {offer.discountType === "percentage" ? "%" : "$"}
                         </p>
-                        <Button type="primary">Shop Now</Button>
+                        <Button
+                          type="primary"
+                          onClick={() => handleShopNow(offer)}
+                        >
+                          Shop Now
+                        </Button>
                       </div>
                     }
                   />

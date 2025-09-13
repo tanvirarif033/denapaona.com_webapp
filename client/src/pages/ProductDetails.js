@@ -125,17 +125,39 @@ const ProductDetails = () => {
       toast.error("Failed to delete review");
     }
   };
-  // Calculate discounted price
+  // Calculate discounted price with better logic
   const calculateDiscountedPrice = (product) => {
-    if (product.offers && product.offers.length > 0) {
-      // For simplicity, we'll use the first offer
-      const offer = product.offers[0];
-      if (offer.discountType === "percentage") {
-        return product.price * (1 - offer.discountValue / 100);
-      } else if (offer.discountType === "fixed") {
-        return Math.max(0, product.price - offer.discountValue);
-      }
+    if (!product || !product.offers || product.offers.length === 0) {
+      return product?.price || 0;
     }
+
+    // Get active offers (filter by date and active status)
+    const currentDate = new Date();
+    const activeOffers = product.offers.filter(
+      (offer) =>
+        offer.isActive &&
+        new Date(offer.startDate) <= currentDate &&
+        new Date(offer.endDate) >= currentDate
+    );
+
+    if (activeOffers.length === 0) {
+      return product.price;
+    }
+
+    // For simplicity, use the first active offer
+    // You could implement logic to find the best offer
+    const offer = activeOffers[0];
+
+    if (offer.discountType === "percentage") {
+      const discountAmount = product.price * (offer.discountValue / 100);
+      return Math.max(0, product.price - discountAmount);
+    } else if (offer.discountType === "fixed") {
+      return Math.max(0, product.price - offer.discountValue);
+    } else if (offer.discountType === "bogo") {
+      // Buy One Get One - return same price for single item
+      return product.price;
+    }
+
     return product.price;
   };
 
@@ -213,6 +235,33 @@ const ProductDetails = () => {
                       </span>
                     )}
                   </div>
+
+                  {discountedPrice < product.price &&
+                    product.offers &&
+                    product.offers.length > 0 && (
+                      <div className="offer-badge">
+                        <span className="offer-tag">Special Offer!</span>
+                        {product.offers[0]?.discountType === "percentage" && (
+                          <span className="offer-details">
+                            {product.offers[0]?.discountValue}% OFF
+                          </span>
+                        )}
+                        {product.offers[0]?.discountType === "fixed" && (
+                          <span className="offer-details">
+                            ${product.offers[0]?.discountValue} OFF
+                          </span>
+                        )}
+                        {product.offers[0]?.discountType === "bogo" && (
+                          <span className="offer-details">Buy One Get One</span>
+                        )}
+                        <span className="offer-expiry">
+                          Valid until:{" "}
+                          {new Date(
+                            product.offers[0]?.endDate
+                          ).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
 
                   <div className="product-description">
                     <h3>About this item</h3>
@@ -308,39 +357,75 @@ const ProductDetails = () => {
                     </p>
                   </Col>
                 )}
-                {relatedProducts.map((p) => (
-                  <Col xs={12} sm={8} md={6} lg={6} key={p._id}>
-                    <Card
-                      hoverable
-                      className="similar-product-card"
-                      cover={
-                        <img
-                          src={`http://localhost:8080/api/v1/product/product-photo/${p._id}`}
-                          alt={p.name}
-                          className="similar-product-image"
-                        />
-                      }
-                      onClick={() => navigate(`/product/${p.slug}`)}
-                    >
-                      <Card.Meta
-                        title={p.name}
-                        description={
-                          <>
-                            <div className="similar-product-price">
-                              <span className="price-symbol">$</span>
-                              <span className="price-amount">{p.price}</span>
-                            </div>
-                            <Rate
-                              disabled
-                              value={p.rating || 0}
-                              style={{ color: "#ffa41c", fontSize: 14 }}
+                // In ProductDetails.js - Update the similar products section
+                {relatedProducts.map((p) => {
+                  const similarDiscountedPrice = calculateDiscountedPrice(p);
+                  const hasOffer = similarDiscountedPrice < p.price;
+
+                  return (
+                    <Col xs={12} sm={8} md={6} lg={6} key={p._id}>
+                      <Card
+                        hoverable
+                        className="similar-product-card"
+                        cover={
+                          <div className="similar-product-image-container">
+                            <img
+                              src={`http://localhost:8080/api/v1/product/product-photo/${p._id}`}
+                              alt={p.name}
+                              className="similar-product-image"
                             />
-                          </>
+                            {hasOffer && (
+                              <div className="similar-product-offer-badge">
+                                {p.offers &&
+                                  p.offers[0]?.discountType === "percentage" &&
+                                  `${p.offers[0]?.discountValue}% OFF`}
+                                {p.offers &&
+                                  p.offers[0]?.discountType === "fixed" &&
+                                  `$${p.offers[0]?.discountValue} OFF`}
+                                {p.offers &&
+                                  p.offers[0]?.discountType === "bogo" &&
+                                  "BOGO"}
+                              </div>
+                            )}
+                          </div>
                         }
-                      />
-                    </Card>
-                  </Col>
-                ))}
+                        onClick={() => navigate(`/product/${p.slug}`)}
+                      >
+                        <Card.Meta
+                          title={p.name}
+                          description={
+                            <>
+                              <div className="similar-product-price">
+                                {hasOffer ? (
+                                  <>
+                                    <span className="discounted-price">
+                                      <span className="price-symbol">$</span>
+                                      {similarDiscountedPrice.toFixed(2)}
+                                    </span>
+                                    <span className="original-price">
+                                      <span className="price-symbol">$</span>
+                                      {p.price}
+                                    </span>
+                                  </>
+                                ) : (
+                                  <span className="price-amount">
+                                    <span className="price-symbol">$</span>
+                                    {p.price}
+                                  </span>
+                                )}
+                              </div>
+                              <Rate
+                                disabled
+                                value={p.rating || 0}
+                                style={{ color: "#ffa41c", fontSize: 14 }}
+                              />
+                            </>
+                          }
+                        />
+                      </Card>
+                    </Col>
+                  );
+                })}
               </Row>
             </div>
           </>

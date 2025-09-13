@@ -5,10 +5,9 @@ import orderModel from "../models/orderModel.js";
 import slugify from "slugify";
 import braintree from "braintree";
 import dotenv from "dotenv";
-import userModel from "../models/userModel.js";        
-import Notification from "../models/Notification.js";  
+import userModel from "../models/userModel.js";
+import Notification from "../models/Notification.js";
 dotenv.config();
-
 
 //payment gateway
 var gateway = new braintree.BraintreeGateway({
@@ -18,15 +17,12 @@ var gateway = new braintree.BraintreeGateway({
   privateKey: process.env.BRAINTREE_PRIVATE_KEY,
 });
 
-
-
 // var gateway = new braintree.BraintreeGateway({
 //   environment: braintree.Environment.Sandbox,
 //   merchantId: process.env.BRAINTREE_MERCHANT_ID,
 //   publicKey: process.env.BRAINTREE_PUBLIC_KEY,
 //   privateKey: process.env.BRAINTREE_PRIVATE_KEY,
 // });
-
 
 export const createProductController = async (req, res) => {
   try {
@@ -78,6 +74,14 @@ export const getProductController = async (req, res) => {
     const products = await productModel
       .find({})
       .populate("category")
+      .populate({
+        path: "offers",
+        match: {
+          isActive: true,
+          startDate: { $lte: new Date() },
+          endDate: { $gte: new Date() },
+        },
+      })
       .select("-photo")
       .limit(12)
       .sort({ createdAt: -1 });
@@ -102,7 +106,15 @@ export const getSingleProductController = async (req, res) => {
     const product = await productModel
       .findOne({ slug: req.params.slug })
       .select("-photo")
-      .populate("category");
+      .populate("category")
+      .populate({
+        path: "offers",
+        match: {
+          isActive: true,
+          startDate: { $lte: new Date() },
+          endDate: { $gte: new Date() },
+        },
+      });
     res.status(200).send({
       success: true,
       message: "Single Product Fetched",
@@ -302,7 +314,17 @@ export const realtedProductController = async (req, res) => {
       })
       .select("-photo")
       .limit(4)
-      .populate("category");
+      .populate("category")
+      .populate({
+        path: "offers",
+        match: {
+          isActive: true,
+          startDate: { $lte: new Date() },
+          endDate: { $gte: new Date() },
+        },
+      })
+      .limit(4);
+
     res.status(200).send({
       success: true,
       products,
@@ -317,12 +339,22 @@ export const realtedProductController = async (req, res) => {
   }
 };
 
-
 // get product by catgory
 export const productCategoryController = async (req, res) => {
   try {
     const category = await categoryModel.findOne({ slug: req.params.slug });
-    const products = await productModel.find({ category }).populate("category");
+    const products = await productModel
+      .find({ category })
+      .populate("category")
+      .populate({
+        path: "offers",
+        match: {
+          isActive: true,
+          startDate: { $lte: new Date() },
+          endDate: { $gte: new Date() },
+        },
+      });
+
     res.status(200).send({
       success: true,
       category,
@@ -350,18 +382,15 @@ export const braintreeTokenController = async (req, res) => {
       } else {
         res.send(response);
       }
-    }); 
+    });
   } catch (error) {
     console.log(error);
   }
 };
 
-
-
 // //payment
 // export const brainTreePaymentController =()=>{}
 // controllers/productController.js
-
 
 // controllers/productController.js
 
@@ -369,7 +398,9 @@ export const brainTreePaymentController = async (req, res) => {
   try {
     const { nonce, cart } = req.body;
     let total = 0;
-    (cart || []).forEach((i) => { total += i.price || 0; });
+    (cart || []).forEach((i) => {
+      total += i.price || 0;
+    });
 
     gateway.transaction.sale(
       {
@@ -381,11 +412,11 @@ export const brainTreePaymentController = async (req, res) => {
         if (result) {
           // ✅ cart থেকে শুধু product IDs নিন (Order schema: ObjectId[])
           const productIds = (cart || [])
-            .map(p => p?._id || p?.product?._id || p?.id || p?.pid)
+            .map((p) => p?._id || p?.product?._id || p?.id || p?.pid)
             .filter(Boolean);
 
           const order = await new orderModel({
-            products: productIds,              // <-- only IDs
+            products: productIds, // <-- only IDs
             payment: result,
             buyer: req.user._id,
             status: "Not Process",
@@ -395,17 +426,29 @@ export const brainTreePaymentController = async (req, res) => {
           const buyerName = req.user?.name || "A user";
           const count = (cart || []).length || 1;
           const title = "New order received";
-          const text  = `${buyerName} ordered ${count} new product${count > 1 ? "s" : ""}`;
-          const link  = "/dashboard/admin/orders";
+          const text = `${buyerName} ordered ${count} new product${
+            count > 1 ? "s" : ""
+          }`;
+          const link = "/dashboard/admin/orders";
 
           const admins = await userModel.find({ role: 1 }).select("_id").lean();
           if (admins?.length) {
-            const docs = admins.map(a => ({ toUser: a._id, title, text, link }));
+            const docs = admins.map((a) => ({
+              toUser: a._id,
+              title,
+              text,
+              link,
+            }));
             await Notification.insertMany(docs);
           }
 
           const io = req.app.get("io");
-          io.to("admins").emit("notification:new", { title, text, link, createdAt: new Date() });
+          io.to("admins").emit("notification:new", {
+            title,
+            text,
+            link,
+            createdAt: new Date(),
+          });
 
           return res.json({ ok: true, orderId: order._id });
         }

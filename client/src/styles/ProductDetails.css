@@ -54,7 +54,7 @@
 .product-title {
   font-size: 24px;
   font-weight: 400;
-  color: #0F1111;
+  color: #0f1111;
   margin-bottom: 10px;
 }
 
@@ -106,7 +106,7 @@
 
 .price-amount {
   font-size: 28px;
-  color: #0F1111;
+  color: #0f1111;
   font-weight: 400;
   display: flex;
   align-items: center;
@@ -133,13 +133,13 @@
 .product-description p {
   font-size: 14px;
   line-height: 1.5;
-  color: #0F1111;
+  color: #0f1111;
 }
 
 .add-to-cart-details-btn {
-  background: #FFD814;
-  border-color: #FCD200;
-  color: #0F1111;
+  background: #ffd814;
+  border-color: #fcd200;
+  color: #0f1111;
   height: 40px;
   font-size: 14px;
   font-weight: 500;
@@ -149,8 +149,8 @@
 }
 
 .add-to-cart-details-btn:hover {
-  background: #F7CA00;
-  border-color: #F2C200;
+  background: #f7ca00;
+  border-color: #f2c200;
 }
 
 /* Customer reviews section */
@@ -165,7 +165,7 @@
   font-size: 20px;
   font-weight: 700;
   margin-bottom: 20px;
-  color: #0F1111;
+  color: #0f1111;
 }
 
 .no-reviews {
@@ -195,12 +195,12 @@
 .review-comment {
   font-size: 14px;
   line-height: 1.5;
-  color: #0F1111;
+  color: #0f1111;
 }
 
 .admin-reply {
-  background: #F7FAFA;
-  border-left: 3px solid #E7E7E7;
+  background: #f7fafa;
+  border-left: 3px solid #e7e7e7;
   padding: 10px;
   margin-top: 10px;
 }
@@ -227,7 +227,7 @@
   font-size: 18px;
   font-weight: 700;
   margin-bottom: 15px;
-  color: #0F1111;
+  color: #0f1111;
 }
 
 .review-textarea {
@@ -237,9 +237,9 @@
 }
 
 .submit-review-btn {
-  background: #FFD814;
-  border-color: #FCD200;
-  color: #0F1111;
+  background: #ffd814;
+  border-color: #fcd200;
+  color: #0f1111;
   height: 40px;
   font-size: 14px;
   font-weight: 500;
@@ -247,8 +247,8 @@
 }
 
 .submit-review-btn:hover {
-  background: #F7CA00;
-  border-color: #F2C200;
+  background: #f7ca00;
+  border-color: #f2c200;
 }
 
 /* Similar products section */
@@ -263,7 +263,7 @@
   font-size: 20px;
   font-weight: 700;
   margin-bottom: 20px;
-  color: #0F1111;
+  color: #0f1111;
 }
 
 .no-similar-products {
@@ -280,7 +280,7 @@
 }
 
 .similar-product-card:hover {
-  box-shadow: 0 2px 5px rgba(15,17,17,.15);
+  box-shadow: 0 2px 5px rgba(15, 17, 17, 0.15);
 }
 
 .similar-product-image {
@@ -291,10 +291,75 @@
 
 .similar-product-price {
   font-size: 18px;
-  color: #0F1111;
+  color: #0f1111;
   margin: 5px 0;
   display: flex;
   align-items: center;
+}
+/* Add these styles to ProductDetails.css */
+.offer-badge {
+  background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  margin-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.offer-tag {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.offer-details {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.offer-expiry {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.similar-product-image-container {
+  position: relative;
+}
+
+.similar-product-offer-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #ff4d4f;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.discounted-price {
+  color: #ff4d4f;
+  font-size: 1.2em;
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+.original-price {
+  text-decoration: line-through;
+  color: #8c8c8c;
+  font-size: 1em;
+}
+
+.price-amount {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.price-symbol {
+  font-size: 0.8em;
+  margin-right: 2px;
 }
 
 /* Responsive adjustments */

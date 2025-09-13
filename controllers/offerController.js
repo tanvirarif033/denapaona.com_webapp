@@ -41,7 +41,7 @@ export const createOfferController = async (req, res) => {
       case bannerImage && bannerImage.size > 1000000:
         return res
           .status(500)
-          .send({ error: "Banner image should be less than 1MB" });
+          .send({ error: "photo is Required and should be less then 1mb" });
     }
 
     const offer = new offerModel({
@@ -50,8 +50,12 @@ export const createOfferController = async (req, res) => {
     });
 
     if (bannerImage) {
+      // Read the image file properly
       offer.bannerImage.data = fs.readFileSync(bannerImage.path);
       offer.bannerImage.contentType = bannerImage.type;
+      console.log(
+        `Banner image uploaded: ${bannerImage.name}, Type: ${bannerImage.type}, Size: ${bannerImage.size} bytes`
+      );
     }
 
     await offer.save();
@@ -74,9 +78,6 @@ export const createOfferController = async (req, res) => {
 // In offerController.js - Fix getAllOffersController
 export const getAllOffersController = async (req, res) => {
   try {
-  
-    
-
     const offers = await offerModel
       .find({})
       .populate({
@@ -132,33 +133,67 @@ export const getAllOffersController = async (req, res) => {
 export const getActiveOffersController = async (req, res) => {
   try {
     const currentDate = new Date();
+    // console.log("=== DEBUG: ACTIVE OFFERS CHECK ===");
+    // console.log("Current server date:", currentDate);
+    // console.log("Current server date (ISO):", currentDate.toISOString());
+
+    // Find all offers to debug
+    const allOffers = await offerModel
+      .find({ isActive: true })
+      .select("title startDate endDate")
+      .lean();
 
     const offers = await offerModel
       .find({
-        isActive: true,
+        isActive: true, // Only this filter
         startDate: { $lte: currentDate },
         endDate: { $gte: currentDate },
       })
-      .populate("category")
-      .populate("products")
-      .select("-bannerImage")
-      .sort({ createdAt: -1 });
+      .populate({
+        path: "category",
+        select: "name slug",
+        model: "Category",
+      })
+      .populate({
+        path: "products",
+        select: "name slug price",
+        model: "Products",
+      })
+      .select("title bannerImage") // Include bannerImage for debugging
+      .sort({ createdAt: -1 })
+      .lean();
+    // Debug: Check which offers have banner images
+    console.log("=== BANNER IMAGE DEBUG ===");
+    offers.forEach((offer, index) => {
+      console.log(`Offer ${index + 1}: ${offer.title}`);
+      console.log(`Has bannerImage: ${!!offer.bannerImage}`);
+      if (offer.bannerImage) {
+        console.log(`Has bannerImage.data: ${!!offer.bannerImage.data}`);
+        console.log(`Content type: ${offer.bannerImage.contentType}`);
+      }
+    });
+
+    // Remove bannerImage data before sending response to avoid large payloads
+    const offersWithoutImages = offers.map((offer) => {
+      const { bannerImage, ...rest } = offer;
+      return rest;
+    });
+    //console.log("ALL active offers (ignoring dates):", offers.length);
 
     res.status(200).send({
       success: true,
-      message: "Active Offers",
-      offers,
+      message: "All Active Offers",
+      offers: offersWithoutImages,
     });
   } catch (error) {
     console.log(error);
     res.status(500).send({
       success: false,
-      message: "Error in getting active offers",
+      message: "Error in getting offers",
       error: error.message,
     });
   }
 };
-
 // Get single offer
 export const getSingleOfferController = async (req, res) => {
   try {
@@ -167,11 +202,6 @@ export const getSingleOfferController = async (req, res) => {
       .populate("category")
       .populate("products")
       .populate("createdBy", "name");
-
-    if (offer.bannerImage.data) {
-      res.set("Content-type", offer.bannerImage.contentType);
-      return res.status(200).send(offer.bannerImage.data);
-    }
 
     res.status(200).send({
       success: true,
@@ -227,15 +257,36 @@ export const updateOfferController = async (req, res) => {
           .send({ error: "Banner image should be less than 1MB" });
     }
 
-    const offer = await offerModel.findByIdAndUpdate(
-      req.params.oid,
-      { ...req.fields },
-      { new: true }
-    );
+    // Find the offer by ID
+    const offer = await offerModel.findById(req.params.oid);
+    if (!offer) {
+      return res.status(404).send({
+        success: false,
+        message: "Offer not found",
+      });
+    }
+
+    // Update fields
+    offer.title = title;
+    offer.description = description;
+    offer.category = category;
+    offer.products = products;
+    offer.discountType = discountType;
+    offer.discountValue = discountValue;
+    offer.startDate = startDate;
+    offer.endDate = endDate;
+    offer.isActive = isActive;
+    offer.slug = slugify(title);
 
     if (bannerImage) {
-      offer.bannerImage.data = fs.readFileSync(bannerImage.path);
-      offer.bannerImage.contentType = bannerImage.type;
+      // Read the image file properly
+      offer.bannerImage = {
+        data: fs.readFileSync(bannerImage.path),
+        contentType: bannerImage.type,
+      };
+      console.log(
+        `Banner image updated: ${bannerImage.name}, Type: ${bannerImage.type}, Size: ${bannerImage.size} bytes`
+      );
     }
 
     await offer.save();
@@ -253,7 +304,6 @@ export const updateOfferController = async (req, res) => {
     });
   }
 };
-
 // Delete offer
 export const deleteOfferController = async (req, res) => {
   try {
@@ -272,7 +322,6 @@ export const deleteOfferController = async (req, res) => {
   }
 };
 
-// Get offer banner image
 export const offerBannerController = async (req, res) => {
   try {
     const offer = await offerModel
@@ -281,6 +330,11 @@ export const offerBannerController = async (req, res) => {
     if (offer.bannerImage.data) {
       res.set("Content-type", offer.bannerImage.contentType);
       return res.status(200).send(offer.bannerImage.data);
+    } else {
+      return res.status(404).send({
+        success: false,
+        message: "Banner image not found",
+      });
     }
   } catch (error) {
     console.log(error);
@@ -292,21 +346,18 @@ export const offerBannerController = async (req, res) => {
   }
 };
 
-// In offerController.js - Fix the getProductsByCategoryController
 export const getProductsByCategoryController = async (req, res) => {
   try {
     const { cid } = req.params;
-    
+
     console.log("Fetching products for category ID:", cid); // Debug log
-    
+
     // Find products by category ID and populate category details
     const products = await productModel
       .find({ category: cid })
       .select("-photo")
       .populate("category", "name slug") // Populate category name and slug
       .sort({ createdAt: -1 });
-
-    
 
     res.status(200).send({
       success: true,
