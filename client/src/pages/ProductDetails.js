@@ -11,6 +11,27 @@ import "../styles/ProductDetails.css";
 
 const { TextArea } = Input;
 
+// same helper as Home
+const calcDiscounted = (p) => {
+  if (!p?.price) return 0;
+  const offers = Array.isArray(p?.offers) ? p.offers : [];
+  if (!offers.length) return p.price;
+  const now = new Date();
+  const active = offers.filter(
+    (o) =>
+      o?.isActive &&
+      new Date(o.startDate) <= now &&
+      new Date(o.endDate) >= now
+  );
+  if (!active.length) return p.price;
+  const o = active[0];
+  if (o.discountType === "percentage")
+    return Math.max(0, p.price * (1 - Number(o.discountValue || 0) / 100));
+  if (o.discountType === "fixed")
+    return Math.max(0, p.price - Number(o.discountValue || 0));
+  return p.price;
+};
+
 const ProductDetails = () => {
   const params = useParams();
   const [product, setProduct] = useState({});
@@ -31,13 +52,8 @@ const ProductDetails = () => {
       setLoading(true);
       const { data } = await axios.get(
         `http://localhost:8080/api/v1/product/get-product/${params.slug}`,
-        {
-          headers: {
-            "x-api-key": process.env.REACT_APP_API_KEY,
-          },
-        }
+        { headers: { "x-api-key": process.env.REACT_APP_API_KEY } }
       );
-      console.log("API Response:", data);
       setProduct(data?.product);
       getSimilarProduct(data?.product._id, data?.product.category._id);
       getReviews(data?.product._id);
@@ -70,112 +86,52 @@ const ProductDetails = () => {
     }
   };
 
-  const handleAddToCartDetails = (product) => {
+  const handleAddToCartDetails = (p) => {
     if (!auth?.user) {
       toast.error("Please log in to add items to the cart");
       navigate("/login");
     } else {
-      const updatedCart = [...cart, product];
+      const updatedCart = [...(cart || []), p];
       setCart(updatedCart);
-      localStorage.setItem(
-        `cart-${auth.user.email}`,
-        JSON.stringify(updatedCart)
-      );
+      localStorage.setItem(`cart-${auth.user.email}`, JSON.stringify(updatedCart));
       toast.success("Item Added to Cart");
     }
   };
 
   const addReview = async () => {
-    if (!product?._id) {
-      toast.error("Product not found");
-      return;
-    }
-
-    if (!newReview.rating || !newReview.comment) {
-      toast.error("Please provide both rating and comment");
-      return;
-    }
+    if (!product?._id) return toast.error("Product not found");
+    if (!newReview.rating || !newReview.comment)
+      return toast.error("Please provide both rating and comment");
 
     try {
       const { data } = await axios.post(
         "http://localhost:8080/api/v1/review/add-review",
-        {
-          productId: product._id,
-          rating: newReview.rating,
-          comment: newReview.comment,
-        }
+        { productId: product._id, rating: newReview.rating, comment: newReview.comment }
       );
       setReviews([...reviews, data.review]);
       toast.success("Review added successfully!");
       setNewReview({ rating: 0, comment: "" });
-    } catch (error) {
-      console.log(error);
+    } catch {
       toast.error("Failed to add review");
     }
   };
 
   const deleteReview = async (reviewId) => {
     try {
-      await axios.delete(
-        `http://localhost:8080/api/v1/review/delete-review/${reviewId}`
-      );
-      setReviews(reviews.filter((review) => review._id !== reviewId));
+      await axios.delete(`http://localhost:8080/api/v1/review/delete-review/${reviewId}`);
+      setReviews(reviews.filter((r) => r._id !== reviewId));
       toast.success("Review deleted successfully!");
-    } catch (error) {
-      console.log(error);
+    } catch {
       toast.error("Failed to delete review");
     }
   };
-  // Calculate discounted price with better logic
-  // Replace your current calculateDiscountedPrice function with this simpler version
-  const calculateDiscountedPrice = (product) => {
-    if (!product || !product.offers || product.offers.length === 0) {
-      return product?.price || 0;
-    }
 
-    // Get active offers
-    const currentDate = new Date();
-    const activeOffers = product.offers.filter(
-      (offer) =>
-        offer &&
-        offer.isActive &&
-        new Date(offer.startDate) <= currentDate &&
-        new Date(offer.endDate) >= currentDate
-    );
-
-    if (activeOffers.length === 0) {
-      return product.price;
-    }
-
-    const offer = activeOffers[0];
-
-    if (offer.discountType === "percentage") {
-      return product.price * (1 - offer.discountValue / 100);
-    } else if (offer.discountType === "fixed") {
-      return Math.max(0, product.price - offer.discountValue);
-    }
-
-    return product.price;
-  };
-  useEffect(() => {
-    console.log("Product offers:", product?.offers);
-    console.log("Product price:", product?.price);
-    if (product?.offers && product.offers.length > 0) {
-      console.log("First offer details:", product.offers[0]);
-    }
-  }, [product]);
-
-  const discountedPrice = calculateDiscountedPrice(product);
+  const discountedPrice = calcDiscounted(product);
 
   return (
     <Layout>
       <div className="product-details-container">
-        <Button
-          type="text"
-          icon={<ArrowLeftOutlined />}
-          onClick={() => navigate(-1)}
-          className="back-button"
-        >
+        <Button type="text" icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)} className="back-button">
           Back to results
         </Button>
 
@@ -198,78 +154,49 @@ const ProductDetails = () => {
                   <h1 className="product-title">{product.name}</h1>
 
                   <div className="product-rating">
-                    <Rate
-                      disabled
-                      value={product.rating || 0}
-                      style={{ color: "#ffa41c" }}
-                    />
-                    <span className="rating-count">
-                      {reviews.length} customer reviews
-                    </span>
+                    <Rate disabled value={product.rating || 0} style={{ color: "#ffa41c" }} />
+                    <span className="rating-count">{reviews.length} customer reviews</span>
                   </div>
 
                   <Divider />
 
                   <div className="price-section">
                     <span className="price-label">Price: </span>
-                    {discountedPrice < product.price &&
-                    product.offers &&
-                    product.offers.length > 0 ? (
+                    {discountedPrice < product.price ? (
                       <>
                         <span className="original-price">
-                          <span className="price-symbol">$</span>
-                          {product.price}
+                          <span className="price-symbol">$</span>{product.price}
                         </span>
                         <span className="discounted-price">
-                          <span className="price-symbol">$</span>
-                          {discountedPrice.toFixed(2)}
+                          <span className="price-symbol">$</span>{discountedPrice.toFixed(2)}
                         </span>
                         {product.price > 0 && (
                           <span className="discount-badge">
-                            Save{" "}
-                            {(
-                              ((product.price - discountedPrice) /
-                                product.price) *
-                              100
-                            ).toFixed(0)}
-                            %
+                            Save {(((product.price - discountedPrice) / product.price) * 100).toFixed(0)}%
                           </span>
                         )}
                       </>
                     ) : (
                       <span className="price-amount">
-                        <span className="price-symbol">$</span>
-                        {product.price}
+                        <span className="price-symbol">$</span>{product.price}
                       </span>
                     )}
                   </div>
 
-                  {discountedPrice < product.price &&
-                    product.offers &&
-                    product.offers.length > 0 && (
-                      <div className="offer-badge">
-                        <span className="offer-tag">Special Offer!</span>
-                        {product.offers[0]?.discountType === "percentage" && (
-                          <span className="offer-details">
-                            {product.offers[0]?.discountValue}% OFF
-                          </span>
-                        )}
-                        {product.offers[0]?.discountType === "fixed" && (
-                          <span className="offer-details">
-                            ${product.offers[0]?.discountValue} OFF
-                          </span>
-                        )}
-                        {product.offers[0]?.discountType === "bogo" && (
-                          <span className="offer-details">Buy One Get One</span>
-                        )}
-                        <span className="offer-expiry">
-                          Valid until:{" "}
-                          {new Date(
-                            product.offers[0]?.endDate
-                          ).toLocaleDateString()}
-                        </span>
-                      </div>
-                    )}
+                  {discountedPrice < product.price && product.offers?.length > 0 && (
+                    <div className="offer-badge">
+                      <span className="offer-tag">Special Offer!</span>
+                      {product.offers[0]?.discountType === "percentage" && (
+                        <span className="offer-details">{product.offers[0]?.discountValue}% OFF</span>
+                      )}
+                      {product.offers[0]?.discountType === "fixed" && (
+                        <span className="offer-details">${product.offers[0]?.discountValue} OFF</span>
+                      )}
+                      <span className="offer-expiry">
+                        Valid until: {new Date(product.offers[0]?.endDate).toLocaleDateString()}
+                      </span>
+                    </div>
+                  )}
 
                   <div className="product-description">
                     <h3>About this item</h3>
@@ -290,22 +217,15 @@ const ProductDetails = () => {
 
             <Divider />
 
+            {/* Customer reviews (restored) */}
             <div className="customer-reviews-section">
               <h2>Customer reviews</h2>
-
-              {reviews.length === 0 && (
-                <p className="no-reviews">No customer reviews yet.</p>
-              )}
-
+              {reviews.length === 0 && <p className="no-reviews">No customer reviews yet.</p>}
               {reviews.map((review) => (
                 <div key={review._id} className="review-card">
                   <div className="review-header">
                     <span className="reviewer-name">{review.user.name}</span>
-                    <Rate
-                      disabled
-                      value={review.rating}
-                      style={{ color: "#ffa41c", fontSize: 14 }}
-                    />
+                    <Rate disabled value={review.rating} style={{ color: "#ffa41c", fontSize: 14 }} />
                   </div>
                   <p className="review-comment">{review.comment}</p>
                   {review.reply && (
@@ -315,12 +235,7 @@ const ProductDetails = () => {
                     </div>
                   )}
                   {auth?.user?._id === review.user._id && (
-                    <Button
-                      type="link"
-                      danger
-                      onClick={() => deleteReview(review._id)}
-                      className="delete-review-btn"
-                    >
+                    <Button type="link" danger onClick={() => deleteReview(review._id)} className="delete-review-btn">
                       Delete review
                     </Button>
                   )}
@@ -337,17 +252,11 @@ const ProductDetails = () => {
                 <TextArea
                   placeholder="Share your thoughts about this product"
                   value={newReview.comment}
-                  onChange={(e) =>
-                    setNewReview({ ...newReview, comment: e.target.value })
-                  }
+                  onChange={(e) => setNewReview({ ...newReview, comment: e.target.value })}
                   className="review-textarea"
                   rows={4}
                 />
-                <Button
-                  type="primary"
-                  onClick={addReview}
-                  className="submit-review-btn"
-                >
+                <Button type="primary" onClick={addReview} className="submit-review-btn">
                   Submit review
                 </Button>
               </div>
@@ -355,21 +264,19 @@ const ProductDetails = () => {
 
             <Divider />
 
+            {/* Related products (restored) */}
             <div className="similar-products-section">
               <h2>Customers who viewed this item also viewed</h2>
               <Row gutter={[16, 16]}>
                 {relatedProducts.length === 0 && (
                   <Col span={24}>
-                    <p className="no-similar-products">
-                      No similar products found
-                    </p>
+                    <p className="no-similar-products">No similar products found</p>
                   </Col>
                 )}
-                
-                {relatedProducts.map((p) => {
-                  const similarDiscountedPrice = calculateDiscountedPrice(p);
-                  const hasOffer = similarDiscountedPrice < p.price;
 
+                {relatedProducts.map((p) => {
+                  const d = calcDiscounted(p);
+                  const hasOffer = typeof p.price === "number" && d < p.price;
                   return (
                     <Col xs={12} sm={8} md={6} lg={6} key={p._id}>
                       <Card
@@ -382,19 +289,7 @@ const ProductDetails = () => {
                               alt={p.name}
                               className="similar-product-image"
                             />
-                            {hasOffer && (
-                              <div className="similar-product-offer-badge">
-                                {p.offers &&
-                                  p.offers[0]?.discountType === "percentage" &&
-                                  `${p.offers[0]?.discountValue}% OFF`}
-                                {p.offers &&
-                                  p.offers[0]?.discountType === "fixed" &&
-                                  `$${p.offers[0]?.discountValue} OFF`}
-                                {p.offers &&
-                                  p.offers[0]?.discountType === "bogo" &&
-                                  "BOGO"}
-                              </div>
-                            )}
+                            {hasOffer && <div className="similar-product-offer-badge">Offer</div>}
                           </div>
                         }
                         onClick={() => navigate(`/product/${p.slug}`)}
@@ -402,32 +297,22 @@ const ProductDetails = () => {
                         <Card.Meta
                           title={p.name}
                           description={
-                            <>
-                              <div className="similar-product-price">
-                                {hasOffer ? (
-                                  <>
-                                    <span className="discounted-price">
-                                      <span className="price-symbol">$</span>
-                                      {similarDiscountedPrice.toFixed(2)}
-                                    </span>
-                                    <span className="original-price">
-                                      <span className="price-symbol">$</span>
-                                      {p.price}
-                                    </span>
-                                  </>
-                                ) : (
-                                  <span className="price-amount">
-                                    <span className="price-symbol">$</span>
-                                    {p.price}
+                            <div className="similar-product-price">
+                              {hasOffer ? (
+                                <>
+                                  <span className="discounted-price">
+                                    <span className="price-symbol">$</span>{d.toFixed(2)}
                                   </span>
-                                )}
-                              </div>
-                              <Rate
-                                disabled
-                                value={p.rating || 0}
-                                style={{ color: "#ffa41c", fontSize: 14 }}
-                              />
-                            </>
+                                  <span className="original-price">
+                                    <span className="price-symbol">$</span>{p.price}
+                                  </span>
+                                </>
+                              ) : (
+                                <span className="price-amount">
+                                  <span className="price-symbol">$</span>{p.price}
+                                </span>
+                              )}
+                            </div>
                           }
                         />
                       </Card>

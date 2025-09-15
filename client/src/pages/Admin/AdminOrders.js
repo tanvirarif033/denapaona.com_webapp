@@ -5,7 +5,7 @@ import AdminMenu from "../../components/Layout/AdminMenu";
 import Layout from "../../components/Layout/Layout";
 import { useAuth } from "../../context/auth";
 import moment from "moment";
-import { Select, Card, Tag, Spin, Button, Space, Image } from "antd";
+import { Select, Card, Tag, Spin, Button, Image } from "antd";
 import { ReloadOutlined } from "@ant-design/icons";
 import "../../styles/AdminOrders.css";
 
@@ -78,6 +78,18 @@ const AdminOrders = () => {
     }
   };
 
+  // NEW: pick price from order.items (purchase-time), fallback to product.price
+  const priceFor = (order, product) => {
+    const items = order?.items || order?.lineItems || [];
+    const found = items.find(
+      (it) =>
+        String(it?.product?._id || it?.product) === String(product?._id)
+    );
+    const val =
+      typeof found?.price === "number" ? found.price : product?.price;
+    return Number(val || 0);
+  };
+
   return (
     <Layout title="All Orders Data">
       <div className="admin-orders-container">
@@ -88,8 +100,8 @@ const AdminOrders = () => {
           <div className="col-md-9 admin-main-content">
             <div className="page-header">
               <h1>All Orders</h1>
-              <Button 
-                icon={<ReloadOutlined />} 
+              <Button
+                icon={<ReloadOutlined />}
                 onClick={getOrders}
                 loading={loading}
                 className="refresh-btn"
@@ -97,7 +109,7 @@ const AdminOrders = () => {
                 Refresh
               </Button>
             </div>
-            
+
             <Spin spinning={loading}>
               {orders.length === 0 ? (
                 <Card className="empty-state">
@@ -171,7 +183,9 @@ const AdminOrders = () => {
                               <p className="product-desc">
                                 {product.description.substring(0, 60)}...
                               </p>
-                              <p className="product-price">${product.price}</p>
+                              <p className="product-price">
+                                ${priceFor(order, product).toFixed(2)}
+                              </p>
                             </div>
                           </div>
                         ))}

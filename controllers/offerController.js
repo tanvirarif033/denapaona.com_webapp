@@ -142,66 +142,31 @@ export const getAllOffersController = async (req, res) => {
 // Get active offers for carousel
 export const getActiveOffersController = async (req, res) => {
   try {
-    const currentDate = new Date();
-    // console.log("=== DEBUG: ACTIVE OFFERS CHECK ===");
-    // console.log("Current server date:", currentDate);
-    // console.log("Current server date (ISO):", currentDate.toISOString());
+    const now = new Date();
 
-    // Find all offers to debug
-    const allOffers = await offerModel
-      .find({ isActive: true })
-      .select("title startDate endDate")
-      .lean();
-
+    // pull everything the UI needs (NO bannerImage in the payload)
     const offers = await offerModel
       .find({
-        isActive: true, // Only this filter
-        startDate: { $lte: currentDate },
-        endDate: { $gte: currentDate },
+        isActive: true,
+        startDate: { $lte: now },
+        endDate: { $gte: now },
       })
-      .populate({
-        path: "category",
-        select: "name slug",
-        model: "Category",
-      })
-      .populate({
-        path: "products",
-        select: "name slug price",
-        model: "Products",
-      })
-      .select("title bannerImage") // Include bannerImage for debugging
-      .sort({ createdAt: -1 })
+      .select("title description discountType discountValue startDate endDate")
+      .populate({ path: "category", select: "name slug", model: "Category" })
+      .populate({ path: "products", select: "name slug price", model: "Products" })
       .lean();
-    // Debug: Check which offers have banner images
-    console.log("=== BANNER IMAGE DEBUG ===");
-    offers.forEach((offer, index) => {
-      console.log(`Offer ${index + 1}: ${offer.title}`);
-      console.log(`Has bannerImage: ${!!offer.bannerImage}`);
-      if (offer.bannerImage) {
-        console.log(`Has bannerImage.data: ${!!offer.bannerImage.data}`);
-        console.log(`Content type: ${offer.bannerImage.contentType}`);
-      }
-    });
 
-    // Remove bannerImage data before sending response to avoid large payloads
-    const offersWithoutImages = offers.map((offer) => {
-      const { bannerImage, ...rest } = offer;
-      return rest;
-    });
-    //console.log("ALL active offers (ignoring dates):", offers.length);
-
-    res.status(200).send({
+    // nothing heavy, send straight out
+    return res.status(200).send({
       success: true,
       message: "All Active Offers",
-      offers: offersWithoutImages,
+      offers,
     });
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({
-      success: false,
-      message: "Error in getting offers",
-      error: error.message,
-    });
+  } catch (err) {
+    console.error("getActiveOffersController error:", err);
+    return res
+      .status(500)
+      .send({ success: false, message: "Error in getting offers", error: err.message });
   }
 };
 // Get single offer

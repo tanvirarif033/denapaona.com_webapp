@@ -1,0 +1,107 @@
+/* UserOrders.css — matches AdminOrders.css look & feel */
+
+.container-fluid.p-3.m-3 {
+  background-color: #f3f3f3;
+  min-height: calc(100vh - 64px);
+}
+
+/* page title */
+.col-md-9 > h1.text-center {
+  color: #0f1111;
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+/* each order block (the .border.shadow wrapper) */
+.border.shadow {
+  border-radius: 8px !important;
+  border: 1px solid #d5d9d9 !important;
+  box-shadow: 0 2px 5px rgba(15, 17, 17, 0.15) !important;
+  overflow: hidden;
+  background: #fff;
+  margin-bottom: 20px;
+}
+
+/* table header row */
+.border.shadow .table thead th {
+  background: #fafafa;
+  border-bottom: 1px solid #e8e8e8;
+  color: #0f1111;
+  font-weight: 600;
+}
+
+/* table body cells */
+.border.shadow .table tbody td {
+  vertical-align: middle;
+  color: #0f1111;
+}
+
+/* product item rows inside an order */
+.border.shadow .card.flex-row {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background-color: #fafafa;
+  align-items: center;
+}
+
+/* product thumbnail */
+.border.shadow .card.flex-row img.card-img-top {
+  border-radius: 8px;
+  object-fit: contain;
+  border: 1px solid #e8e8e8;
+  background: #fff;
+  padding: 8px;
+}
+
+/* product name + description + price */
+.border.shadow .card.flex-row .col-md-8 p:first-child {
+  font-weight: 600;
+  color: #0f1111;
+  margin-bottom: 8px;
+}
+
+.border.shadow .card.flex-row .col-md-8 p:nth-child(2) {
+  font-size: 14px;
+  color: #565959;
+  margin-bottom: 8px;
+}
+
+.border.shadow .card.flex-row .col-md-8 p:nth-child(3) {
+  font-weight: 700;
+  color: #0f1111;
+  font-size: 16px;
+}
+
+/* “Return Request” button */
+.border.shadow .btn.btn-warning {
+  border-radius: 8px;
+  font-weight: 600;
+  border: 1px solid #d5d9d9;
+}
+
+/* badges */
+.border.shadow .badge.bg-success {
+  background-color: #007600 !important;
+}
+.border.shadow .badge.bg-warning.text-dark {
+  background-color: #ff9900 !important; /* Amazon-ish */
+  color: #111 !important;
+}
+
+/* responsive tweaks */
+@media (max-width: 768px) {
+  .border.shadow .card.flex-row {
+    flex-direction: column;
+    text-align: center;
+  }
+  .border.shadow .card.flex-row img.card-img-top {
+    width: 120px;
+    height: 120px;
+    margin-bottom: 8px;
+  }
+}

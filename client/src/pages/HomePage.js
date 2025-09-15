@@ -21,18 +21,36 @@ import {
   LeftOutlined,
   RightOutlined,
   ShoppingCartOutlined,
-  SearchOutlined,
 } from "@ant-design/icons";
 import "../styles/Homepage.css";
-
-// 👇 Add the chat widget import
 import ChatWidget from "../components/chat/ChatWidget";
+
+// helper — compute discounted price from populated offers (if present)
+const calcDiscounted = (p) => {
+  if (!p?.price) return 0;
+  const offers = Array.isArray(p?.offers) ? p.offers : [];
+  if (!offers.length) return p.price;
+  const now = new Date();
+  const active = offers.filter(
+    (o) =>
+      o?.isActive &&
+      new Date(o.startDate) <= now &&
+      new Date(o.endDate) >= now
+  );
+  if (!active.length) return p.price;
+  const o = active[0];
+  if (o.discountType === "percentage")
+    return Math.max(0, p.price * (1 - Number(o.discountValue || 0) / 100));
+  if (o.discountType === "fixed")
+    return Math.max(0, p.price - Number(o.discountValue || 0));
+  return p.price;
+};
 
 const HomePage = () => {
   const navigate = useNavigate();
   const [cart, setCart] = useCart();
   const [products, setProducts] = useState([]);
-  const [auth] = useAuth(); // 👈 we will pass this into ChatWidget
+  const [auth] = useAuth();
   const [categories, setCategories] = useState([]);
   const [checked, setChecked] = useState([]);
   const [radio, setRadio] = useState([]);
@@ -41,41 +59,25 @@ const HomePage = () => {
   const [loading, setLoading] = useState(false);
   const [filterLoading, setFilterLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [offers, setOffers] = useState([]);
 
-  // Load user-specific cart when user logs in
   useEffect(() => {
     if (auth?.user) {
       const savedCart = localStorage.getItem(`cart-${auth.user.email}`);
-      if (savedCart) {
-        setCart(JSON.parse(savedCart));
-      } else {
-        setCart([]);
-      }
+      setCart(savedCart ? JSON.parse(savedCart) : []);
     } else {
       setCart([]);
     }
   }, [auth?.user, setCart]);
 
-  // Get active offers
   const getActiveOffers = async () => {
     try {
       const { data } = await axios.get(
         "http://localhost:8080/api/v1/offer/get-active-offers",
-        {
-          headers: {
-            "x-api-key": process.env.REACT_APP_API_KEY,
-          },
-        }
+        { headers: { "x-api-key": process.env.REACT_APP_API_KEY } }
       );
-      if (data?.success) {
-       // console.log("Offers received:", data.offers); // Debug log
-        setOffers(data?.offers);
-      }
-    } catch (error) {
-      console.error("Error fetching offers:", error);
-      // Set empty array to prevent errors
+      if (data?.success) setOffers(data.offers || []);
+    } catch {
       setOffers([]);
     }
   };
@@ -85,17 +87,10 @@ const HomePage = () => {
       setLoading(true);
       const { data } = await axios.get(
         "http://localhost:8080/api/v1/category/get-category",
-        {
-          headers: {
-            "x-api-key": process.env.REACT_APP_API_KEY,
-          },
-        }
+        { headers: { "x-api-key": process.env.REACT_APP_API_KEY } }
       );
-      if (data?.success) {
-        setCategories(data?.category);
-      }
-    } catch (error) {
-      console.error("Error fetching categories:", error);
+      if (data?.success) setCategories(data?.category);
+    } catch {
       toast.error("Something went wrong in getting category");
     } finally {
       setLoading(false);
@@ -106,23 +101,21 @@ const HomePage = () => {
     getAllCategory();
     getAllProducts();
     getTotal();
-    getActiveOffers(); // Fetch offers on component mount
+    getActiveOffers();
   }, []);
 
+  // NOTE: your backend product list stays the same; if it doesn't populate offers
+  // we'll still render base price. When offers are populated, UI will strike-through.
   const getAllProducts = async () => {
     try {
       setLoading(true);
       const { data } = await axios.get(
         `http://localhost:8080/api/v1/product/product-list/${page}`,
-        {
-          headers: {
-            "x-api-key": process.env.REACT_APP_API_KEY,
-          },
-        }
+        { headers: { "x-api-key": process.env.REACT_APP_API_KEY } }
       );
-      setProducts(data.products);
-    } catch (error) {
-      console.error("Error fetching products:", error);
+      setProducts(data.products || []);
+    } catch {
+      /* no-op */
     } finally {
       setLoading(false);
     }
@@ -132,49 +125,30 @@ const HomePage = () => {
     try {
       const { data } = await axios.get(
         "http://localhost:8080/api/v1/product/product-count",
-        {
-          headers: {
-            "x-api-key": process.env.REACT_APP_API_KEY,
-          },
-        }
+        { headers: { "x-api-key": process.env.REACT_APP_API_KEY } }
       );
       setTotal(data?.total);
-    } catch (error) {
-      console.log(error);
-    }
+    } catch { /* no-op */ }
   };
 
   useEffect(() => {
     if (page === 1) return;
-    loadMore();
+    (async () => {
+      try {
+        setLoading(true);
+        const { data } = await axios.get(
+          `http://localhost:8080/api/v1/product/product-list/${page}`,
+          { headers: { "x-api-key": process.env.REACT_APP_API_KEY } }
+        );
+        setProducts((prev) => [...prev, ...(data?.products || [])]);
+      } catch { /* no-op */ } finally { setLoading(false); }
+    })();
   }, [page]);
-
-  const loadMore = async () => {
-    try {
-      setLoading(true);
-      const { data } = await axios.get(
-        `http://localhost:8080/api/v1/product/product-list/${page}`,
-        {
-          headers: {
-            "x-api-key": process.env.REACT_APP_API_KEY,
-          },
-        }
-      );
-      setProducts([...products, ...data?.products]);
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleFilter = (value, id) => {
     let all = [...checked];
-    if (value) {
-      all.push(id);
-    } else {
-      all = all.filter((c) => c !== id);
-    }
+    if (value) all.push(id);
+    else all = all.filter((c) => c !== id);
     setChecked(all);
   };
 
@@ -191,14 +165,10 @@ const HomePage = () => {
       setFilterLoading(true);
       const { data } = await axios.post(
         "http://localhost:8080/api/v1/product/product-filters",
-        {
-          checked,
-          radio,
-        }
+        { checked, radio }
       );
-      setProducts(data?.products);
-    } catch (error) {
-      console.error("Error fetching filtered products:", error);
+      setProducts(data?.products || []);
+    } catch {
       toast.error("Something went wrong in fetching filtered products");
     } finally {
       setFilterLoading(false);
@@ -217,7 +187,7 @@ const HomePage = () => {
       toast.error("Please log in to add items to the cart");
       navigate("/login");
     } else {
-      const updatedCart = [...cart, product];
+      const updatedCart = [...(cart || []), product];
       setCart(updatedCart);
       localStorage.setItem(
         `cart-${auth.user.email}`,
@@ -227,168 +197,126 @@ const HomePage = () => {
     }
   };
 
-  const PrevArrow = (props) => {
-    const { className, style, onClick } = props;
-    return (
-      <div
-        className={className}
-        style={{
-          ...style,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 1,
-        }}
-        onClick={onClick}
-      >
-        <LeftOutlined
-          style={{
-            fontSize: "20px",
-            color: "white",
-            background: "rgba(0,0,0,0.5)",
-            padding: "10px",
-            borderRadius: "50%",
-          }}
-        />
-      </div>
-    );
-  };
-
-  const NextArrow = (props) => {
-    const { className, style, onClick } = props;
-    return (
-      <div
-        className={className}
-        style={{
-          ...style,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          zIndex: 1,
-        }}
-        onClick={onClick}
-      >
-        <RightOutlined
-          style={{
-            fontSize: "20px",
-            color: "white",
-            background: "rgba(0,0,0,0.5)",
-            padding: "10px",
-            borderRadius: "50%",
-          }}
-        />
-      </div>
-    );
-  };
-
-  const filteredProducts = products.filter(
-    (product) =>
-      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      product.description.toLowerCase().includes(searchQuery.toLowerCase())
+  const PrevArrow = ({ className, style, onClick }) => (
+    <div
+      className={className}
+      style={{ ...style, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1 }}
+      onClick={onClick}
+    >
+      <LeftOutlined style={{ fontSize: 20, color: "white", background: "rgba(0,0,0,0.5)", padding: 10, borderRadius: "50%" }} />
+    </div>
   );
-const handleShopNow = (offer) => {
-  console.log("Offer data:", offer); // Debug log
+  const NextArrow = ({ className, style, onClick }) => (
+    <div
+      className={className}
+      style={{ ...style, display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1 }}
+      onClick={onClick}
+    >
+      <RightOutlined style={{ fontSize: 20, color: "white", background: "rgba(0,0,0,0.5)", padding: 10, borderRadius: "50%" }} />
+    </div>
+  );
 
-  if (offer.category && offer.category.slug) {
-    // Navigate to category page
-    navigate(`/category/${offer.category.slug}`);
-  } else if (
-    offer.products &&
-    offer.products.length > 0 &&
-    offer.products[0].slug
-  ) {
-    // Navigate to the first product
-    navigate(`/product/${offer.products[0].slug}`);
-  } else {
-    // Fallback to products page
-    navigate("/products");
-    toast.info("No specific category or products associated with this offer");
-  }
+  const handleShopNow = (offer) => {
+    if (offer?.category?.slug) navigate(`/category/${offer.category.slug}`);
+    else if (offer?.products?.length && offer.products[0]?.slug)
+      navigate(`/product/${offer.products[0].slug}`);
+    else navigate("/products");
+  };
+  // Normalize offer fields and build readable labels
+// normalize for safe rendering
+const normalizeOffer = (offer) => {
+  const desc = offer?.description || "";
+  const type = (offer?.discountType || "").toLowerCase(); // "percentage" | "fixed"
+  const val = offer?.discountValue;
+  const discountLabel =
+    val === null || val === undefined || val === ""
+      ? ""
+      : type === "percentage"
+      ? `${val}%`
+      : `$${val}`;
+  return { desc, discountLabel };
 };
+
 
 
   return (
     <Layout title={"Shop - Best Deals"}>
       {/* Offers Carousel */}
-      {offers.length > 0 && (
-        <div className="offers-carousel mb-4">
-          <h2>Special Offers</h2>
-          <Carousel
-            autoplay
-            arrows
-            prevArrow={<PrevArrow />}
-            nextArrow={<NextArrow />}
-            dots={{ className: "carousel-dots" }}
-          >
-            {offers.map((offer) => (
-              <div key={offer._id}>
-                <Card
-                  cover={
-                    <img
-                      alt={offer.title}
-                      src={`http://localhost:8080/api/v1/offer/offer-banner/${offer._id}`}
-                      style={{ height: "300px", objectFit: "cover" }}
-                      onError={(e) => {
-                        e.target.src = "/fallback-image.jpg";
-                      }}
-                    />
-                  }
-                >
-                  <Card.Meta
-                    title={offer.title}
-                    description={
-                      <div>
-                        <p>{offer.description}</p>
-                        <p>
-                          <strong>Discount:</strong> {offer.discountValue}
-                          {offer.discountType === "percentage" ? "%" : "$"}
-                        </p>
-                        <Button
-                          type="primary"
-                          onClick={() => handleShopNow(offer)}
-                        >
-                          Shop Now
-                        </Button>
-                      </div>
-                    }
-                  />
-                </Card>
-              </div>
-            ))}
-          </Carousel>
-        </div>
-      )}
-
-      {/* Main Content */}
-      <div className="main-container">
-        {/* Filters Button */}
-        <div className="filters-header">
-          <Badge count={checked.length + (radio.length ? 1 : 0)}>
-            <Button
-              type="default"
-              icon={<AiOutlineFilter />}
-              onClick={() => setShowFilters(true)}
-              className="filters-button"
+{/* Offers Carousel */}
+{offers.length > 0 && (
+  <div className="offers-carousel mb-4">
+    <h2>Special Offers</h2>
+    <Carousel autoplay arrows prevArrow={<PrevArrow />} nextArrow={<NextArrow />}>
+      {offers.map((offer) => {
+        const { desc, discountLabel } = normalizeOffer(offer);
+        return (
+          <div key={offer._id}>
+            <Card
+              cover={
+                <img
+                  alt={offer.title}
+                  src={`http://localhost:8080/api/v1/offer/offer-banner/${offer._id}`}
+                  style={{ height: 300, objectFit: "cover" }}
+                  onError={(e) => (e.currentTarget.src = "/fallback-image.jpg")}
+                />
+              }
             >
-              Filters
-            </Button>
-          </Badge>
-          <div className="results-count">
-            {filteredProducts.length} of {total} products
-          </div>
-        </div>
+              {/* Plain JSX so content never gets swallowed by Card.Meta */}
+              <div style={{ whiteSpace: "normal" }}>
+                <h3 style={{ marginBottom: 8 }}>{offer.title}</h3>
 
-        {/* Products Grid */}
-        <div className="products-grid">
-          {loading ? (
-            <Spin size="large" className="loading-spinner" />
-          ) : filteredProducts.length === 0 ? (
-            <div className="no-results">
-              <h3>No products found</h3>
-              <p>Try adjusting your search or filters</p>
-            </div>
-          ) : (
-            filteredProducts.map((p) => (
+                {desc ? <p style={{ marginBottom: 8 }}>{desc}</p> : null}
+
+                {discountLabel ? (
+                  <p style={{ marginBottom: 16 }}>
+                    <strong>Discount:</strong> {discountLabel}
+                  </p>
+                ) : null}
+
+                <Button
+                  onClick={() => handleShopNow(offer)}
+                  style={{
+                    backgroundColor: "#FFA41C", // Amazon orange
+                    borderColor: "#FFA41C",
+                    color: "#111",
+                    fontWeight: 600,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "#FF8F00";
+                    e.currentTarget.style.borderColor = "#FF8F00";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "#FFA41C";
+                    e.currentTarget.style.borderColor = "#FFA41C";
+                  }}
+                >
+                  Shop Now
+                </Button>
+              </div>
+            </Card>
+          </div>
+        );
+      })}
+    </Carousel>
+  </div>
+)}
+
+
+
+      {/* Products grid */}
+      <div className="products-grid">
+        {loading ? (
+          <Spin size="large" className="loading-spinner" />
+        ) : products.length === 0 ? (
+          <div className="no-results">
+            <h3>No products found</h3>
+            <p>Try adjusting your filters</p>
+          </div>
+        ) : (
+          products.map((p) => {
+            const d = calcDiscounted(p);
+            const hasOffer = typeof p.price === "number" && d < p.price;
+            return (
               <div className="product-card" key={p._id}>
                 <div className="product-image-container">
                   <img
@@ -404,59 +332,71 @@ const handleShopNow = (offer) => {
                     <span className="stars">★★★★★</span>
                     <span className="rating-count">(0)</span>
                   </div>
-                  <p className="product-price">
-                    <span className="price-amount">
-                      <span className="price-symbol">$</span>
-                      {p.price}
-                    </span>
-                  </p>
-                  <p className="product-description">
-                    {p.description.substring(0, 60)}...
-                  </p>
-                  <button
-                    className="add-to-cart-btn"
-                    onClick={() => handleAddToCart(p)}
-                  >
-                    Add to Cart
+
+                  {/* PRICE — original (struck) + offer price like your old design */}
+                <p className="product-price" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+  {hasOffer ? (
+    <>
+      {/* original first (struck) */}
+      <span
+        className="price-amount"
+        style={{ textDecoration: "line-through", opacity: 0.6 }}
+      >
+        <span className="price-symbol">$</span>
+        {p.price}
+      </span>
+      {/* then discounted */}
+      <span
+        className="price-amount"
+        style={{ color: "#ff5a5f", fontWeight: "bold" }}
+      >
+        <span className="price-symbol">$</span>
+        {d.toFixed(2)}
+      </span>
+    </>
+  ) : (
+    <span className="price-amount">
+      <span className="price-symbol">$</span>
+      {p.price}
+    </span>
+  )}
+</p>
+
+ 
+
+                  <p className="product-description">{(p.description || "").substring(0, 60)}...</p>
+                  <button className="add-to-cart-btn" onClick={() => handleAddToCart(p)}>
+                    <ShoppingCartOutlined /> Add to Cart
                   </button>
                 </div>
               </div>
-            ))
-          )}
-        </div>
-
-        {/* Load More Button */}
-        {filteredProducts.length < total && (
-          <div className="load-more-container">
-            <Button
-              type="default"
-              className="load-more-btn"
-              onClick={(e) => {
-                e.preventDefault();
-                setPage(page + 1);
-              }}
-              loading={loading}
-              icon={<AiOutlineReload />}
-            >
-              {loading ? "Loading..." : "Load More"}
-            </Button>
-          </div>
+            );
+          })
         )}
       </div>
 
-      {/* Filters Drawer */}
-      <Drawer
-        title="Filters"
-        placement="left"
-        onClose={() => setShowFilters(false)}
-        open={showFilters}
-        width={300}
-        className="filters-drawer"
-      >
+      {products.length < total && (
+        <div className="load-more-container">
+          <Button
+            type="default"
+            className="load-more-btn"
+            onClick={(e) => {
+              e.preventDefault();
+              setPage((x) => x + 1);
+            }}
+            loading={loading}
+            icon={<AiOutlineReload />}
+          >
+            {loading ? "Loading..." : "Load More"}
+          </Button>
+        </div>
+      )}
+
+      <Drawer title="Filters" placement="left" onClose={() => setShowFilters(false)} open={showFilters} width={300} className="filters-drawer">
         <div className="filter-group">
           <h4>Categories</h4>
           <div className="filter-options">
-            {loading ? (
+            {filterLoading ? (
               <Spin size="small" />
             ) : (
               categories?.map((c) => (
@@ -475,43 +415,26 @@ const handleShopNow = (offer) => {
         <div className="filter-group">
           <h4>Price Range</h4>
           <div className="filter-options">
-            {loading ? (
-              <Spin size="small" />
-            ) : (
-              <Radio.Group
-                value={radio}
-                onChange={(e) => setRadio(e.target.value)}
-              >
-                {Prices?.map((p) => (
-                  <Radio value={p.array} key={p._id}>
-                    {p.name}
-                  </Radio>
-                ))}
-              </Radio.Group>
-            )}
+            <Radio.Group value={radio} onChange={(e) => setRadio(e.target.value)}>
+              {Prices?.map((p) => (
+                <Radio value={p.array} key={p._id}>
+                  {p.name}
+                </Radio>
+              ))}
+            </Radio.Group>
           </div>
         </div>
 
         <div className="filter-actions">
-          <Button
-            type="primary"
-            danger
-            onClick={resetFilters}
-            className="reset-filters-btn"
-          >
+          <Button type="primary" danger onClick={resetFilters} className="reset-filters-btn">
             Reset All
           </Button>
-          <Button
-            type="primary"
-            onClick={() => setShowFilters(false)}
-            className="apply-filters-btn"
-          >
+          <Button type="primary" onClick={() => setShowFilters(false)} className="apply-filters-btn">
             Apply Filters
           </Button>
         </div>
       </Drawer>
 
-      {/* 👇 Add the floating, real-time Chat widget */}
       <ChatWidget auth={auth} />
     </Layout>
   );

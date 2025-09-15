@@ -1,5 +1,13 @@
 import mongoose from "mongoose";
 
+const orderItemSchema = new mongoose.Schema(
+  {
+    product: { type: mongoose.ObjectId, ref: "Products", required: true },
+    price: { type: Number, required: true }, // price charged at purchase (offer-adjusted)
+  },
+  { _id: false }
+);
+
 const orderSchema = new mongoose.Schema(
   {
     products: [
@@ -8,6 +16,8 @@ const orderSchema = new mongoose.Schema(
         ref: "Products",
       },
     ],
+    // NEW: line items with charged price
+    items: [orderItemSchema],
     payment: {},
     buyer: {
       type: mongoose.ObjectId,

@@ -5,6 +5,8 @@ import UsersMenu from "../../components/Layout/UsersMenu";
 import axios from "axios";
 import { useAuth } from "../../context/auth";
 import moment from "moment";
+import "../../styles/UserOrders.css";
+
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -64,6 +66,18 @@ const Orders = () => {
     return map;
   }, [returns]);
 
+  // NEW: price from order.items (purchase-time), fallback to product.price
+  const priceFor = (order, product) => {
+    const items = order?.items || order?.lineItems || [];
+    const found = items.find(
+      (it) =>
+        String(it?.product?._id || it?.product) === String(product?._id)
+    );
+    const val =
+      typeof found?.price === "number" ? found.price : product?.price;
+    return Number(val || 0);
+  };
+
   return (
     <Layout title={"Your Order"}>
       <div className="container-fluid p-3 m-3">
@@ -117,12 +131,12 @@ const Orders = () => {
                           <div className="col-md-8">
                             <p>{p.name}</p>
                             <p>{p.description?.substring(0, 30)}</p>
-                            <p>Price: {p.price}</p>
+                            <p>Price: ${priceFor(o, p).toFixed(2)}</p>
                           </div>
                         </div>
                       ))}
 
-                      {/* Return status ribbon (what you asked) */}
+                      {/* Return status ribbon */}
                       {rr?.status === "accepted" && (
                         <div className="mt-2">
                           <span className="badge bg-success">
@@ -137,7 +151,7 @@ const Orders = () => {
                         </div>
                       )}
 
-                      {/* Show button only when Delivered & no open (pending/accepted) request */}
+                      {/* Return button gating */}
                       {o?.status === "Delivered" &&
                         !(rr?.status === "pending" || rr?.status === "accepted") && (
                           <div className="mt-2">
