@@ -37,6 +37,7 @@ const ProductDetails = () => {
           },
         }
       );
+      console.log("API Response:", data);
       setProduct(data?.product);
       getSimilarProduct(data?.product._id, data?.product.category._id);
       getReviews(data?.product._id);
@@ -125,13 +126,53 @@ const ProductDetails = () => {
       toast.error("Failed to delete review");
     }
   };
+  // Calculate discounted price with better logic
+  // Replace your current calculateDiscountedPrice function with this simpler version
+  const calculateDiscountedPrice = (product) => {
+    if (!product || !product.offers || product.offers.length === 0) {
+      return product?.price || 0;
+    }
+
+    // Get active offers
+    const currentDate = new Date();
+    const activeOffers = product.offers.filter(
+      (offer) =>
+        offer &&
+        offer.isActive &&
+        new Date(offer.startDate) <= currentDate &&
+        new Date(offer.endDate) >= currentDate
+    );
+
+    if (activeOffers.length === 0) {
+      return product.price;
+    }
+
+    const offer = activeOffers[0];
+
+    if (offer.discountType === "percentage") {
+      return product.price * (1 - offer.discountValue / 100);
+    } else if (offer.discountType === "fixed") {
+      return Math.max(0, product.price - offer.discountValue);
+    }
+
+    return product.price;
+  };
+  useEffect(() => {
+    console.log("Product offers:", product?.offers);
+    console.log("Product price:", product?.price);
+    if (product?.offers && product.offers.length > 0) {
+      console.log("First offer details:", product.offers[0]);
+    }
+  }, [product]);
+
+  const discountedPrice = calculateDiscountedPrice(product);
 
   return (
     <Layout>
       <div className="product-details-container">
-        <Button 
-          type="text" 
-          icon={<ArrowLeftOutlined />} 
+        <Button
+          type="text"
+          icon={<ArrowLeftOutlined />}
           onClick={() => navigate(-1)}
           className="back-button"
         >
@@ -155,12 +196,12 @@ const ProductDetails = () => {
               <Col xs={24} md={12} lg={14}>
                 <div className="product-info-section">
                   <h1 className="product-title">{product.name}</h1>
-                  
+
                   <div className="product-rating">
-                    <Rate 
-                      disabled 
-                      value={product.rating || 0} 
-                      style={{ color: "#ffa41c" }} 
+                    <Rate
+                      disabled
+                      value={product.rating || 0}
+                      style={{ color: "#ffa41c" }}
                     />
                     <span className="rating-count">
                       {reviews.length} customer reviews
@@ -171,11 +212,64 @@ const ProductDetails = () => {
 
                   <div className="price-section">
                     <span className="price-label">Price: </span>
-                    <span className="price-amount">
-                      <span className="price-symbol">$</span>
-                      {product.price}
-                    </span>
+                    {discountedPrice < product.price &&
+                    product.offers &&
+                    product.offers.length > 0 ? (
+                      <>
+                        <span className="original-price">
+                          <span className="price-symbol">$</span>
+                          {product.price}
+                        </span>
+                        <span className="discounted-price">
+                          <span className="price-symbol">$</span>
+                          {discountedPrice.toFixed(2)}
+                        </span>
+                        {product.price > 0 && (
+                          <span className="discount-badge">
+                            Save{" "}
+                            {(
+                              ((product.price - discountedPrice) /
+                                product.price) *
+                              100
+                            ).toFixed(0)}
+                            %
+                          </span>
+                        )}
+                      </>
+                    ) : (
+                      <span className="price-amount">
+                        <span className="price-symbol">$</span>
+                        {product.price}
+                      </span>
+                    )}
                   </div>
+
+                  {discountedPrice < product.price &&
+                    product.offers &&
+                    product.offers.length > 0 && (
+                      <div className="offer-badge">
+                        <span className="offer-tag">Special Offer!</span>
+                        {product.offers[0]?.discountType === "percentage" && (
+                          <span className="offer-details">
+                            {product.offers[0]?.discountValue}% OFF
+                          </span>
+                        )}
+                        {product.offers[0]?.discountType === "fixed" && (
+                          <span className="offer-details">
+                            ${product.offers[0]?.discountValue} OFF
+                          </span>
+                        )}
+                        {product.offers[0]?.discountType === "bogo" && (
+                          <span className="offer-details">Buy One Get One</span>
+                        )}
+                        <span className="offer-expiry">
+                          Valid until:{" "}
+                          {new Date(
+                            product.offers[0]?.endDate
+                          ).toLocaleDateString()}
+                        </span>
+                      </div>
+                    )}
 
                   <div className="product-description">
                     <h3>About this item</h3>
@@ -198,7 +292,7 @@ const ProductDetails = () => {
 
             <div className="customer-reviews-section">
               <h2>Customer reviews</h2>
-              
+
               {reviews.length === 0 && (
                 <p className="no-reviews">No customer reviews yet.</p>
               )}
@@ -207,10 +301,10 @@ const ProductDetails = () => {
                 <div key={review._id} className="review-card">
                   <div className="review-header">
                     <span className="reviewer-name">{review.user.name}</span>
-                    <Rate 
-                      disabled 
-                      value={review.rating} 
-                      style={{ color: "#ffa41c", fontSize: 14 }} 
+                    <Rate
+                      disabled
+                      value={review.rating}
+                      style={{ color: "#ffa41c", fontSize: 14 }}
                     />
                   </div>
                   <p className="review-comment">{review.comment}</p>
@@ -237,7 +331,7 @@ const ProductDetails = () => {
                 <h3>Write a customer review</h3>
                 <Rate
                   value={newReview.rating}
-                  onChange={(rating) => setNewReview({...newReview, rating})}
+                  onChange={(rating) => setNewReview({ ...newReview, rating })}
                   style={{ color: "#ffa41c" }}
                 />
                 <TextArea
@@ -271,39 +365,75 @@ const ProductDetails = () => {
                     </p>
                   </Col>
                 )}
-                {relatedProducts.map((p) => (
-                  <Col xs={12} sm={8} md={6} lg={6} key={p._id}>
-                    <Card
-                      hoverable
-                      className="similar-product-card"
-                      cover={
-                        <img
-                          src={`http://localhost:8080/api/v1/product/product-photo/${p._id}`}
-                          alt={p.name}
-                          className="similar-product-image"
-                        />
-                      }
-                      onClick={() => navigate(`/product/${p.slug}`)}
-                    >
-                      <Card.Meta
-                        title={p.name}
-                        description={
-                          <>
-                            <div className="similar-product-price">
-                              <span className="price-symbol">$</span>
-                              <span className="price-amount">{p.price}</span>
-                            </div>
-                            <Rate 
-                              disabled 
-                              value={p.rating || 0} 
-                              style={{ color: "#ffa41c", fontSize: 14 }} 
+                
+                {relatedProducts.map((p) => {
+                  const similarDiscountedPrice = calculateDiscountedPrice(p);
+                  const hasOffer = similarDiscountedPrice < p.price;
+
+                  return (
+                    <Col xs={12} sm={8} md={6} lg={6} key={p._id}>
+                      <Card
+                        hoverable
+                        className="similar-product-card"
+                        cover={
+                          <div className="similar-product-image-container">
+                            <img
+                              src={`http://localhost:8080/api/v1/product/product-photo/${p._id}`}
+                              alt={p.name}
+                              className="similar-product-image"
                             />
-                          </>
+                            {hasOffer && (
+                              <div className="similar-product-offer-badge">
+                                {p.offers &&
+                                  p.offers[0]?.discountType === "percentage" &&
+                                  `${p.offers[0]?.discountValue}% OFF`}
+                                {p.offers &&
+                                  p.offers[0]?.discountType === "fixed" &&
+                                  `$${p.offers[0]?.discountValue} OFF`}
+                                {p.offers &&
+                                  p.offers[0]?.discountType === "bogo" &&
+                                  "BOGO"}
+                              </div>
+                            )}
+                          </div>
                         }
-                      />
-                    </Card>
-                  </Col>
-                ))}
+                        onClick={() => navigate(`/product/${p.slug}`)}
+                      >
+                        <Card.Meta
+                          title={p.name}
+                          description={
+                            <>
+                              <div className="similar-product-price">
+                                {hasOffer ? (
+                                  <>
+                                    <span className="discounted-price">
+                                      <span className="price-symbol">$</span>
+                                      {similarDiscountedPrice.toFixed(2)}
+                                    </span>
+                                    <span className="original-price">
+                                      <span className="price-symbol">$</span>
+                                      {p.price}
+                                    </span>
+                                  </>
+                                ) : (
+                                  <span className="price-amount">
+                                    <span className="price-symbol">$</span>
+                                    {p.price}
+                                  </span>
+                                )}
+                              </div>
+                              <Rate
+                                disabled
+                                value={p.rating || 0}
+                                style={{ color: "#ffa41c", fontSize: 14 }}
+                              />
+                            </>
+                          }
+                        />
+                      </Card>
+                    </Col>
+                  );
+                })}
               </Row>
             </div>
           </>

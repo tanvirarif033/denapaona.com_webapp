@@ -35,21 +35,27 @@ const AdminMenu = () => {
             to="/dashboard/admin/users"
             className="list-group-item list-group-item-action"
           >
-            Reviews
+            Users
           </NavLink>
-                    <NavLink
+          <NavLink
+            to="/dashboard/admin/offers"
+            className="list-group-item list-group-item-action"
+          >
+            Offer Management
+          </NavLink>
+          <NavLink
             to="/dashboard/admin/chat"
             className="list-group-item list-group-item-action"
           >
             Chat
           </NavLink>
           <NavLink
-  to="/dashboard/admin/analytics"
-  className="list-group-item list-group-item-action"
->
-  Sales Analytics
-        </NavLink>
-                            <NavLink
+            to="/dashboard/admin/analytics"
+            className="list-group-item list-group-item-action"
+          >
+            Sales Analytics
+          </NavLink>
+          <NavLink
             to="/dashboard/admin/return-requests"
             className="list-group-item list-group-item-action"
           >

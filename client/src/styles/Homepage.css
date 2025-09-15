@@ -325,6 +325,35 @@ body {
   color: #565959;
 }
 
+.offers-carousel {
+  margin-bottom: 30px;
+}
+
+.offers-carousel h2 {
+  text-align: center;
+  margin-bottom: 20px;
+  color: #333;
+  font-weight: 600;
+}
+
+.offers-carousel .ant-carousel .slick-dots {
+  bottom: 10px;
+}
+
+.offers-carousel .ant-carousel .slick-dots li button {
+  background: #1890ff;
+}
+
+.offers-carousel .ant-card {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.offers-carousel .ant-card-body {
+  padding: 16px;
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
   .products-grid {

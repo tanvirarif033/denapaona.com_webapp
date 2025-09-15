@@ -2,15 +2,21 @@ import React, { useState, useEffect } from "react";
 import Layout from "../components/Layout/Layout";
 import axios from "axios";
 import { useCart } from "../context/cart";
-import { Checkbox, Radio, Spin, Carousel, Button, Drawer, Badge } from "antd";
+import {
+  Checkbox,
+  Radio,
+  Spin,
+  Carousel,
+  Button,
+  Drawer,
+  Badge,
+  Card,
+} from "antd";
 import { useAuth } from "../context/auth";
 import toast from "react-hot-toast";
 import { Prices } from "../components/Prices";
 import { useNavigate } from "react-router-dom";
-import {
-  AiOutlineReload,
-  AiOutlineFilter,
-} from "react-icons/ai";
+import { AiOutlineReload, AiOutlineFilter } from "react-icons/ai";
 import {
   LeftOutlined,
   RightOutlined,
@@ -36,6 +42,7 @@ const HomePage = () => {
   const [filterLoading, setFilterLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [offers, setOffers] = useState([]);
 
   // Load user-specific cart when user logs in
   useEffect(() => {
@@ -50,6 +57,28 @@ const HomePage = () => {
       setCart([]);
     }
   }, [auth?.user, setCart]);
+
+  // Get active offers
+  const getActiveOffers = async () => {
+    try {
+      const { data } = await axios.get(
+        "http://localhost:8080/api/v1/offer/get-active-offers",
+        {
+          headers: {
+            "x-api-key": process.env.REACT_APP_API_KEY,
+          },
+        }
+      );
+      if (data?.success) {
+       // console.log("Offers received:", data.offers); // Debug log
+        setOffers(data?.offers);
+      }
+    } catch (error) {
+      console.error("Error fetching offers:", error);
+      // Set empty array to prevent errors
+      setOffers([]);
+    }
+  };
 
   const getAllCategory = async () => {
     try {
@@ -77,6 +106,7 @@ const HomePage = () => {
     getAllCategory();
     getAllProducts();
     getTotal();
+    getActiveOffers(); // Fetch offers on component mount
   }, []);
 
   const getAllProducts = async () => {
@@ -256,29 +286,78 @@ const HomePage = () => {
       product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.description.toLowerCase().includes(searchQuery.toLowerCase())
   );
+const handleShopNow = (offer) => {
+  console.log("Offer data:", offer); // Debug log
+
+  if (offer.category && offer.category.slug) {
+    // Navigate to category page
+    navigate(`/category/${offer.category.slug}`);
+  } else if (
+    offer.products &&
+    offer.products.length > 0 &&
+    offer.products[0].slug
+  ) {
+    // Navigate to the first product
+    navigate(`/product/${offer.products[0].slug}`);
+  } else {
+    // Fallback to products page
+    navigate("/products");
+    toast.info("No specific category or products associated with this offer");
+  }
+};
+
 
   return (
     <Layout title={"Shop - Best Deals"}>
-      {/* Hero Carousel */}
-      <div className="hero-carousel">
-        <Carousel
-          autoplay
-          arrows
-          prevArrow={<PrevArrow />}
-          nextArrow={<NextArrow />}
-          dots={{ className: "carousel-dots" }}
-        >
-          {[1, 2, 3, 4].map((item) => (
-            <div key={item}>
-              <img
-                src={`/images/c${item}.png`}
-                alt={`Slide ${item}`}
-                className="carousel-image"
-              />
-            </div>
-          ))}
-        </Carousel>
-      </div>
+      {/* Offers Carousel */}
+      {offers.length > 0 && (
+        <div className="offers-carousel mb-4">
+          <h2>Special Offers</h2>
+          <Carousel
+            autoplay
+            arrows
+            prevArrow={<PrevArrow />}
+            nextArrow={<NextArrow />}
+            dots={{ className: "carousel-dots" }}
+          >
+            {offers.map((offer) => (
+              <div key={offer._id}>
+                <Card
+                  cover={
+                    <img
+                      alt={offer.title}
+                      src={`http://localhost:8080/api/v1/offer/offer-banner/${offer._id}`}
+                      style={{ height: "300px", objectFit: "cover" }}
+                      onError={(e) => {
+                        e.target.src = "/fallback-image.jpg";
+                      }}
+                    />
+                  }
+                >
+                  <Card.Meta
+                    title={offer.title}
+                    description={
+                      <div>
+                        <p>{offer.description}</p>
+                        <p>
+                          <strong>Discount:</strong> {offer.discountValue}
+                          {offer.discountType === "percentage" ? "%" : "$"}
+                        </p>
+                        <Button
+                          type="primary"
+                          onClick={() => handleShopNow(offer)}
+                        >
+                          Shop Now
+                        </Button>
+                      </div>
+                    }
+                  />
+                </Card>
+              </div>
+            ))}
+          </Carousel>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="main-container">
@@ -370,7 +449,7 @@ const HomePage = () => {
         title="Filters"
         placement="left"
         onClose={() => setShowFilters(false)}
-        visible={showFilters}
+        open={showFilters}
         width={300}
         className="filters-drawer"
       >
