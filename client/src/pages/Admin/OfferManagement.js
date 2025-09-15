@@ -417,7 +417,7 @@ const OfferManagement = () => {
             <Select>
               <Option value="percentage">Percentage</Option>
               <Option value="fixed">Fixed Amount</Option>
-              <Option value="bogo">Buy One Get One</Option>
+              
             </Select>
           </Form.Item>
 

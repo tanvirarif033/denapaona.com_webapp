@@ -365,7 +365,7 @@ const ProductDetails = () => {
                     </p>
                   </Col>
                 )}
-                // In ProductDetails.js - Update the similar products section
+                
                 {relatedProducts.map((p) => {
                   const similarDiscountedPrice = calculateDiscountedPrice(p);
                   const hasOffer = similarDiscountedPrice < p.price;
