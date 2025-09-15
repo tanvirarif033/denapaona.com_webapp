@@ -192,7 +192,7 @@ const OfferManagement = () => {
         const bannerFile = values.bannerImage[0];
         if (bannerFile.originFileObj) {
           formData.append("bannerImage", bannerFile.originFileObj);
-          console.log("Appending banner image:", bannerFile.originFileObj);
+          //console.log("Appending banner image:", bannerFile.originFileObj);
         }
       }
 
@@ -206,7 +206,7 @@ const OfferManagement = () => {
 
       // Debug: Log FormData entries
       for (let [key, value] of formData.entries()) {
-        console.log(key, value);
+        //.log(key, value);
       }
 
       let response;

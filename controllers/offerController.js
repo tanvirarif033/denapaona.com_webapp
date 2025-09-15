@@ -59,6 +59,16 @@ export const createOfferController = async (req, res) => {
     }
 
     await offer.save();
+
+    // 🔗 Link this offer to the products
+if (products && products.length > 0) {
+  await productModel.updateMany(
+    { _id: { $in: products } },
+    { $addToSet: { offers: offer._id } } // add offer to product.offers
+  );
+  console.log(`Offer ${offer._id} linked to products:`, products);
+}
+
     res.status(201).send({
       success: true,
       message: "Offer Created Successfully",
@@ -284,12 +294,27 @@ export const updateOfferController = async (req, res) => {
         data: fs.readFileSync(bannerImage.path),
         contentType: bannerImage.type,
       };
-      console.log(
-        `Banner image updated: ${bannerImage.name}, Type: ${bannerImage.type}, Size: ${bannerImage.size} bytes`
-      );
+      
     }
 
     await offer.save();
+
+    // After offer.save()
+    if (products && products.length > 0) {
+      // First remove this offer from all products
+      await productModel.updateMany({}, { $pull: { offers: offer._id } });
+
+      // Then add it only to selected products
+      await productModel.updateMany(
+        { _id: { $in: products } },
+        { $addToSet: { offers: offer._id } }
+      );
+      console.log(
+        `Offer ${offer._id} updated and linked to products:`,
+        products
+      );
+    }
+
     res.status(200).send({
       success: true,
       message: "Offer Updated Successfully",

@@ -37,6 +37,7 @@ const ProductDetails = () => {
           },
         }
       );
+      console.log("API Response:", data);
       setProduct(data?.product);
       getSimilarProduct(data?.product._id, data?.product.category._id);
       getReviews(data?.product._id);
@@ -126,15 +127,17 @@ const ProductDetails = () => {
     }
   };
   // Calculate discounted price with better logic
+  // Replace your current calculateDiscountedPrice function with this simpler version
   const calculateDiscountedPrice = (product) => {
     if (!product || !product.offers || product.offers.length === 0) {
       return product?.price || 0;
     }
 
-    // Get active offers (filter by date and active status)
+    // Get active offers
     const currentDate = new Date();
     const activeOffers = product.offers.filter(
       (offer) =>
+        offer &&
         offer.isActive &&
         new Date(offer.startDate) <= currentDate &&
         new Date(offer.endDate) >= currentDate
@@ -144,22 +147,23 @@ const ProductDetails = () => {
       return product.price;
     }
 
-    // For simplicity, use the first active offer
-    // You could implement logic to find the best offer
     const offer = activeOffers[0];
 
     if (offer.discountType === "percentage") {
-      const discountAmount = product.price * (offer.discountValue / 100);
-      return Math.max(0, product.price - discountAmount);
+      return product.price * (1 - offer.discountValue / 100);
     } else if (offer.discountType === "fixed") {
       return Math.max(0, product.price - offer.discountValue);
-    } else if (offer.discountType === "bogo") {
-      // Buy One Get One - return same price for single item
-      return product.price;
     }
 
     return product.price;
   };
+  useEffect(() => {
+    console.log("Product offers:", product?.offers);
+    console.log("Product price:", product?.price);
+    if (product?.offers && product.offers.length > 0) {
+      console.log("First offer details:", product.offers[0]);
+    }
+  }, [product]);
 
   const discountedPrice = calculateDiscountedPrice(product);
 
@@ -208,7 +212,9 @@ const ProductDetails = () => {
 
                   <div className="price-section">
                     <span className="price-label">Price: </span>
-                    {discountedPrice < product.price ? (
+                    {discountedPrice < product.price &&
+                    product.offers &&
+                    product.offers.length > 0 ? (
                       <>
                         <span className="original-price">
                           <span className="price-symbol">$</span>
@@ -218,15 +224,17 @@ const ProductDetails = () => {
                           <span className="price-symbol">$</span>
                           {discountedPrice.toFixed(2)}
                         </span>
-                        <span className="discount-badge">
-                          Save{" "}
-                          {(
-                            ((product.price - discountedPrice) /
-                              product.price) *
-                            100
-                          ).toFixed(0)}
-                          %
-                        </span>
+                        {product.price > 0 && (
+                          <span className="discount-badge">
+                            Save{" "}
+                            {(
+                              ((product.price - discountedPrice) /
+                                product.price) *
+                              100
+                            ).toFixed(0)}
+                            %
+                          </span>
+                        )}
                       </>
                     ) : (
                       <span className="price-amount">

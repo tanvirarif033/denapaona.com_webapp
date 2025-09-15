@@ -70,7 +70,7 @@ const HomePage = () => {
         }
       );
       if (data?.success) {
-        console.log("Offers received:", data.offers); // Debug log
+       // console.log("Offers received:", data.offers); // Debug log
         setOffers(data?.offers);
       }
     } catch (error) {
@@ -305,11 +305,7 @@ const handleShopNow = (offer) => {
     toast.info("No specific category or products associated with this offer");
   }
 };
-useEffect(() => {
-  if (offers.length > 0) {
-    console.log("Current offers state:", offers);
-  }
-}, [offers]);
+
 
   return (
     <Layout title={"Shop - Best Deals"}>
