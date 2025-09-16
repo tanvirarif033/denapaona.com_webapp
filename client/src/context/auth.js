@@ -1,7 +1,7 @@
 // client/src/context/auth.js
 import { useState, useEffect, useContext, createContext } from "react";
 import axios from "axios";
-import { closeSocket } from "../chat/socket"; // Import closeSocket
+import { closeSocket } from "../chat/socket";
 
 axios.defaults.baseURL = process.env.REACT_APP_API || "http://localhost:8080";
 
@@ -10,16 +10,14 @@ const AuthContext = createContext();
 const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState({ user: null, token: "", refreshToken: "" });
 
-  // Keep Authorization header synced
   useEffect(() => {
     if (auth?.token) {
-      axios.defaults.headers.common["Authorization"] = auth.token; // Raw token for backend
+      axios.defaults.headers.common["Authorization"] = auth.token;
     } else {
       delete axios.defaults.headers.common["Authorization"];
     }
   }, [auth?.token]);
 
-  // Load from localStorage on mount
   useEffect(() => {
     const saved = localStorage.getItem("auth");
     if (saved) {
@@ -28,7 +26,6 @@ const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Token refresh logic
   const refreshToken = async () => {
     try {
       const { data } = await axios.post("/api/v1/auth/refresh", { refreshToken: auth.refreshToken });
@@ -59,7 +56,7 @@ const AuthProvider = ({ children }) => {
           _id: data.user._id,
           name: data.user.name,
           email: data.user.email,
-          role: data.user.role, // Include role
+          role: data.user.role,
         },
         token: data.token,
         refreshToken: data.refreshToken || "",
@@ -75,17 +72,12 @@ const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
-      const email = auth?.user?.email;
-      // Clear client state immediately
       setAuth({ user: null, token: "", refreshToken: "" });
       localStorage.removeItem("auth");
-      if (email) localStorage.removeItem(`cart-${email}`);
-      // Clear axios header
       delete axios.defaults.headers.common["Authorization"];
-      // Close socket
       closeSocket();
-      // Inform server (optional)
-      await axios.post("/api/v1/auth/logout");
+      // Optional: Inform server if needed
+      // await axios.post("/api/v1/auth/logout");
     } catch (error) {
       console.error("Logout error:", error.message);
     }

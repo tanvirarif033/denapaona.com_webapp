@@ -1,4 +1,4 @@
-// server/index.js
+// index.js (server)
 import express from "express";
 import http from "http";
 import { Server } from "socket.io";
@@ -18,7 +18,7 @@ import reviewRoutes from "./routes/reviewRoutes.js";
 import chatRoutes from "./routes/chatRoutes.js";
 import analyticsRoutes from "./routes/analyticsRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
-import returnRoutes from "./routes/returnRoutes.js";
+import returnRoutes from "./routes/returnRoutes.js"; // ← NEW
 import offerRoutes from "./routes/offerRoutes.js";
 
 // Chat models for socket handlers
@@ -48,7 +48,7 @@ app.options("*", cors());
 
 app.use(express.json());
 app.use(morgan("dev"));
-app.use("/uploads", express.static(path.join(process.cwd(), "Uploads")));
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // REST endpoints
 app.use("/api/v1/auth", authRoutes);
@@ -58,7 +58,7 @@ app.use("/api/v1/review", reviewRoutes);
 app.use("/api/v1/chat", chatRoutes);
 app.use("/api/v1/analytics", analyticsRoutes);
 app.use("/api/v1/notification", notificationRoutes);
-app.use("/api/v1/returns", returnRoutes);
+app.use("/api/v1/returns", returnRoutes); // ← NEW
 app.use("/api/v1/offer", offerRoutes);
 
 const server = http.createServer(app);
@@ -70,77 +70,50 @@ const io = new Server(server, {
 });
 
 // Expose io so controllers can emit notifications
-app.set("io", io);
-
-// Shared support room ID
-const SHARED_SUPPORT_ROOM_ID = "68bb64de7067dead18540afe";
+app.set("io", io); // ← IMPORTANT
 
 // Authenticate socket by JWT (expects raw token)
 io.use((socket, next) => {
   try {
     const token = socket.handshake.auth?.token;
-    if (!token) {
-      console.error("Socket auth failed: No token provided");
-      return next(new Error("UNAUTHORIZED"));
-    }
+    if (!token) return next(new Error("UNAUTHORIZED"));
     const decoded = JWT.verify(token, process.env.JWT_SECRET);
     socket.user = { _id: decoded._id, role: decoded.role, name: decoded.name };
-    console.log("Socket authenticated:", { userId: socket.user._id, role: socket.user.role });
     next();
-  } catch (error) {
-    console.error("Socket auth error:", error.message);
+  } catch {
     next(new Error("UNAUTHORIZED"));
   }
 });
 
 io.on("connection", (socket) => {
-  console.log("Socket connected:", socket.id);
   // Join personal room + admins broadcast room
   const userId = socket.user?._id;
   const userRole = socket.user?.role;
   if (userId) socket.join(`user:${userId}`);
-  if (userRole === 1) {
-    socket.join("admins");
-    socket.join(SHARED_SUPPORT_ROOM_ID); // Admins join shared support room
-  }
+  if (userRole === 1) socket.join("admins");
 
+  // ---- existing chat handlers ----
   socket.on("join", async ({ roomId }) => {
     if (!roomId) return;
     const room = await ChatRoom.findById(roomId).lean();
-    if (!room) {
-      console.error("Join failed: Room not found", { roomId });
-      return;
-    }
+    if (!room) return;
 
     const isAdmin = socket.user?.role === 1;
     const isOwner = room.user?.toString() === socket.user?._id;
-    if (!isAdmin && !isOwner && roomId !== SHARED_SUPPORT_ROOM_ID) {
-      console.error("Join failed: Unauthorized", { userId: socket.user._id, roomId });
-      return;
-    }
+    if (!isAdmin && !isOwner) return;
 
     socket.join(roomId);
-    console.log(`Socket ${socket.id} joined room ${roomId}`);
   });
 
   socket.on("message:send", async ({ roomId, text = "", imageUrl = "" }) => {
-    if (!roomId || (!text && !imageUrl)) {
-      console.error("Message send failed: Invalid data", { roomId, text, imageUrl });
-      return;
-    }
+    if (!roomId || (!text && !imageUrl)) return;
 
     const room = await ChatRoom.findById(roomId);
-    if (!room) {
-      console.error("Message send failed: Room not found", { roomId });
-      return;
-    }
+    if (!room) return;
 
     const isAdmin = socket.user?.role === 1;
     const isOwner = room.user?.toString() === socket.user?._id;
-    if (!isAdmin && !isOwner && roomId !== SHARED_SUPPORT_ROOM_ID) {
-      console.error("Message send failed: Unauthorized", { userId: socket.user._id, roomId });
-      return;
-    }
+    if (!isAdmin && !isOwner) return;
 
     const fromRole = isAdmin ? "admin" : "user";
 
@@ -157,7 +130,6 @@ io.on("connection", (socket) => {
     else room.unreadForUser += 1;
     await room.save();
 
-    console.log("Emitting message:new:", { _id: msg._id, room: roomId, fromRole, text: msg.text });
     io.to(roomId).emit("message:new", {
       _id: msg._id,
       room: roomId,
@@ -168,7 +140,7 @@ io.on("connection", (socket) => {
     });
 
     // Auto-reply on first user message
-    if (fromRole === "user" && roomId === SHARED_SUPPORT_ROOM_ID) {
+    if (fromRole === "user") {
       const count = await ChatMessage.countDocuments({ room: roomId });
       if (count === 1) {
         const auto = await ChatMessage.create({
@@ -181,7 +153,6 @@ io.on("connection", (socket) => {
         room.unreadForUser += 1;
         await room.save();
 
-        console.log("Emitting auto-reply:", { _id: auto._id, room: roomId, text: auto.text });
         io.to(roomId).emit("message:new", {
           _id: auto._id,
           room: roomId,
@@ -196,19 +167,10 @@ io.on("connection", (socket) => {
 
   socket.on("message:seen", async ({ roomId }) => {
     const room = await ChatRoom.findById(roomId);
-    if (!room) {
-      console.error("Message seen failed: Room not found", { roomId });
-      return;
-    }
+    if (!room) return;
     if (socket.user?.role === 1) room.unreadForAdmin = 0;
-    else if (room.user?.toString() === socket.user?._id || roomId === SHARED_SUPPORT_ROOM_ID) {
-      room.unreadForUser = 0;
-    }
+    else if (room.user?.toString() === socket.user?._id) room.unreadForUser = 0;
     await room.save();
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Socket disconnected:", socket.id);
   });
 });
 

@@ -1,18 +1,21 @@
-// client/src/chat/socket.js
 import { io } from "socket.io-client";
 
 let socket;
 
 export const initSocket = (token) => {
-  if (socket && socket.connected) {
-    console.log("Socket already connected, reusing:", socket.id);
-    return socket;
+  // Clean up existing socket if any
+  if (socket) {
+    socket.disconnect();
+    socket = null;
   }
+
+  // Remove "Bearer " prefix if present
+  const cleanToken = token?.startsWith("Bearer ") ? token.slice(7) : token;
 
   socket = io("http://localhost:8080", {
     transports: ["websocket"],
     withCredentials: true,
-    auth: { token }, // raw JWT, no "Bearer "
+    auth: { token: cleanToken }, // raw JWT only
     reconnection: true,
     reconnectionAttempts: 5,
     reconnectionDelay: 1000,
