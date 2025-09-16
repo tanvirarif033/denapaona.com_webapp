@@ -4,9 +4,11 @@ import axios from "axios";
 import dayjs from "dayjs";
 import Picker from "emoji-picker-react";
 import { initSocket, getSocket } from "../../chat/socket";
+import { useAuth } from "../../context/auth";
 import "./chat.css";
 
-export default function ChatWidget({ auth }) {
+export default function ChatWidget() {
+  const [auth, , , , refreshToken] = useAuth(); // Get refreshToken function
   const [open, setOpen] = useState(false);
   const [room, setRoom] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -17,6 +19,14 @@ export default function ChatWidget({ auth }) {
   const fileInputRef = useRef(null);
   const endRef = useRef(null);
   const emojiPopRef = useRef(null);
+  const socketRef = useRef(null);
+
+  // Log full auth object (sanitize token for safety)
+  console.log("ChatWidget auth:", {
+    user: auth?.user,
+    token: auth?.token ? "present" : "missing",
+    refreshToken: auth?.refreshToken ? "present" : "missing",
+  });
 
   // Axios (always raw token in Authorization)
   const api = useMemo(() => {
@@ -24,42 +34,94 @@ export default function ChatWidget({ auth }) {
       baseURL: process.env.REACT_APP_API || "http://localhost:8080",
       withCredentials: true,
     });
-    instance.interceptors.request.use((cfg) => {
+    instance.interceptors.request.use(async (cfg) => {
       const ctx = auth || JSON.parse(localStorage.getItem("auth") || "{}");
-      if (ctx?.token) cfg.headers.Authorization = ctx.token; // no Bearer
+      if (ctx?.token) {
+        cfg.headers.Authorization = ctx.token; // no Bearer
+      } else if (ctx?.refreshToken) {
+        // Try refreshing token if main token is invalid
+        const newToken = await refreshToken();
+        if (newToken) {
+          cfg.headers.Authorization = newToken;
+        }
+      }
       return cfg;
     });
     return instance;
-  }, [auth]);
+  }, [auth, refreshToken]);
+
+  // Initialize socket with retry on auth failure
+  useEffect(() => {
+    if (!auth?.token) return;
+
+    const initializeSocket = async () => {
+      socketRef.current = initSocket(auth.token);
+      socketRef.current.on("connect_error", async (error) => {
+        if (error.message === "UNAUTHORIZED" && auth?.refreshToken) {
+          console.log("Attempting token refresh for socket");
+          const newToken = await refreshToken();
+          if (newToken) {
+            socketRef.current.disconnect();
+            socketRef.current = initSocket(newToken);
+          }
+        }
+      });
+    };
+
+    initializeSocket();
+
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        console.log("WebSocket disconnected");
+      }
+    };
+  }, [auth?.token, auth?.refreshToken, refreshToken]);
 
   const scrollToEnd = () => endRef.current?.scrollIntoView({ behavior: "smooth" });
 
   // open => load room + messages + socket listeners
   useEffect(() => {
-    if (!open || !auth?.token) return;
+    if (!open || !auth?.token || !socketRef.current) return;
     let disposed = false;
 
     (async () => {
-      const { data: myRoom } = await api.get("/api/v1/chat/rooms/me");
-      if (disposed) return;
-      setRoom(myRoom);
+      try {
+        const { data: myRoom } = await api.get("/api/v1/chat/rooms/me");
+        if (disposed) return;
+        console.log("Fetched room:", { roomId: myRoom._id, userRole: auth?.user?.role });
+        setRoom(myRoom);
 
-      const { data } = await api.get(`/api/v1/chat/rooms/${myRoom._id}/messages`);
-      setMessages(data.messages);
-      setTimeout(scrollToEnd, 0);
+        const { data } = await api.get(`/api/v1/chat/rooms/${myRoom._id}/messages`);
+        console.log("Fetched messages:", data.messages);
+        setMessages(data.messages);
+        setTimeout(scrollToEnd, 0);
 
-      const s = initSocket(auth.token);
-      s.emit("join", { roomId: myRoom._id });
-      s.emit("message:seen", { roomId: myRoom._id });
+        const s = socketRef.current;
+        s.emit("join", { roomId: myRoom._id });
+        console.log("WebSocket joined room:", { roomId: myRoom._id });
+        s.emit("message:seen", { roomId: myRoom._id });
 
-      const onNew = (msg) => {
-        if (msg.room === myRoom._id) {
-          setMessages((p) => [...p, msg]);
-          setTimeout(scrollToEnd, 10);
-        }
-      };
-      s.on("message:new", onNew);
-      return () => s.off("message:new", onNew);
+        const onNew = (msg) => {
+          if (msg.room === myRoom._id) {
+            console.log("New message received:", { ...msg, userRole: auth?.user?.role });
+            setMessages((prev) => {
+              if (prev.some((existingMsg) => existingMsg._id === msg._id)) {
+                console.log("Duplicate message skipped (same _id):", msg);
+                return prev;
+              }
+              const newMessages = [...prev, msg];
+              console.log("Updated messages state:", newMessages);
+              return newMessages;
+            });
+            setTimeout(scrollToEnd, 10);
+          }
+        };
+        s.on("message:new", onNew);
+        return () => s.off("message:new", onNew);
+      } catch (error) {
+        console.error("Error in chat setup:", error.response?.data?.message || error.message);
+      }
     })();
 
     return () => {
@@ -86,7 +148,8 @@ export default function ChatWidget({ auth }) {
     if (!text.trim() || !room || sending) return;
     setSending(true);
     try {
-      (getSocket() || initSocket(auth.token)).emit("message:send", {
+      console.log("Sending message:", { roomId: room._id, text: text.trim(), userRole: auth?.user?.role });
+      (getSocket() || socketRef.current).emit("message:send", {
         roomId: room._id,
         text: text.trim(),
       });
@@ -106,7 +169,8 @@ export default function ChatWidget({ auth }) {
       const { data } = await api.post("/api/v1/chat/upload", form, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      (getSocket() || initSocket(auth.token)).emit("message:send", {
+      console.log("Sending image message:", { roomId: room._id, imageUrl: data.url, userRole: auth?.user?.role });
+      (getSocket() || socketRef.current).emit("message:send", {
         roomId: room._id,
         imageUrl: data.url,
       });
@@ -139,18 +203,23 @@ export default function ChatWidget({ auth }) {
         </header>
 
         <main className="chat-body">
-          {messages.map((m) => (
-            <div key={m._id || Math.random()} className={`chat-line ${m.fromRole}`}>
-              {m.imageUrl ? (
-                <a className="chat-image" href={m.imageUrl} target="_blank" rel="noreferrer">
-                  <img src={m.imageUrl} alt="upload" />
-                </a>
-              ) : (
-                <div className="chat-bubble">{m.text}</div>
-              )}
-              <div className="chat-time">{dayjs(m.createdAt).format("HH:mm")}</div>
-            </div>
-          ))}
+          {messages.map((m, index) => {
+            if (!m._id) {
+              console.warn(`Message at index ${index} is missing _id:`, m);
+            }
+            return (
+              <div key={m._id} className={`chat-line ${m.fromRole}`}>
+                {m.imageUrl ? (
+                  <a className="chat-image" href={m.imageUrl} target="_blank" rel="noreferrer">
+                    <img src={m.imageUrl} alt="upload" />
+                  </a>
+                ) : (
+                  <div className="chat-bubble">{m.text}</div>
+                )}
+                <div className="chat-time">{dayjs(m.createdAt).format("HH:mm")}</div>
+              </div>
+            );
+          })}
           <div ref={endRef} />
         </main>
 

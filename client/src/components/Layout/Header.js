@@ -1,4 +1,4 @@
-// src/components/Layout/Header.js
+// client/src/components/Layout/Header.js
 import React, { useMemo } from "react";
 import { NavLink, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/auth";
@@ -6,6 +6,7 @@ import { useCart } from "../../context/cart";
 import { useNotifications } from "../../context/notifications";
 import { Badge, Dropdown } from "antd";
 import { ShoppingCartOutlined, BellOutlined } from "@ant-design/icons";
+import { closeSocket } from "../../chat/socket"; // Import closeSocket
 import useCategory from "../../hooks/useCategory";
 import SearchInput from "../Form/SearchInput";
 
@@ -27,9 +28,12 @@ const Header = () => {
 
   const handleLogout = async () => {
     try {
+      closeSocket(); // Explicitly close socket before logout
       await logout();
       navigate("/login", { replace: true });
-    } catch {}
+    } catch (error) {
+      console.error("Logout error:", error.message);
+    }
   };
 
   // সর্বশেষ ২টা notification (notification page যে data দেয়, সেটাই context থেকে)
