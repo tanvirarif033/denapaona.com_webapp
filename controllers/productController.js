@@ -1,4 +1,3 @@
-// controllers/productController.js
 import productModel from "../models/productModel.js";
 import categoryModel from "../models/categoryModel.js";
 import fs from "fs";
@@ -8,9 +7,11 @@ import braintree from "braintree";
 import dotenv from "dotenv";
 import userModel from "../models/userModel.js";
 import Notification from "../models/Notification.js";
+import { sendOrderConfirmation } from "../utils/email.js";
+
 dotenv.config();
 
-// ====== BRAINTREE GATEWAY ======
+/* ==================== BRAINTREE GATEWAY ==================== */
 var gateway = new braintree.BraintreeGateway({
   environment: braintree.Environment.Sandbox,
   merchantId: process.env.BRAINTREE_MERCHANT_ID,
@@ -18,7 +19,7 @@ var gateway = new braintree.BraintreeGateway({
   privateKey: process.env.BRAINTREE_PRIVATE_KEY,
 });
 
-/* ---------- helpers ---------- */
+/* ==================== helpers ==================== */
 
 // populate only currently active offers
 const activeOffersPopulate = {
@@ -47,28 +48,20 @@ function computeDiscountedPrice(p) {
   return base;
 }
 
-/* ---------- create product ---------- */
+/* ==================== create product ==================== */
 export const createProductController = async (req, res) => {
   try {
-    const { name, description, price, category, quantity, shipping } =
-      req.fields;
+    const { name, description, price, category, quantity, shipping } = req.fields;
     const { photo } = req.files;
 
     switch (true) {
-      case !name:
-        return res.status(500).send({ error: "Name is Required" });
-      case !description:
-        return res.status(500).send({ error: "Description is Required" });
-      case !price:
-        return res.status(500).send({ error: "Price is Required" });
-      case !category:
-        return res.status(500).send({ error: "Category is Required" });
-      case !quantity:
-        return res.status(500).send({ error: "Quantity is Required" });
+      case !name: return res.status(500).send({ error: "Name is Required" });
+      case !description: return res.status(500).send({ error: "Description is Required" });
+      case !price: return res.status(500).send({ error: "Price is Required" });
+      case !category: return res.status(500).send({ error: "Category is Required" });
+      case !quantity: return res.status(500).send({ error: "Quantity is Required" });
       case photo && photo.size > 1000000:
-        return res
-          .status(500)
-          .send({ error: "photo is Required and should be less then 1mb" });
+        return res.status(500).send({ error: "photo is Required and should be less then 1mb" });
     }
 
     const products = new productModel({ ...req.fields, slug: slugify(name) });
@@ -84,15 +77,11 @@ export const createProductController = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).send({
-      success: false,
-      error,
-      message: "Error in creating product",
-    });
+    res.status(500).send({ success: false, error, message: "Error in creating product" });
   }
 };
 
-/* ---------- get all (first page) ---------- */
+/* ==================== get all (first page) ==================== */
 export const getProductController = async (req, res) => {
   try {
     const products = await productModel
@@ -111,15 +100,11 @@ export const getProductController = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).send({
-      success: false,
-      message: "Error in getting products",
-      error: error.message,
-    });
+    res.status(500).send({ success: false, message: "Error in getting products", error: error.message });
   }
 };
 
-/* ---------- single product ---------- */
+/* ==================== single product ==================== */
 export const getSingleProductController = async (req, res) => {
   try {
     const product = await productModel
@@ -128,22 +113,14 @@ export const getSingleProductController = async (req, res) => {
       .populate("category")
       .populate(activeOffersPopulate);
 
-    res.status(200).send({
-      success: true,
-      message: "Single Product Fetched",
-      product,
-    });
+    res.status(200).send({ success: true, message: "Single Product Fetched", product });
   } catch (error) {
     console.log(error);
-    res.status(500).send({
-      success: false,
-      message: "Error while getting single product",
-      error,
-    });
+    res.status(500).send({ success: false, message: "Error while getting single product", error });
   }
 };
 
-/* ---------- image ---------- */
+/* ==================== image ==================== */
 export const productPhotoController = async (req, res) => {
   try {
     const product = await productModel.findById(req.params.pid).select("photo");
@@ -154,54 +131,35 @@ export const productPhotoController = async (req, res) => {
     res.status(404).send({ success: false });
   } catch (error) {
     console.log(error);
-    res.status(500).send({
-      success: false,
-      message: "Error while getting photo",
-      error,
-    });
+    res.status(500).send({ success: false, message: "Error while getting photo", error });
   }
 };
 
-/* ---------- delete ---------- */
+/* ==================== delete ==================== */
 export const deleteProductController = async (req, res) => {
   try {
     await productModel.findByIdAndDelete(req.params.pid).select("-photo");
-    res.status(200).send({
-      success: true,
-      message: "Product Deleted successfully",
-    });
+    res.status(200).send({ success: true, message: "Product Deleted successfully" });
   } catch (error) {
     console.log(error);
-    res.status(500).send({
-      success: false,
-      message: "Error while deleting product",
-      error,
-    });
+    res.status(500).send({ success: false, message: "Error while deleting product", error });
   }
 };
 
-/* ---------- update ---------- */
+/* ==================== update ==================== */
 export const updateProductController = async (req, res) => {
   try {
-    const { name, description, price, category, quantity, shipping } =
-      req.fields;
+    const { name, description, price, category, quantity, shipping } = req.fields;
     const { photo } = req.files;
 
     switch (true) {
-      case !name:
-        return res.status(500).send({ error: "Name is Required" });
-      case !description:
-        return res.status(500).send({ error: "Description is Required" });
-      case !price:
-        return res.status(500).send({ error: "Price is Required" });
-      case !category:
-        return res.status(500).send({ error: "Category is Required" });
-      case !quantity:
-        return res.status(500).send({ error: "Quantity is Required" });
+      case !name: return res.status(500).send({ error: "Name is Required" });
+      case !description: return res.status(500).send({ error: "Description is Required" });
+      case !price: return res.status(500).send({ error: "Price is Required" });
+      case !category: return res.status(500).send({ error: "Category is Required" });
+      case !quantity: return res.status(500).send({ error: "Quantity is Required" });
       case photo && photo.size > 1000000:
-        return res
-          .status(500)
-          .send({ error: "photo is Required and should be less then 1mb" });
+        return res.status(500).send({ error: "photo is Required and should be less then 1mb" });
     }
 
     const products = await productModel.findByIdAndUpdate(
@@ -214,22 +172,14 @@ export const updateProductController = async (req, res) => {
       products.photo.contentType = photo.type;
     }
     await products.save();
-    res.status(201).send({
-      success: true,
-      message: "Product Updated Successfully",
-      products,
-    });
+    res.status(201).send({ success: true, message: "Product Updated Successfully", products });
   } catch (error) {
     console.log(error);
-    res.status(500).send({
-      success: false,
-      error,
-      message: "Error in update product",
-    });
+    res.status(500).send({ success: false, error, message: "Error in update product" });
   }
 };
 
-/* ---------- filters ---------- */
+/* ==================== filters ==================== */
 export const productFiltersController = async (req, res) => {
   try {
     const { checked, radio } = req.body;
@@ -240,30 +190,22 @@ export const productFiltersController = async (req, res) => {
     res.status(200).send({ success: true, products });
   } catch (error) {
     console.log(error);
-    res.status(400).send({
-      success: false,
-      message: "Error While Filtering Products",
-      error,
-    });
+    res.status(400).send({ success: false, message: "Error While Filtering Products", error });
   }
 };
 
-/* ---------- count ---------- */
+/* ==================== count ==================== */
 export const productCountController = async (req, res) => {
   try {
     const total = await productModel.find({}).estimatedDocumentCount();
     res.status(200).send({ success: true, total });
   } catch (error) {
     console.log(error);
-    res.status(400).send({
-      message: "Error in product count",
-      error,
-      success: false,
-    });
+    res.status(400).send({ message: "Error in product count", error, success: false });
   }
 };
 
-/* ---------- list by page (includes active offers) ---------- */
+/* ==================== list by page (includes active offers) ==================== */
 export const productListController = async (req, res) => {
   try {
     const perPage = 12;
@@ -281,15 +223,11 @@ export const productListController = async (req, res) => {
     res.status(200).send({ success: true, products });
   } catch (error) {
     console.log(error);
-    res.status(400).send({
-      success: false,
-      message: "error in per page ctrl",
-      error,
-    });
+    res.status(400).send({ success: false, message: "error in per page ctrl", error });
   }
 };
 
-/* ---------- search ---------- */
+/* ==================== search ==================== */
 export const searchProductController = async (req, res) => {
   try {
     const { keyword } = req.params;
@@ -304,15 +242,11 @@ export const searchProductController = async (req, res) => {
     res.json(results);
   } catch (error) {
     console.log(error);
-    res.status(400).send({
-      success: false,
-      message: "Error In Search Product API",
-      error,
-    });
+    res.status(400).send({ success: false, message: "Error In Search Product API", error });
   }
 };
 
-/* ---------- related ---------- */
+/* ==================== related ==================== */
 export const realtedProductController = async (req, res) => {
   try {
     const { pid, cid } = req.params;
@@ -326,15 +260,11 @@ export const realtedProductController = async (req, res) => {
     res.status(200).send({ success: true, products });
   } catch (error) {
     console.log(error);
-    res.status(400).send({
-      success: false,
-      message: "error while getting related product",
-      error,
-    });
+    res.status(400).send({ success: false, message: "error while getting related product", error });
   }
 };
 
-/* ---------- by category ---------- */
+/* ==================== by category ==================== */
 export const productCategoryController = async (req, res) => {
   try {
     const category = await categoryModel.findOne({ slug: req.params.slug });
@@ -346,53 +276,46 @@ export const productCategoryController = async (req, res) => {
     res.status(200).send({ success: true, category, products });
   } catch (error) {
     console.log(error);
-    res.status(400).send({
-      success: false,
-      error,
-      message: "Error While Getting products",
-    });
+    res.status(400).send({ success: false, error, message: "Error While Getting products" });
   }
 };
 
-/* ---------- braintree token ---------- */
+/* ==================== braintree token ==================== */
 export const braintreeTokenController = async (req, res) => {
   try {
     gateway.clientToken.generate({}, function (err, response) {
-      if (err) {
-        res.status(500).send(err);
-      } else {
-        res.send(response);
-      }
+      if (err) res.status(500).send(err);
+      else res.send(response);
     });
   } catch (error) {
     console.log(error);
+    res.status(500).send({ message: "Token error" });
   }
 };
 
-/* ---------- payment (recompute secure discounted total + store per-item price) ---------- */
+/* ==================== payment (secure pricing + email) ==================== */
 export const brainTreePaymentController = async (req, res) => {
   try {
     const { nonce, cart } = req.body;
 
-    // collect product ids in cart (support several shapes)
+    // normalize incoming ids from client (keep duplicates if any)
     const ids = (cart || [])
       .map((p) => p?._id || p?.product?._id || p?.id || p?.pid)
       .filter(Boolean);
 
-    // load from DB with active offers
+    // pull fresh products with active offers
     const dbProducts = await productModel
       .find({ _id: { $in: ids } })
       .populate(activeOffersPopulate)
       .lean();
 
-    const priceMap = new Map(
-      dbProducts.map((p) => [String(p._id), computeDiscountedPrice(p)])
-    );
+    const priceMap = new Map(dbProducts.map((p) => [String(p._id), computeDiscountedPrice(p)]));
+    const nameMap = new Map(dbProducts.map((p) => [String(p._id), p.name || "Product"]));
 
-    // secure sum (ignore client-sent prices) + build items to persist
     let total = 0;
     const lineItems = [];
 
+    // preserve duplicates + fallback to client price if not found in map
     for (const item of cart || []) {
       const id = String(item?._id || item?.product?._id || item?.id || item?.pid || "");
       const effective = priceMap.has(id)
@@ -400,8 +323,6 @@ export const brainTreePaymentController = async (req, res) => {
         : Number(item?.effectivePrice ?? item?.price ?? 0);
       const charge = Number(effective) || 0;
       total += charge;
-
-      // store purchase-time price per item
       if (id) lineItems.push({ product: id, price: charge });
     }
 
@@ -412,40 +333,76 @@ export const brainTreePaymentController = async (req, res) => {
         options: { submitForSettlement: true },
       },
       async (error, result) => {
-        if (result) {
-          const productIds = ids;
+        if (error) {
+          console.log("Braintree error:", error);
+          return res.status(500).send({ ok: false, message: "Payment failed" });
+        }
+        if (!result) {
+          return res.status(500).send({ ok: false, message: "Unknown payment error" });
+        }
 
-          // SAVE the per-item prices (order.items)
-          const order = await new orderModel({
-            products: productIds,
-            items: lineItems,
-            payment: result,
-            buyer: req.user._id,
-            status: "Not Process",
-          }).save();
+        const order = await new orderModel({
+          products: ids,
+          items: lineItems,
+          payment: result,
+          buyer: req.user._id,
+          status: "Not Process",
+        }).save();
 
-          // admin notifications (unchanged)
-          const buyerName = req.user?.name || "A user";
-          const count = (cart || []).length || 1;
-          const title = "New order received";
-          const text = `${buyerName} ordered ${count} new product${count > 1 ? "s" : ""}`;
-          const link = "/dashboard/admin/orders";
-
+        // notify admins (optional, safe-guarded)
+        try {
           const admins = await userModel.find({ role: 1 }).select("_id").lean();
           if (admins?.length) {
-            const docs = admins.map((a) => ({ toUser: a._id, title, text, link }));
+            const docs = admins.map((a) => ({
+              toUser: a._id,
+              title: "New order received",
+              text: `${req.user?.name || "A user"} ordered ${(cart || []).length || 1} product(s)`,
+              link: "/dashboard/admin/orders",
+            }));
             await Notification.insertMany(docs);
           }
-
           const io = req.app.get("io");
-          io.to("admins").emit("notification:new", {
-            title, text, link, createdAt: new Date(),
-          });
-
-          return res.json({ ok: true, orderId: order._id });
+          if (io?.to) {
+            io.to("admins").emit("notification:new", {
+              title: "New order received",
+              text: `${req.user?.name || "A user"} ordered ${(cart || []).length || 1} product(s)`,
+              link: "/dashboard/admin/orders",
+              createdAt: new Date(),
+            });
+          }
+        } catch (notifyErr) {
+          console.log("Notify error:", notifyErr?.message || notifyErr);
         }
-        console.log("Braintree error:", error);
-        res.status(500).send(error || { message: "Payment failed" });
+
+        // ===== email to buyer =====
+        let emailSent = false;
+        let emailError = "";
+        try {
+          const buyer = await userModel.findById(req.user._id).select("email name").lean();
+          const ok = !!buyer?.email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(buyer.email);
+          if (ok) {
+            const itemsForEmail = lineItems.map((li) => ({
+              name: nameMap.get(String(li.product)) || "Product",
+              price: li.price,
+            }));
+            await sendOrderConfirmation({
+              to: buyer.email,
+              name: buyer.name,
+              orderId: order._id,
+              items: itemsForEmail,
+              total,
+              placedAt: order.createdAt,
+            });
+            emailSent = true;
+          } else {
+            emailError = "No valid buyer email on file";
+          }
+        } catch (mailErr) {
+          console.log("Order email error:", mailErr?.message || mailErr);
+          emailError = String(mailErr?.message || mailErr);
+        }
+
+        return res.json({ ok: true, orderId: order._id, emailSent, ...(emailSent ? {} : { emailError }) });
       }
     );
   } catch (error) {
