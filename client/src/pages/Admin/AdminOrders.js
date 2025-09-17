@@ -48,14 +48,34 @@ const AdminOrders = () => {
     if (auth?.token) getOrders();
   }, [auth?.token]);
 
-  // Handle order status change
+  // Handle order status change (merged: Delivered হলে email toast logic)
   const handleChange = async (orderId, value) => {
     try {
       const { data } = await axios.put(
         `http://localhost:8080/api/v1/auth/order-status/${orderId}`,
         { status: value }
       );
-      toast.success(data.message);
+
+      toast.success(data?.message || "Order status updated");
+
+      // Only when set to Delivered → show email toast info (if backend returned flags)
+      if (value === "Delivered") {
+        if (data?.deliveryEmailSent === true) {
+          toast.success("Buyer notified by email ✅");
+        } else if (Object.prototype.hasOwnProperty.call(data || {}, "deliveryEmailSent")) {
+          // backend sent the flag but it's false → show error with details if any
+          toast.error(
+            `Email not sent${
+              data?.deliveryEmailError ? ` (${data.deliveryEmailError})` : ""
+            }`
+          );
+        } else {
+          // backend didn't include flags (backward compatible)
+          // Keep UX positive but non-assertive
+          toast("Delivery email triggered (check inbox).");
+        }
+      }
+
       getOrders();
     } catch (error) {
       console.log(error);

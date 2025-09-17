@@ -1,4 +1,3 @@
-// client/src/pages/Admin/ChatAdmin.js
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import dayjs from "dayjs";
@@ -15,9 +14,12 @@ export default function ChatAdmin({ auth }) {
   const [messages, setMessages] = useState([]);
   const [text, setText] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const endRef = useRef(null);
   const emojiRef = useRef(null);
+  const socketRef = useRef(null);
+  const currentRoomIdRef = useRef(null);
 
   const api = useMemo(() => {
     const instance = axios.create({
@@ -26,13 +28,20 @@ export default function ChatAdmin({ auth }) {
     });
     instance.interceptors.request.use((cfg) => {
       const ctx = auth || JSON.parse(localStorage.getItem("auth") || "{}");
-      if (ctx?.token) cfg.headers.Authorization = ctx.token; // raw token
+      if (ctx?.token) {
+        const cleanToken = ctx.token.startsWith("Bearer ") ? ctx.token.slice(7) : ctx.token;
+        cfg.headers.Authorization = cleanToken;
+      }
       return cfg;
     });
     return instance;
   }, [auth]);
 
-  const scrollToEnd = () => endRef.current?.scrollIntoView({ behavior: "smooth" });
+  const scrollToEnd = () => {
+    if (endRef.current) {
+      endRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   useEffect(() => {
     (async () => {
@@ -46,29 +55,62 @@ export default function ChatAdmin({ auth }) {
   }, [api]);
 
   useEffect(() => {
-    if (!active || !auth?.token) return;
+    if (!auth?.token) return;
+
+    // Initialize socket once
+    socketRef.current = initSocket(auth.token);
+    
+    return () => {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+      }
+    };
+  }, [auth?.token]);
+
+  useEffect(() => {
+    if (!active || !auth?.token || !socketRef.current) return;
+    
+    let disposed = false;
+    setLoading(true);
+    currentRoomIdRef.current = active._id;
+
     (async () => {
       try {
         const { data } = await api.get(`/api/v1/chat/rooms/${active._id}/messages`);
+        if (disposed || currentRoomIdRef.current !== active._id) return;
+        
         setMessages(data.messages);
         setTimeout(scrollToEnd, 0);
 
-        const s = initSocket(auth.token);
-        s.emit("join", { roomId: active._id });
-        s.emit("message:seen", { roomId: active._id });
+        // Join the room and mark as seen
+        socketRef.current.emit("join", { roomId: active._id });
+        socketRef.current.emit("message:seen", { roomId: active._id });
 
         const onNew = (msg) => {
+          // Only add message if it's for the currently active room
           if (msg.room === active._id) {
             setMessages((p) => [...p, msg]);
             setTimeout(scrollToEnd, 10);
           }
         };
-        s.on("message:new", onNew);
-        return () => s.off("message:new", onNew);
+        
+        socketRef.current.on("message:new", onNew);
+        
+        return () => {
+          socketRef.current.off("message:new", onNew);
+        };
       } catch (e) {
         console.error("messages failed", e?.response?.status, e?.response?.data || e.message);
+      } finally {
+        if (!disposed && currentRoomIdRef.current === active._id) {
+          setLoading(false);
+        }
       }
     })();
+
+    return () => {
+      disposed = true;
+    };
   }, [active, auth?.token, api]);
 
   useEffect(() => {
@@ -85,9 +127,15 @@ export default function ChatAdmin({ auth }) {
     };
   }, [showEmoji]);
 
+  const handleRoomChange = (room) => {
+    // Clear current messages immediately when switching rooms
+    setMessages([]);
+    setActive(room);
+  };
+
   const send = () => {
     if (!text.trim() || !active) return;
-    (getSocket() || initSocket(auth.token)).emit("message:send", {
+    socketRef.current.emit("message:send", {
       roomId: active._id,
       text: text.trim(),
     });
@@ -101,7 +149,7 @@ export default function ChatAdmin({ auth }) {
     const { data } = await api.post("/api/v1/chat/upload", form, {
       headers: { "Content-Type": "multipart/form-data" },
     });
-    (getSocket() || initSocket(auth.token)).emit("message:send", {
+    socketRef.current.emit("message:send", {
       roomId: active._id,
       imageUrl: data.url,
     });
@@ -109,7 +157,6 @@ export default function ChatAdmin({ auth }) {
 
   return (
     <div className="chat-admin">
-      {/* Left: users list */}
       <aside className="chat-admin__list">
         <div className="chat-admin__search">
           <input placeholder="Search users..." />
@@ -119,7 +166,7 @@ export default function ChatAdmin({ auth }) {
             <button
               key={r._id}
               className={`room ${active?._id === r._id ? "active" : ""}`}
-              onClick={() => setActive(r)}
+              onClick={() => handleRoomChange(r)}
             >
               <div className="avatar">{(r.username || "U").slice(0, 1).toUpperCase()}</div>
               <div className="meta">
@@ -139,26 +186,31 @@ export default function ChatAdmin({ auth }) {
         </div>
       </aside>
 
-      {/* Right: conversation */}
       <section className="chat-admin__conv">
         <div className="conv__header">
           <div className="title">{active?.username || "Pick a chat"}</div>
         </div>
 
         <div className="conv__body">
-          {messages.map((m) => (
-            <div key={m._id || Math.random()} className={`chat-line ${m.fromRole === "admin" ? "user" : "admin"}`}>
-              {m.imageUrl ? (
-                <a href={m.imageUrl} target="_blank" rel="noreferrer" className="chat-image">
-                  <img src={m.imageUrl} alt="upload" />
-                </a>
-              ) : (
-                <div className="chat-bubble">{m.text}</div>
-              )}
-              <div className="chat-time">{dayjs(m.createdAt).format("HH:mm")}</div>
-            </div>
-          ))}
-          <div ref={endRef} />
+          {loading ? (
+            <div className="chat-loading">Loading messages...</div>
+          ) : (
+            <>
+              {messages.map((m) => (
+                <div key={m._id} className={`chat-line ${m.fromRole === "admin" ? "user" : "admin"}`}>
+                  {m.imageUrl ? (
+                    <a href={m.imageUrl} target="_blank" rel="noreferrer" className="chat-image">
+                      <img src={m.imageUrl} alt="upload" />
+                    </a>
+                  ) : (
+                    <div className="chat-bubble">{m.text}</div>
+                  )}
+                  <div className="chat-time">{dayjs(m.createdAt).format("HH:mm")}</div>
+                </div>
+              ))}
+              <div ref={endRef} />
+            </>
+          )}
         </div>
 
         {active && (

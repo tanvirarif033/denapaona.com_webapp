@@ -1,29 +1,30 @@
 // routes/chatRoutes.js
 import express from "express";
-import { requireSignIn } from "../middlewares/authMiddleware.js";
-import upload from "../utils/chatUpload.js";
+import formidable from "express-formidable";
 import {
   ensureUserRoom,
   listRoomsForAdmin,
+  getAllRooms,
   getRoomMessages,
+  uploadChatImage,
 } from "../controllers/chatController.js";
+import { requireSignIn } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
+// current user's chat room (non-admin user)
 router.get("/rooms/me", requireSignIn, ensureUserRoom);
-router.get(
-  "/rooms",
-  requireSignIn,
-  (req, res, next) => {
-    if (req.user?.role !== 1) return res.status(403).json({ message: "Forbidden" });
-    next();
-  },
-  listRoomsForAdmin
-);
-router.get("/rooms/:roomId/messages", requireSignIn, getRoomMessages);
-router.post("/upload", requireSignIn, upload.single("image"), (req, res) => {
-  res.json({ url: `/uploads/chat/${req.file.filename}` });
-});
 
-// ✅ THIS is the important part:
+// admin-only: list rooms
+router.get("/rooms/admin", requireSignIn, listRoomsForAdmin);
+
+// admin-only: all rooms (kept for compatibility)
+router.get("/rooms", requireSignIn, getAllRooms);
+
+// messages of a specific room
+router.get("/rooms/:roomId/messages", requireSignIn, getRoomMessages);
+
+// image upload (multipart/form-data, field name: "image")
+router.post("/upload", requireSignIn, formidable(), uploadChatImage);
+
 export default router;

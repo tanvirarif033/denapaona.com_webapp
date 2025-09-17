@@ -223,85 +223,79 @@ const HomePage = () => {
     else navigate("/products");
   };
   // Normalize offer fields and build readable labels
-// normalize for safe rendering
-const normalizeOffer = (offer) => {
-  const desc = offer?.description || "";
-  const type = (offer?.discountType || "").toLowerCase(); // "percentage" | "fixed"
-  const val = offer?.discountValue;
-  const discountLabel =
-    val === null || val === undefined || val === ""
-      ? ""
-      : type === "percentage"
-      ? `${val}%`
-      : `$${val}`;
-  return { desc, discountLabel };
-};
-
-
+  // normalize for safe rendering
+  const normalizeOffer = (offer) => {
+    const desc = offer?.description || "";
+    const type = (offer?.discountType || "").toLowerCase(); // "percentage" | "fixed"
+    const val = offer?.discountValue;
+    const discountLabel =
+      val === null || val === undefined || val === ""
+        ? ""
+        : type === "percentage"
+        ? `${val}%`
+        : `$${val}`;
+    return { desc, discountLabel };
+  };
 
   return (
     <Layout title={"Shop - Best Deals"}>
       {/* Offers Carousel */}
-{/* Offers Carousel */}
-{offers.length > 0 && (
-  <div className="offers-carousel mb-4">
-    <h2>Special Offers</h2>
-    <Carousel autoplay arrows prevArrow={<PrevArrow />} nextArrow={<NextArrow />}>
-      {offers.map((offer) => {
-        const { desc, discountLabel } = normalizeOffer(offer);
-        return (
-          <div key={offer._id}>
-            <Card
-              cover={
-                <img
-                  alt={offer.title}
-                  src={`http://localhost:8080/api/v1/offer/offer-banner/${offer._id}`}
-                  style={{ height: 300, objectFit: "cover" }}
-                  onError={(e) => (e.currentTarget.src = "/fallback-image.jpg")}
-                />
-              }
-            >
-              {/* Plain JSX so content never gets swallowed by Card.Meta */}
-              <div style={{ whiteSpace: "normal" }}>
-                <h3 style={{ marginBottom: 8 }}>{offer.title}</h3>
+      {offers.length > 0 && (
+        <div className="offers-carousel mb-4">
+          <h2>Special Offers</h2>
+          <Carousel autoplay arrows prevArrow={<PrevArrow />} nextArrow={<NextArrow />}>
+            {offers.map((offer) => {
+              const { desc, discountLabel } = normalizeOffer(offer);
+              return (
+                <div key={offer._id}>
+                  <Card
+                    cover={
+                      <img
+                        alt={offer.title}
+                        src={`http://localhost:8080/api/v1/offer/offer-banner/${offer._id}`}
+                        style={{ height: 300, objectFit: "cover" }}
+                        onError={(e) => (e.currentTarget.src = "/fallback-image.jpg")}
+                      />
+                    }
+                  >
+                    <div style={{ whiteSpace: "normal" }}>
+                      <h3 style={{ marginBottom: 8 }}>{offer.title}</h3>
 
-                {desc ? <p style={{ marginBottom: 8 }}>{desc}</p> : null}
+                      {desc ? <p style={{ marginBottom: 8 }}>{desc}</p> : null}
 
-                {discountLabel ? (
-                  <p style={{ marginBottom: 16 }}>
-                    <strong>Discount:</strong> {discountLabel}
-                  </p>
-                ) : null}
+                      {discountLabel ? (
+                        <p style={{ marginBottom: 16 }}>
+                          <strong>Discount:</strong> {discountLabel}
+                        </p>
+                      ) : null}
 
-                <Button
-                  onClick={() => handleShopNow(offer)}
-                  style={{
-                    backgroundColor: "#FFA41C", // Amazon orange
-                    borderColor: "#FFA41C",
-                    color: "#111",
-                    fontWeight: 600,
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = "#FF8F00";
-                    e.currentTarget.style.borderColor = "#FF8F00";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = "#FFA41C";
-                    e.currentTarget.style.borderColor = "#FFA41C";
-                  }}
-                >
-                  Shop Now
-                </Button>
-              </div>
-            </Card>
-          </div>
-        );
-      })}
-    </Carousel>
-  </div>
-)}
-
-
+                      <Button
+                        onClick={() => handleShopNow(offer)}
+                        style={{
+                          backgroundColor: "#FFA41C",
+                          borderColor: "#FFA41C",
+                          color: "#111",
+                          fontWeight: 600,
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.backgroundColor = "#FF8F00";
+                          e.currentTarget.style.borderColor = "#FF8F00";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.backgroundColor = "#FFA41C";
+                          e.currentTarget.style.borderColor = "#FFA41C";
+                        }}
+                      >
+                        Shop Now
+                      </Button>
+                    </div>
+                  </Card>
+                </div>
+              );
+            })}
+          </Carousel>
+        </div>
+      )}
 
       {/* Products grid */}
       <div className="products-grid">
@@ -334,35 +328,31 @@ const normalizeOffer = (offer) => {
                   </div>
 
                   {/* PRICE — original (struck) + offer price like your old design */}
-                <p className="product-price" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-  {hasOffer ? (
-    <>
-      {/* original first (struck) */}
-      <span
-        className="price-amount"
-        style={{ textDecoration: "line-through", opacity: 0.6 }}
-      >
-        <span className="price-symbol">$</span>
-        {p.price}
-      </span>
-      {/* then discounted */}
-      <span
-        className="price-amount"
-        style={{ color: "#ff5a5f", fontWeight: "bold" }}
-      >
-        <span className="price-symbol">$</span>
-        {d.toFixed(2)}
-      </span>
-    </>
-  ) : (
-    <span className="price-amount">
-      <span className="price-symbol">$</span>
-      {p.price}
-    </span>
-  )}
-</p>
-
- 
+                  <p className="product-price" style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    {hasOffer ? (
+                      <>
+                        <span
+                          className="price-amount"
+                          style={{ textDecoration: "line-through", opacity: 0.6 }}
+                        >
+                          <span className="price-symbol">$</span>
+                          {p.price}
+                        </span>
+                        <span
+                          className="price-amount"
+                          style={{ color: "#ff5a5f", fontWeight: "bold" }}
+                        >
+                          <span className="price-symbol">$</span>
+                          {d.toFixed(2)}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="price-amount">
+                        <span className="price-symbol">$</span>
+                        {p.price}
+                      </span>
+                    )}
+                  </p>
 
                   <p className="product-description">{(p.description || "").substring(0, 60)}...</p>
                   <button className="add-to-cart-btn" onClick={() => handleAddToCart(p)}>
@@ -435,7 +425,8 @@ const normalizeOffer = (offer) => {
         </div>
       </Drawer>
 
-      <ChatWidget auth={auth} />
+      {/* ✅ শুধু non-admin ইউজারের জন্য চ্যাট উইজেট */}
+      {auth?.user?.role !== 1 && <ChatWidget />}
     </Layout>
   );
 };
