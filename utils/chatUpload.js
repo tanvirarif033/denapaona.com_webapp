@@ -1,22 +1,17 @@
+// server/utils/chatUpload.js
 import multer from "multer";
 import path from "path";
-import fs from "fs";
-
-const uploadDir = path.join(process.cwd(), "uploads", "chat");
-fs.mkdirSync(uploadDir, { recursive: true });
 
 const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => cb(null, uploadDir),
-  filename: (_req, file, cb) => {
-    const ext = path.extname(file.originalname);
-    const name = `${Date.now()}-${Math.random().toString(36).slice(2)}${ext}`;
-    cb(null, name);
+  destination: (req, file, cb) => {
+    const dir = path.join(process.cwd(), "uploads/chat");
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + "-" + file.originalname);
   },
 });
 
-const fileFilter = (_req, file, cb) => {
-  if (!file.mimetype.startsWith("image/")) return cb(new Error("Only images allowed"), false);
-  cb(null, true);
-};
+const upload = multer({ storage });
 
-export default multer({ storage, fileFilter, limits: { fileSize: 2 * 1024 * 1024 } });
+export default upload;
