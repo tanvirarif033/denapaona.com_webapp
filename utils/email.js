@@ -1,6 +1,6 @@
 // server/utils/email.js
 import dotenv from "dotenv";
-dotenv.config(); // <<< IMPORTANT: load .env before reading process.env
+dotenv.config();
 
 import nodemailer from "nodemailer";
 
@@ -13,10 +13,10 @@ function escapeHtml(s = "") {
     .replace(/'/g, "&#039;");
 }
 
-/* ---------- OPTION A: explicit host/port (recommended) ---------- */
-const SMTP_HOST = process.env.SMTP_HOST || "smtp.gmail.com"; // fallback so we never hit localhost
+/* ---------- Transport ---------- */
+const SMTP_HOST = process.env.SMTP_HOST || "smtp.gmail.com";
 const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
-const SMTP_SECURE = SMTP_PORT === 465; // 465 = true, 587 = false (STARTTLS)
+const SMTP_SECURE = SMTP_PORT === 465;
 const SMTP_USER = process.env.SMTP_USER;
 const SMTP_PASS = process.env.SMTP_PASS;
 
@@ -29,22 +29,18 @@ const transporter = nodemailer.createTransport({
   port: SMTP_PORT,
   secure: SMTP_SECURE,
   auth: { user: SMTP_USER, pass: SMTP_PASS },
-  // Optional hardening (sometimes helps behind strict proxies)
   tls: { rejectUnauthorized: false },
 });
 
-/* ---------- OPTION B: Gmail service shortcut (use this instead of A if you prefer)
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS },
-});
------------------------------------------------------------------- */
-
 transporter.verify().then(
-  () => console.log(`SMTP: ready (host=${SMTP_HOST}, port=${SMTP_PORT}, secure=${SMTP_SECURE})`),
+  () =>
+    console.log(
+      `SMTP: ready (host=${SMTP_HOST}, port=${SMTP_PORT}, secure=${SMTP_SECURE})`
+    ),
   (err) => console.error("SMTP verify error:", err?.message || err)
 );
 
+/* ---------- Payment success email (already used) ---------- */
 export async function sendOrderConfirmation({
   to,
   name,
@@ -65,8 +61,12 @@ export async function sendOrderConfirmation({
     .map(
       (it) => `
       <tr>
-        <td style="padding:8px 12px;border-bottom:1px solid #eee">${escapeHtml(it.name || "Product")}</td>
-        <td style="padding:8px 12px;text-align:right;border-bottom:1px solid #eee">$${currency(it.price)}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #eee">${escapeHtml(
+          it.name || "Product"
+        )}</td>
+        <td style="padding:8px 12px;text-align:right;border-bottom:1px solid #eee">$${currency(
+          it.price
+        )}</td>
       </tr>`
     )
     .join("");
@@ -75,7 +75,9 @@ export async function sendOrderConfirmation({
   const html = `
     <div style="font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;max-width:640px;margin:0 auto;padding:24px">
       <h2 style="margin:0 0 8px">Payment confirmed 🎉</h2>
-      <p>Hi ${escapeHtml(name || "there")}, your payment was successful and your order has been placed.</p>
+      <p>Hi ${escapeHtml(
+        name || "there"
+      )}, your payment was successful and your order has been placed.</p>
       <p><b>Order ID:</b> ${escapeHtml(String(orderId))}</p>
       <p><b>Placed at:</b> ${new Date(placedAt).toLocaleString()}</p>
       <table style="width:100%;border-collapse:collapse;margin:16px 0">
@@ -98,6 +100,55 @@ export async function sendOrderConfirmation({
     `Total: $${currency(total)}\n` +
     `Placed at: ${new Date(placedAt).toLocaleString()}\n` +
     items.map((i) => `- ${i.name}: $${currency(i.price)}`).join("\n");
+
+  await transporter.sendMail({
+    from: `${fromName} <${fromEmail}>`,
+    to,
+    subject,
+    html,
+    text,
+  });
+}
+
+/* ---------- NEW: Delivery email ---------- */
+export async function sendOrderDelivered({
+  to,
+  name,
+  orderId,
+  deliveredAt = new Date(),
+  reviewLink = "",
+}) {
+  if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
+    throw new Error("Invalid recipient");
+  }
+
+  const fromName = process.env.SMTP_FROM_NAME || "denapaona.com";
+  const fromEmail = process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER;
+
+  const subject = `Order #${orderId} delivered 🚚`;
+  const safeLink = reviewLink ? escapeHtml(reviewLink) : "";
+
+  const html = `
+    <div style="font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;max-width:640px;margin:0 auto;padding:24px">
+      <h2 style="margin:0 0 8px">Your order has been delivered 🎁</h2>
+      <p>Hi ${escapeHtml(
+        name || "there"
+      )}, your order is successfully delivered. Please check and if you like please give us a review of this.</p>
+      <p><b>Order ID:</b> ${escapeHtml(String(orderId))}</p>
+      <p><b>Delivered at:</b> ${new Date(deliveredAt).toLocaleString()}</p>
+      ${
+        safeLink
+          ? `<p><a href="${safeLink}" style="display:inline-block;padding:10px 14px;border-radius:6px;background:#0d6efd;color:#fff;text-decoration:none">Leave a review</a></p>`
+          : ""
+      }
+      <p style="opacity:.8">— ${escapeHtml(fromName)}</p>
+    </div>`;
+
+  const text =
+    `Your order has been delivered\n` +
+    `Order #${orderId}\n` +
+    `Delivered at: ${new Date(deliveredAt).toLocaleString()}\n` +
+    (reviewLink ? `Review: ${reviewLink}\n` : "");
 
   await transporter.sendMail({
     from: `${fromName} <${fromEmail}>`,

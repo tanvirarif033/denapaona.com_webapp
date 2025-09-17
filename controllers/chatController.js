@@ -1,11 +1,14 @@
-import ChatRoom from "../models/ChatRoom.js";
-import ChatMessage from "../models/ChatMessage.js";
+// controllers/chatController.js
+import fs from "fs";
+import path from "path";
+import ChatRoom from "../models/ChatRoom.js";         // ✅ FIX: ../models
+import ChatMessage from "../models/ChatMessage.js";   // ✅ FIX: ../models
 
 export const ensureUserRoom = async (req, res) => {
   try {
     const isAdmin = req.user?.role === 1;
     if (isAdmin) {
-      return res.json({ _id: "admin", username: "Admin" }); // Return admin placeholder
+      return res.json({ _id: "admin", username: "Admin" });
     }
 
     let room = await ChatRoom.findOne({ user: req.user._id });
@@ -24,20 +27,18 @@ export const ensureUserRoom = async (req, res) => {
 
 export const listRoomsForAdmin = async (req, res) => {
   try {
-    if (req.user?.role !== 1) {
-      return res.status(403).json({ message: "Forbidden" });
-    }
+    if (req.user?.role !== 1) return res.status(403).json({ message: "Forbidden" });
+
     const rooms = await ChatRoom.find({})
       .populate("user", "name email")
       .sort({ lastMessageAt: -1 })
       .lean();
-    
-    // Format rooms with username
-    const formattedRooms = rooms.map(room => ({
+
+    const formattedRooms = rooms.map((room) => ({
       ...room,
-      username: room.user?.name || "Unknown User"
+      username: room.user?.name || "Unknown User",
     }));
-    
+
     return res.json(formattedRooms);
   } catch (error) {
     console.error("listRoomsForAdmin error:", error);
@@ -47,19 +48,18 @@ export const listRoomsForAdmin = async (req, res) => {
 
 export const getAllRooms = async (req, res) => {
   try {
-    if (req.user?.role !== 1) {
-      return res.status(403).json({ message: "Forbidden" });
-    }
+    if (req.user?.role !== 1) return res.status(403).json({ message: "Forbidden" });
+
     const rooms = await ChatRoom.find({})
       .populate("user", "name email")
       .sort({ lastMessageAt: -1 })
       .lean();
-    
-    const formattedRooms = rooms.map(room => ({
+
+    const formattedRooms = rooms.map((room) => ({
       ...room,
-      username: room.user?.name || "Unknown User"
+      username: room.user?.name || "Unknown User",
     }));
-    
+
     return res.json(formattedRooms);
   } catch (error) {
     console.error("getAllRooms error:", error);
@@ -72,7 +72,6 @@ export const getRoomMessages = async (req, res) => {
     const roomId = req.params.roomId;
     const isAdmin = req.user?.role === 1;
 
-    // Handle admin placeholder room
     if (roomId === "admin") {
       return res.json({ messages: [] });
     }
@@ -87,9 +86,37 @@ export const getRoomMessages = async (req, res) => {
     const messages = await ChatMessage.find({ room: roomId })
       .sort({ createdAt: 1 })
       .lean();
+
     return res.json({ messages });
   } catch (error) {
     console.error("getRoomMessages error:", error);
     return res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Image upload endpoint (multipart/form-data, field: "image")
+export const uploadChatImage = async (req, res) => {
+  try {
+    const file = req.files?.image;
+    if (!file) return res.status(400).json({ message: "No image provided" });
+    if (file.size > 2 * 1024 * 1024) {
+      return res.status(400).json({ message: "Image should be <= 2MB" });
+    }
+
+    const uploadRoot = path.join(process.cwd(), "uploads");
+    const chatDir = path.join(uploadRoot, "chat");
+    fs.mkdirSync(chatDir, { recursive: true });
+
+    const ext = (file.name?.split(".").pop() || "jpg").toLowerCase();
+    const filename = `${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+    const destPath = path.join(chatDir, filename);
+
+    fs.copyFileSync(file.path, destPath);
+
+    const url = `${req.protocol}://${req.get("host")}/uploads/chat/${filename}`;
+    return res.json({ url });
+  } catch (err) {
+    console.error("uploadChatImage error:", err);
+    return res.status(500).json({ message: "Failed to upload image" });
   }
 };

@@ -6,7 +6,7 @@ import JWT from "jsonwebtoken";
 import Notification from "../models/Notification.js";
 import productModel from "../models/productModel.js";
 import { OAuth2Client } from "google-auth-library"; // NEW
-
+import { sendOrderDelivered } from "../utils/email.js"
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // -------------------- REGISTER --------------------
@@ -152,16 +152,22 @@ export const getAllOrdersController = async (req, res) => {
   }
 };
 
-// -------------------- ORDER STATUS + NOTIFY --------------------
+// -------------------- ORDER STATUS + NOTIFY + (NEW) DELIVERED MAIL --------------------
 export const orderStatusController = async (req, res) => {
   try {
     const { orderId } = req.params;
     const { status } = req.body;
 
+    // 1) Update status (আগের মতোই)
     const order = await orderModel
       .findByIdAndUpdate(orderId, { status }, { new: true })
       .populate("buyer", "name _id");
 
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    // 2) আগের লেবেল/নোটিফিকেশন লজিক অপরিবর্তিত
     let firstName = "your product";
     let more = 0;
 
@@ -175,7 +181,13 @@ export const orderStatusController = async (req, res) => {
     }
 
     const label = more > 0 ? `${firstName} (+${more} more)` : firstName;
-    const statusMap = { "Not Process": "Not Process", Processing: "Processing", Shipped: "Shipped", deliverd: "Delivered", cancel: "Cancelled" };
+    const statusMap = {
+      "Not Process": "Not Process",
+      Processing: "Processing",
+      Shipped: "Shipped",
+      deliverd: "Delivered", // (আগের বানান মেনটেইন)
+      cancel: "Cancelled",
+    };
     const prettyStatus = statusMap[status] || status;
 
     const title = `Order ${prettyStatus}`;
@@ -190,10 +202,49 @@ export const orderStatusController = async (req, res) => {
       });
     }
 
-    res.status(200).json({ success: true, message: "Order status updated successfully", order });
+    // 3) ✅ NEW: Delivered (বা deliverd) হলে ইমেইল পাঠানো
+    const s = String(status).toLowerCase();
+    const isDelivered = s === "delivered" || s === "deliverd";
+    if (isDelivered) {
+      try {
+        // buyer-এর ইমেইল দরকার, তাই আলাদা করে email সহ populate করি
+        const populated = await orderModel
+          .findById(orderId)
+          .populate({ path: "buyer", select: "name email" })
+          .lean();
+
+        const to = populated?.buyer?.email || "";
+        const name = populated?.buyer?.name || "";
+
+        // ইমেইল valid হলে পাঠাই
+        if (to && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
+          const clientBase = process.env.CLIENT_URL || "http://localhost:3000";
+          const reviewLink = `${clientBase}/dashboard/user/orders`;
+
+          await sendOrderDelivered({
+            to,
+            name,
+            orderId,
+            deliveredAt: new Date(),
+            reviewLink,
+          });
+          // নীরবে পাঠানো—রেসপন্সের গঠন আগের মতোই রাখছি
+        }
+      } catch (err) {
+        // ইমেইল ব্যর্থ হলেও API রেসপন্স আগের মতোই থাকবে
+        console.log("Delivery email error:", err?.message || String(err));
+      }
+    }
+
+    // 4) আগের মতোই রেসপন্স
+    return res
+      .status(200)
+      .json({ success: true, message: "Order status updated successfully", order });
   } catch (error) {
     console.log(error);
-    res.status(500).send({ success: false, message: "Error While Updating Order", error });
+    res
+      .status(500)
+      .send({ success: false, message: "Error While Updating Order", error });
   }
 };
 

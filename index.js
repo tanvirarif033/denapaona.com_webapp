@@ -8,20 +8,20 @@ import dotenv from "dotenv";
 import morgan from "morgan";
 import JWT from "jsonwebtoken";
 
-import connectDB from "./confiq/db.js";
+import connectDB from "./confiq/db.js"; // তোমার পূর্বের কোডের মতই রাখা হলো
 
-// REST routes
+// REST routes (পূর্বের সব রুট অক্ষুণ্ণ)
 import authRoutes from "./routes/authRoute.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
 import productRoutes from "./routes/productRoutes.js";
 import reviewRoutes from "./routes/reviewRoutes.js";
-import chatRoutes from "./routes/chatRoutes.js";
+import chatRoutes from "./routes/chatRoutes.js";        // ✅ NEW/ENABLED for chat upload
 import analyticsRoutes from "./routes/analyticsRoutes.js";
 import notificationRoutes from "./routes/notificationRoutes.js";
-import returnRoutes from "./routes/returnRoutes.js"; // ← NEW
+import returnRoutes from "./routes/returnRoutes.js";
 import offerRoutes from "./routes/offerRoutes.js";
 
-// Chat models for socket handlers
+// Chat models for socket handlers (পূর্বের মতই)
 import ChatRoom from "./models/ChatRoom.js";
 import ChatMessage from "./models/ChatMessage.js";
 
@@ -30,7 +30,7 @@ connectDB();
 
 const app = express();
 
-// Dev-only allowed origins
+// Dev-only allowed origins (পূর্বের মতই)
 const allowedOrigins = ["http://localhost:3000"];
 
 app.use(
@@ -48,29 +48,36 @@ app.options("*", cors());
 
 app.use(express.json());
 app.use(morgan("dev"));
+
+// ✅ ফটো আপলোডের public সার্ভিং (চ্যাট/প্রোডাক্ট দুটো জায়গাতেই ইউজ করা যাবে)
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
-// REST endpoints
+// ---- REST endpoints (পূর্বের সব রুট অপরিবর্তিত) ----
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/category", categoryRoutes);
 app.use("/api/v1/product", productRoutes);
 app.use("/api/v1/review", reviewRoutes);
-app.use("/api/v1/chat", chatRoutes);
+app.use("/api/v1/chat", chatRoutes);                 // ✅ Chat API (includes /upload)
 app.use("/api/v1/analytics", analyticsRoutes);
 app.use("/api/v1/notification", notificationRoutes);
-app.use("/api/v1/returns", returnRoutes); // ← NEW
+app.use("/api/v1/returns", returnRoutes);
 app.use("/api/v1/offer", offerRoutes);
 
+// Optional: root
+app.get("/", (req, res) => {
+  res.send("<h1>API running</h1>");
+});
+
+// ---- Socket.IO server (পূর্বের মতই) ----
 const server = http.createServer(app);
 
-// Socket.IO
 const io = new Server(server, {
   cors: { origin: allowedOrigins, credentials: true },
   path: "/socket.io",
 });
 
-// Expose io so controllers can emit notifications
-app.set("io", io); // ← IMPORTANT
+// controllers এ দরকার হলে notify করার জন্য
+app.set("io", io);
 
 // Authenticate socket by JWT (expects raw token)
 io.use((socket, next) => {
@@ -174,5 +181,6 @@ io.on("connection", (socket) => {
   });
 });
 
+// ---- start server ----
 const PORT = process.env.PORT || 8080;
 server.listen(PORT, () => console.log(`Server running on ${PORT}`));
