@@ -158,7 +158,7 @@ export const orderStatusController = async (req, res) => {
     const { orderId } = req.params;
     const { status } = req.body;
 
-    // 1) Update status (আগের মতোই)
+    // 1) Update status 
     const order = await orderModel
       .findByIdAndUpdate(orderId, { status }, { new: true })
       .populate("buyer", "name _id");
@@ -167,7 +167,7 @@ export const orderStatusController = async (req, res) => {
       return res.status(404).json({ success: false, message: "Order not found" });
     }
 
-    // 2) আগের লেবেল/নোটিফিকেশন লজিক অপরিবর্তিত
+    
     let firstName = "your product";
     let more = 0;
 
@@ -185,7 +185,7 @@ export const orderStatusController = async (req, res) => {
       "Not Process": "Not Process",
       Processing: "Processing",
       Shipped: "Shipped",
-      deliverd: "Delivered", // (আগের বানান মেনটেইন)
+      deliverd: "Delivered", 
       cancel: "Cancelled",
     };
     const prettyStatus = statusMap[status] || status;
@@ -228,7 +228,7 @@ export const orderStatusController = async (req, res) => {
             deliveredAt: new Date(),
             reviewLink,
           });
-          // নীরবে পাঠানো—রেসপন্সের গঠন আগের মতোই রাখছি
+        
         }
       } catch (err) {
         // ইমেইল ব্যর্থ হলেও API রেসপন্স আগের মতোই থাকবে
