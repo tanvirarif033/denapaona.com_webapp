@@ -7,7 +7,6 @@ import { useAuth } from "../../context/auth";
 import moment from "moment";
 import "../../styles/UserOrders.css";
 
-
 const Orders = () => {
   const [orders, setOrders] = useState([]);
   const [returns, setReturns] = useState([]); // my return requests
@@ -66,17 +65,18 @@ const Orders = () => {
     return map;
   }, [returns]);
 
-  // NEW: price from order.items (purchase-time), fallback to product.price
+  // price from order.items (purchase-time), fallback to product.price
   const priceFor = (order, product) => {
     const items = order?.items || order?.lineItems || [];
     const found = items.find(
-      (it) =>
-        String(it?.product?._id || it?.product) === String(product?._id)
+      (it) => String(it?.product?._id || it?.product) === String(product?._id)
     );
-    const val =
-      typeof found?.price === "number" ? found.price : product?.price;
+    const val = typeof found?.price === "number" ? found.price : product?.price;
     return Number(val || 0);
   };
+
+  // helper to deep-link to product review section
+  const reviewHref = (p) => (p?.slug ? `/product/${p.slug}#write-review` : "#");
 
   return (
     <Layout title={"Your Order"}>
@@ -129,9 +129,29 @@ const Orders = () => {
                             />
                           </div>
                           <div className="col-md-8">
-                            <p>{p.name}</p>
-                            <p>{p.description?.substring(0, 30)}</p>
-                            <p>Price: ${priceFor(o, p).toFixed(2)}</p>
+                            <p className="mb-1">{p.name}</p>
+                            <p className="mb-1">{p.description?.substring(0, 30)}</p>
+                            <p className="mb-2">Price: ${priceFor(o, p).toFixed(2)}</p>
+
+                            {/* ✅ Only addition: show "Write a review" when this order is Delivered */}
+                            {o?.status === "Delivered" && p?.slug && (
+     <a
+  href={reviewHref(p)}
+  className="btn btn-sm"
+  title="Write a review for this product"
+  style={{
+    backgroundColor: "#FFD814",
+    borderColor: "#FCD200",
+    color: "#0F1111",
+    fontWeight: "bold",
+  }}
+  onMouseOver={(e) => (e.currentTarget.style.backgroundColor = "#F7CA00")}
+  onMouseOut={(e) => (e.currentTarget.style.backgroundColor = "#FFD814")}
+>
+  Write a review
+</a>
+
+                            )}
                           </div>
                         </div>
                       ))}
